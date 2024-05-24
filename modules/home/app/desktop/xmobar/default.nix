@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 with lib;
@@ -12,28 +13,24 @@ in {
   };
 
   config = mkIf cfg.enable {
-    programs.xmobar = {
+    programs.xmobar = let
+      i = pkgs.capybara.xmobar-icons;
+    in {
       enable = true;
       extraConfig = ''
         Config { overrideRedirect = False
-               , font     = "xft:iosevka-9"
-               , bgColor  = "#5f5f5f"
-               , fgColor  = "#f8f8f2"
-               , position = Static { xpos = 0, ypos = 0, width = 1080, height = 40 }
-               , commands = [ Run Cpu
-                                [ "-L", "3"
-                                , "-H", "50"
-                                , "--high"  , "red"
-                                , "--normal", "green"
-                                ] 10
-                            , Run Memory ["--template", "Mem: <usedratio>%"] 10
-                            , Run Swap [] 1
-                            , Run Date "%a %Y-%m-%d <fc=#8be9fd>%H:%M</fc>" "date" 10
-                            , Run XMonadLog
+               , font     = "JetBrainsMono NF 10"
+               , bgColor  = "#282727"
+               , fgColor  = "#c5c9c5"
+               , position = TopSize L 100 18
+               , commands = [ Run XMonadLog
+                            , Run Cpu ["-t", "<icon=${i}/tb-cpu-2.xpm/> <total>%"] 10
+                            , Run Memory ["-t", "<icon=${i}/fa-memory.xpm/> <used>GiB", "-d", "1", "--", "--scale", "1024"] 10
+                            , Run Date "%m/%d %H:%M:%S" "date" 10
                             ]
                , sepChar  = "%"
                , alignSep = "}{"
-               , template = "%XMonadLog% }{ %alsa:default:Master% | %cpu% | %memory% * %swap% | %EGPF% | %date% "
+               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %date% <hspace=12/>"
                }
       '';
     };

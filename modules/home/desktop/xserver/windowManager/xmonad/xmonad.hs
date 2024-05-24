@@ -74,7 +74,7 @@ tall =
     limitWindows 2 $
       avoidStruts $
         withBorder 1 $
-          spacingRaw False (Border 10 10 40 40) True (Border 14 14 29 29) True $
+          spacingRaw False (Border 25 25 50 50) True (Border 10 10 29 29) True $
             ResizableTall 1 (1 / 176) (1 / 2) []
 
 full =
@@ -132,7 +132,22 @@ isFloat :: Window -> X Bool
 isFloat w = gets (M.member w . W.floating . windowset)
 
 spawnSB :: ScreenId -> IO StatusBarConfig
-spawnSB 0 = pure $ statusBarProp "xmobar" (pure def)
+spawnSB 0 =
+  pure $
+    statusBarProp
+      "xmobar"
+      ( pure
+          def
+            { ppCurrent = wrap "[" "]",
+              ppVisible = id,
+              ppHidden = id,
+              ppSep = "",
+              ppWsSep = " ",
+              ppTitle = const "",
+              ppTitleSanitize = const "",
+              ppLayout = const ""
+            }
+      )
 
 main = do
   xmonad . ewmh . dynamicSBs spawnSB . docks $
