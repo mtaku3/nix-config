@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "husky": "^9.0.11"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "format": "pnpm run format:nix && pnpm run format:ormolu",
+    "dev": "pnpm run dev:iris",
+    "format:nix": "nix fmt",
+    "format:ormolu": "ormolu --mode inplace $(find . -name '*.hs')",
+    "remove-qcow2": "[ -f *.qcow2 ] && rm *.qcow2 || true",
+    "check": "nix flake check || true",
+    "dev:iris": "pnpm run remove-qcow2 && pnpm run check && ($(nixos-generate --flake .#iris -f vm | tail -n 1) || true) && pnpm run remove-qcow2"
+  }
+}
