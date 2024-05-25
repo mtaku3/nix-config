@@ -21,7 +21,10 @@ in {
   };
 
   config = let
-    xmonadHs = ./xmonad.hs;
+    xmonadHs = pkgs.substituteAll {
+      src = ./xmonad.hs;
+      wallpaper = "${pkgs.capybara.wallpapers}/wallhaven-3zmr6y.jpg";
+    };
     libFiles = {};
     xmonadBin = "${
       pkgs.runCommandLocal "xmonad-compile" {
@@ -64,10 +67,8 @@ in {
     mkIf cfg.enable (mkMerge [
       {
         capybara.desktop.xserver.enable = mkForce true;
-        capybara.desktop.xserver.wallpaper.enable = mkForce true;
-        capybara.app.desktop.xmobar.enable = mkForce true;
-        services.picom = enabled;
-        home.packages = [(lowPrio xmonad)] ++ (with pkgs; [haskellPackages.xmobar]);
+        capybara.app.desktop.networkmanagerapplet.enable = mkForce true;
+        home.packages = [(lowPrio xmonad)];
         home.file = mapAttrs' (name: value:
           attrsets.nameValuePair (".xmonad/lib/" + name) {source = value;})
         libFiles;

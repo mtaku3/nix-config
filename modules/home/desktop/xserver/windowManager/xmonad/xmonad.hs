@@ -24,6 +24,7 @@ import XMonad.Layout.WindowArranger (WindowArrangerMsg (Arrange, DeArrange), win
 import XMonad.ManageHook
 import XMonad.Operations
 import qualified XMonad.StackSet as W
+import XMonad.Util.SpawnOnce
 
 -- Variables
 myTerminal :: String
@@ -35,7 +36,11 @@ myLogHook = return ()
 
 -- Event handling
 myStartupHook :: X ()
-myStartupHook = return ()
+myStartupHook = do
+  spawnOnce "feh --bg-scale @wallpaper@"
+  spawnOnce "picom &"
+  spawnOnce "trayer --edge top --align right --width 5 --padding 6 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
+  spawnOnce "nm-applet &"
 
 myHandleEventHook :: Event -> X All
 myHandleEventHook _ = return (All True)
