@@ -12,6 +12,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    time.timeZone = "Asia/Tokyo";
     i18n = {
       extraLocaleSettings = {
         LC_CTYPE = "ja_JP.UTF-8";
