@@ -10,6 +10,8 @@
     "format:ormolu": "ormolu --mode inplace $(find . -name '*.hs')",
     "remove-qcow2": "[ -f *.qcow2 ] && rm *.qcow2 || true",
     "check": "nix flake check || true",
-    "dev:iris": "pnpm run remove-qcow2 && pnpm run check && ($(nixos-generate --flake .#iris -f vm | tail -n 1) || true) && pnpm run remove-qcow2"
+    "build": "pnpm run build:iris",
+    "build:iris": "pnpm run check && nixos-generate --flake .#iris -f vm",
+    "dev:iris": "pnpm run remove-qcow2 && $(pnpm run build:iris | tail -n 1)"
   }
 }
