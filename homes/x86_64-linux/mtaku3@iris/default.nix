@@ -13,6 +13,9 @@ with lib.capybara; {
       xserver.windowManager.xmonad = enabled;
     };
     app = {
+      desktop = {
+        fcitx5 = enabled;
+      };
       dev = {
         neovim = enabled;
         git = {
