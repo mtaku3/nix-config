@@ -111,7 +111,8 @@ myKeys conf@(XConfig {modMask = modMask}) =
       ((modMask .|. shiftMask, xK_j), windows W.swapDown),
       ((modMask .|. shiftMask, xK_k), windows W.swapUp),
       ((modMask .|. shiftMask, xK_h), sendMessage Shrink),
-      ((modMask .|. shiftMask, xK_l), sendMessage Expand)
+      ((modMask .|. shiftMask, xK_l), sendMessage Expand),
+      ((modMask, xK_d), spawn $ "rofi -show drun")
     ]
       ++ [ ((m .|. modMask, k), windows $ f i)
            | (i, k) <- zip (workspaces conf) ([xK_1 .. xK_9] ++ [xK_0]),
