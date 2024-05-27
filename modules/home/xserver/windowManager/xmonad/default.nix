@@ -69,6 +69,7 @@ in {
         capybara.xserver.enable = mkForce true;
         capybara.app.desktop.kitty.enable = mkForce true;
         capybara.app.desktop.vivaldi.enable = mkForce true;
+        capybara.app.desktop.fcitx5.enable = mkForce true;
         capybara.app.desktop.networkmanagerapplet.enable = mkForce true;
         home.packages = [(lowPrio xmonad)];
         home.file = mapAttrs' (name: value:

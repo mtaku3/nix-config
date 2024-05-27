@@ -11,7 +11,7 @@ with lib.capybara; {
     xserver.windowManager.xmonad = enabled;
     app = {
       desktop = {
-        fcitx5 = enabled;
+        slack = enabled;
       };
       dev = {
         neovim = enabled;
