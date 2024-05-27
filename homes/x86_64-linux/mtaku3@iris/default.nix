@@ -12,6 +12,7 @@ with lib.capybara; {
     app = {
       desktop = {
         slack = enabled;
+        discord = enabled;
       };
       dev = {
         neovim = enabled;
