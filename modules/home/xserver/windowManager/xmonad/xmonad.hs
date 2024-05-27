@@ -30,6 +30,12 @@ import XMonad.Util.SpawnOnce
 myTerminal :: String
 myTerminal = "kitty"
 
+myLauncher :: String
+myLauncher = "rofi -show drun"
+
+myBrowser :: String
+myBrowser = "vivaldi"
+
 -- Logging
 myLogHook :: X ()
 myLogHook = return ()
@@ -112,7 +118,8 @@ myKeys conf@(XConfig {modMask = modMask}) =
       ((modMask .|. shiftMask, xK_k), windows W.swapUp),
       ((modMask .|. shiftMask, xK_h), sendMessage Shrink),
       ((modMask .|. shiftMask, xK_l), sendMessage Expand),
-      ((modMask, xK_d), spawn $ "rofi -show drun")
+      ((modMask, xK_d), spawn $ myLauncher),
+      ((modMask, xK_b), spawn $ myBrowser)
     ]
       ++ [ ((m .|. modMask, k), windows $ f i)
            | (i, k) <- zip (workspaces conf) ([xK_1 .. xK_9] ++ [xK_0]),

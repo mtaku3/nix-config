@@ -19,6 +19,10 @@
       src = ./.;
       snowfall.namespace = "capybara";
 
+      channels-config = {
+        allowUnfree = true;
+      };
+
       outputs-builder = channels: {
         formatter = channels.nixpkgs.alejandra;
       };
