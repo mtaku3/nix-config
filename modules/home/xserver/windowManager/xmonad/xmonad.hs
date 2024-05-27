@@ -68,7 +68,10 @@ myRootMask =
 myManageHook :: ManageHook
 myManageHook =
   composeAll
-    [insertPosition Below Older]
+    [ insertPosition Below Older,
+      className =? "Slack" --> doShift (myWorkspaces !! 10),
+      className =? "Discord" --> doShift (myWorkspaces !! 10)
+    ]
 
 -- Layouts
 myBorderWidth :: Dimension
