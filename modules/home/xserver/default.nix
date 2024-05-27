@@ -6,9 +6,9 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.desktop.xserver;
+  cfg = config.capybara.xserver;
 in {
-  options.capybara.desktop.xserver = {
+  options.capybara.xserver = {
     enable = mkBoolOpt false "Whether to enable the xserver";
     preStart = mkOpt types.lines "" "Script to execute before starting the xserver";
     importedVariables = mkOption {
@@ -57,7 +57,7 @@ in {
           + escapeShellArgs cfg.importedVariables)}
     '';
 
-    capybara.desktop.xserver.importedVariables = [
+    capybara.xserver.importedVariables = [
       "DBUS_SESSION_BUS_ADDRESS"
       "DISPLAY"
       "SSH_AUTH_SOCK"

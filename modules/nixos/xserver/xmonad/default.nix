@@ -6,7 +6,7 @@
 }:
 with lib;
 with lib.capybara; let
-  xmonadEnabled = foldl (acc: config: acc || config.capybara.desktop.xserver.windowManager.xmonad.enable) false (attrValues (userConfigs config));
+  xmonadEnabled = foldl (acc: config: acc || config.capybara.xserver.windowManager.xmonad.enable) false (attrValues (userConfigs config));
 in {
   config = mkIf xmonadEnabled (let
     createDesktopEntry = {

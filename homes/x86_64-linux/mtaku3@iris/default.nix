@@ -8,10 +8,7 @@ with lib.capybara; {
   };
 
   capybara = {
-    desktop = {
-      kitty = enabled;
-      xserver.windowManager.xmonad = enabled;
-    };
+    xserver.windowManager.xmonad = enabled;
     app = {
       desktop = {
         fcitx5 = enabled;

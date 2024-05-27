@@ -5,9 +5,9 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.desktop.kitty;
+  cfg = config.capybara.app.desktop.kitty;
 in {
-  options.capybara.desktop.kitty = {
+  options.capybara.app.desktop.kitty = {
     enable = mkBoolOpt false "Whether to enable the kitty";
   };
 

@@ -6,9 +6,9 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.desktop.xserver.greetd;
+  cfg = config.capybara.xserver.greetd;
 in {
-  options.capybara.desktop.xserver.greetd = {
+  options.capybara.xserver.greetd = {
     enable = mkBoolOpt false "Whether to enable the greetd";
   };
 

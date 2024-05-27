@@ -6,7 +6,7 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.desktop.xserver.windowManager.xmonad;
+  cfg = config.capybara.xserver.windowManager.xmonad;
   xmonad = pkgs.xmonad-with-packages.override {
     ghcWithPackages = pkgs.haskellPackages.ghcWithPackages;
     packages = self: [
@@ -16,7 +16,7 @@ with lib.capybara; let
     ];
   };
 in {
-  options.capybara.desktop.xserver.windowManager.xmonad = {
+  options.capybara.xserver.windowManager.xmonad = {
     enable = mkBoolOpt false "Whether to enable the XMonad";
   };
 
@@ -66,7 +66,8 @@ in {
   in
     mkIf cfg.enable (mkMerge [
       {
-        capybara.desktop.xserver.enable = mkForce true;
+        capybara.xserver.enable = mkForce true;
+        capybara.app.desktop.kitty.enable = mkForce true;
         capybara.app.desktop.networkmanagerapplet.enable = mkForce true;
         home.packages = [(lowPrio xmonad)];
         home.file = mapAttrs' (name: value:

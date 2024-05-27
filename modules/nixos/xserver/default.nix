@@ -6,9 +6,9 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.desktop.xserver;
+  cfg = config.capybara.xserver;
 in {
-  options.capybara.desktop.xserver = {
+  options.capybara.xserver = {
     enable = mkBoolOpt false "Whether to enable the xserver";
   };
 

@@ -12,11 +12,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    capybara.desktop = {
-      xserver = {
-        enable = true;
-        greetd = enabled;
-      };
+    capybara.xserver = {
+      enable = true;
+      greetd = enabled;
     };
   };
 }
