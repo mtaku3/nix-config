@@ -15,10 +15,12 @@ import XMonad.Layout
 import XMonad.Layout.LayoutModifier
 import XMonad.Layout.LimitWindows (limitWindows)
 import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed (Rename (Replace), renamed)
 import XMonad.Layout.ResizableTile (ResizableTall (..))
 import XMonad.Layout.SimplestFloat (simplestFloat)
 import XMonad.Layout.Spacing
+import qualified XMonad.Layout.Tabbed as Tabbed
 import XMonad.Layout.ToggleLayouts (ToggleLayout (Toggle), toggleLayouts)
 import XMonad.Layout.WindowArranger (WindowArrangerMsg (Arrange, DeArrange), windowArrange)
 import XMonad.ManageHook
@@ -69,8 +71,8 @@ myManageHook :: ManageHook
 myManageHook =
   composeAll
     [ insertPosition Below Older,
-      className =? "Slack" --> doShift (myWorkspaces !! 10),
-      className =? "Discord" --> doShift (myWorkspaces !! 10)
+      className =? "Slack" --> doShift "10",
+      className =? "Discord" --> doShift "10"
     ]
 
 -- Layouts
@@ -96,9 +98,28 @@ full =
     noBorders $
       Full
 
+tabbed =
+  renamed [Replace "tabbed"] $
+    avoidStruts $
+      withBorder 1 $
+        spacingRaw False (Border 26 26 79 79) True (Border 0 0 0 0) False $
+          Tabbed.tabbedAlways
+            Tabbed.shrinkText
+            def
+              { Tabbed.activeColor = "#393836",
+                Tabbed.inactiveColor = "#282727",
+                Tabbed.activeBorderWidth = 0,
+                Tabbed.inactiveBorderWidth = 0,
+                Tabbed.activeTextColor = "#c5c9c5",
+                Tabbed.inactiveTextColor = "#c5c9c5",
+                Tabbed.fontName = "JetBrainsMono NF",
+                Tabbed.decoHeight = 18
+              }
+
 myLayoutHook =
   toggleLayouts full $
-    tall
+    onWorkspace "10" tabbed $
+      tall
 
 -- Key bindings
 myWorkspaces :: [WorkspaceId]
