@@ -18,5 +18,7 @@ in {
       exportConfiguration = true;
     };
     environment.systemPackages = with pkgs; [xorg.xinit];
+
+    services.xserver.libinput.touchpad.naturalScrolling = true;
   };
 }

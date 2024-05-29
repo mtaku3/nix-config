@@ -11,7 +11,7 @@
     "remove-qcow2": "[ -f *.qcow2 ] && rm *.qcow2 || true",
     "check": "nix flake check || true",
     "build": "pnpm run build:iris",
-    "build:iris": "pnpm run check && nixos-generate --flake .#iris -f vm",
+    "build:iris": "pnpm run check && nixos-generate --flake .?submodules=1#iris -f vm",
     "dev:iris": "pnpm run remove-qcow2 && $(pnpm run build:iris | tail -n 1)"
   }
 }

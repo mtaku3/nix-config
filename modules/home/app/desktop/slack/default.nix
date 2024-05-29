@@ -14,5 +14,6 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [pkgs.slack];
+    capybara.impermanence.directories = [".config/Slack"];
   };
 }

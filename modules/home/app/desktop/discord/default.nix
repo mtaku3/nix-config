@@ -14,5 +14,6 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [pkgs.discord];
+    capybara.impermanence.directories = [".config/discord"];
   };
 }

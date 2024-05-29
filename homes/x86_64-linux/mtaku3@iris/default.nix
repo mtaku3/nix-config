@@ -1,6 +1,10 @@
-{lib, ...}:
+{lib, inputs, ...}:
 with lib;
 with lib.capybara; {
+  imports = with inputs; [
+    impermanence.nixosModules.home-manager.impermanence
+  ];
+
   home.keyboard = {
     model = "pc104";
     layout = "jp,us";
@@ -15,6 +19,10 @@ with lib.capybara; {
         discord = enabled;
       };
       dev = {
+        zsh = {
+          enable = true;
+          oh-my-zsh.plugins = [];
+        };
         neovim = enabled;
         git = {
           enable = true;
@@ -23,10 +31,28 @@ with lib.capybara; {
           signingKey = "CE36E3A2959377DA";
           signByDefault = true;
         };
+        gh = enabled;
         tmux = enabled;
+        gpg = enabled;
       };
     };
+
+    impermanence = {
+      enable = true;
+      name = "/persist/home/mtaku3";
+      directories = [
+        "Downloads"
+        "Music"
+        "Pictures"
+        "Documents"
+        "Videos"
+        ".gnupg"
+        ".ssh"
+      ];
+      allowOther = true;
+    };
   };
+
 
   home.stateVersion = "23.11";
 }

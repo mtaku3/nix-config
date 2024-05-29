@@ -11,20 +11,30 @@
       url = "github:nix-community/home-manager/release-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    impermanence.url = "github:nix-community/impermanence";
+
+    agenix.url = "github:ryantm/agenix";
   };
 
-  outputs = inputs:
-    inputs.snowfall-lib.mkFlake {
+  outputs = inputs: let
+    lib = inputs.snowfall-lib.mkLib {
       inherit inputs;
       src = ./.;
       snowfall.namespace = "capybara";
-
-      channels-config = {
-        allowUnfree = true;
-      };
 
       outputs-builder = channels: {
         formatter = channels.nixpkgs.alejandra;
       };
     };
+  in lib.mkFlake {
+    channels-config = {
+      allowUnfree = true;
+    };
+
+    systems.modules.nixos = with inputs; [
+      impermanence.nixosModules.impermanence
+      agenix.nixosModules.default
+    ];
+  };
 }

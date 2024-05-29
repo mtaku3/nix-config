@@ -19,6 +19,7 @@ in {
         locale = enabled;
         console = enabled;
         fonts = enabled;
+        network = enabled;
       };
     };
   };

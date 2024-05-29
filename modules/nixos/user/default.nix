@@ -1,16 +1,22 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 with lib;
 with lib.capybara; let
   cfg = config.capybara.user;
   usernames = attrNames config.snowfallorg.user;
-  create-config = acc: username:
+  create-config = acc: username: let
+    userConfig = (userConfigs config)."${username}";
+  in
     acc
     // {
-      ${username}.initialPassword = "password";
+      ${username} = {
+        hashedPasswordFile = config.age.secrets."users/mtaku3/password".path;
+        shell = if userConfig.capybara.app.dev.zsh.enable then userConfig.capybara.app.dev.zsh.package else pkgs.shadow;
+      };
     };
 in {
   options.capybara.user = {
