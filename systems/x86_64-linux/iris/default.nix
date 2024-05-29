@@ -19,6 +19,8 @@ with lib.capybara; {
 
 
   capybara = {
+    system.bluetooth = enabled;
+    app.blueman = enabled;
     archetypes.workstation = enabled;
   };
 

@@ -27,6 +27,7 @@ import XMonad.ManageHook
 import XMonad.Operations
 import qualified XMonad.StackSet as W
 import XMonad.Util.SpawnOnce
+import XMonad.Hooks.ManageHelpers
 
 -- Variables
 myTerminal :: String
@@ -50,6 +51,7 @@ myStartupHook = do
   spawnOnce "trayer --edge top --align right --width 10 --padding 12 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
   spawnOnce "nm-applet &"
   spawnOnce "flameshot &"
+  spawnOnce "blueman-applet &"
 
 myHandleEventHook :: Event -> X All
 myHandleEventHook _ = return (All True)
@@ -73,7 +75,8 @@ myManageHook =
   composeAll
     [ insertPosition Below Older,
       className =? "Slack" --> doShift "10",
-      className =? "Discord" --> doShift "10"
+      className =? "Discord" --> doShift "10",
+      className ~? "blueman-manager" --> doCenterFloat
     ]
 
 -- Layouts

@@ -12,9 +12,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    capybara.xserver = {
-      enable = true;
-      greetd = enabled;
+    capybara = {
+      system = {
+        audio = enabled;
+      };
+      xserver = {
+        enable = true;
+        greetd = enabled;
+      };
     };
   };
 }
