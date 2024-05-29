@@ -15,6 +15,8 @@
     impermanence.url = "github:nix-community/impermanence";
 
     agenix.url = "github:ryantm/agenix";
+
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
   outputs = inputs: let

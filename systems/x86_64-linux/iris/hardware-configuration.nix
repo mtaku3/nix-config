@@ -1,8 +1,9 @@
-{ config, lib, pkgs, modulesPath, ... }:
+{ config, lib, pkgs, modulesPath, inputs, ... }:
 
 {
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
+      inputs.nixos-hardware.nixosModules.dell-g3-3779
     ];
 
   networking.hostId = "b87bf943";
@@ -62,5 +63,4 @@
   # networking.interfaces.wlo1.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
