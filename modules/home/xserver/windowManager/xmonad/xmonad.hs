@@ -49,6 +49,7 @@ myStartupHook = do
   spawnOnce "picom &"
   spawnOnce "trayer --edge top --align right --width 10 --padding 12 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
   spawnOnce "nm-applet &"
+  spawnOnce "flameshot &"
 
 myHandleEventHook :: Event -> X All
 myHandleEventHook _ = return (All True)
@@ -143,7 +144,8 @@ myKeys conf@(XConfig {modMask = modMask}) =
       ((modMask .|. shiftMask, xK_h), sendMessage Shrink),
       ((modMask .|. shiftMask, xK_l), sendMessage Expand),
       ((modMask, xK_d), spawn $ myLauncher),
-      ((modMask, xK_b), spawn $ myBrowser)
+      ((modMask, xK_b), spawn $ myBrowser),
+      ((modMask .|. shiftMask, xK_s), spawn $ "flameshot gui")
     ]
       ++ [ ((m .|. modMask, k), windows $ f i)
            | (i, k) <- zip (workspaces conf) ([xK_1 .. xK_9] ++ [xK_0]),
