@@ -35,6 +35,9 @@ in {
 
       ${cfg.preStart}
 
+      # show cursor
+      xsetroot -cursor_name left_ptr
+
       session=$1
       case $session in
         ${
