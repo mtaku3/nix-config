@@ -34,6 +34,7 @@ with lib.capybara; {
         gh = enabled;
         tmux = enabled;
         gpg = enabled;
+        devenv = enabled;
       };
     };
 
