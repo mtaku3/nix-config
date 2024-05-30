@@ -12,8 +12,4 @@
   ];
 
   scripts.fmt.exec = "nix fmt && ormolu --mode inplace $(find . -name '*.hs')";
-
-  enterShell = ''
-    husky install
-  '';
 }
