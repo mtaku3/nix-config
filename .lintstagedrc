@@ -1,0 +1,4 @@
+{
+  "*.nix": "nix fmt",
+  "*.hs": "ormolu"
+}

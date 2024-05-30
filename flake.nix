@@ -26,19 +26,20 @@
       inherit inputs;
       src = ./.;
       snowfall.namespace = "capybara";
+    };
+  in
+    lib.mkFlake {
+      channels-config = {
+        allowUnfree = true;
+      };
+
+      systems.modules.nixos = with inputs; [
+        impermanence.nixosModules.impermanence
+        agenix.nixosModules.default
+      ];
 
       outputs-builder = channels: {
         formatter = channels.nixpkgs.alejandra;
       };
     };
-  in lib.mkFlake {
-    channels-config = {
-      allowUnfree = true;
-    };
-
-    systems.modules.nixos = with inputs; [
-      impermanence.nixosModules.impermanence
-      agenix.nixosModules.default
-    ];
-  };
 }
