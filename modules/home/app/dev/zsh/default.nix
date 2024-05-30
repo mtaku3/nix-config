@@ -32,7 +32,8 @@ in {
       oh-my-zsh = {
         enable = true;
         plugins = cfg.oh-my-zsh.plugins;
-        theme = "robbyrussell";
+        custom = "${./theme}";
+        theme = "nixos";
       };
       package = cfg.package;
     };
