@@ -6,7 +6,6 @@ import System.Exit (exitSuccess)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
 import qualified XMonad.Actions.FlexibleResize as Flex
-import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.StatusBar
@@ -52,6 +51,8 @@ myStartupHook = do
   spawnOnce "nm-applet &"
   spawnOnce "flameshot &"
   spawnOnce "blueman-applet &"
+  spawnOnce "slack -s &"
+  spawnOnce "Discord &"
 
 myHandleEventHook :: Event -> X All
 myHandleEventHook _ = return (All True)
@@ -78,7 +79,7 @@ myManageHook =
       className ~? "kitty" --> insertPosition Below Older,
       insertPosition Below Older,
       className =? "Slack" --> doShift "10",
-      className =? "Discord" --> doShift "10",
+      className =? "discord" --> doShift "10",
       className ~? "blueman-manager" --> doCenterFloat
     ]
 
@@ -195,7 +196,7 @@ spawnSB 0 =
       )
 
 main = do
-  xmonad . ewmh . dynamicSBs spawnSB . docks $
+  xmonad . dynamicSBs spawnSB . docks $
     XConfig
       { borderWidth = myBorderWidth,
         workspaces = myWorkspaces,
