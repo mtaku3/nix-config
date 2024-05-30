@@ -27,6 +27,7 @@ import XMonad.Operations
 import qualified XMonad.StackSet as W
 import XMonad.Util.SpawnOnce
 import XMonad.Hooks.ManageHelpers
+import XMonad.Actions.UpdatePointer
 
 -- Variables
 myTerminal :: String
@@ -40,7 +41,7 @@ myBrowser = "vivaldi"
 
 -- Logging
 myLogHook :: X ()
-myLogHook = return ()
+myLogHook = updatePointer (0.5, 0.5) (0, 0)
 
 -- Event handling
 myStartupHook :: X ()
