@@ -73,7 +73,10 @@ myRootMask =
 myManageHook :: ManageHook
 myManageHook =
   composeAll
-    [ insertPosition Below Older,
+    [
+      className ~? "Vivaldi" --> insertPosition Above Newer,
+      className ~? "kitty" --> insertPosition Below Older,
+      insertPosition Below Older,
       className =? "Slack" --> doShift "10",
       className =? "Discord" --> doShift "10",
       className ~? "blueman-manager" --> doCenterFloat
