@@ -15,8 +15,8 @@ in {
     oh-my-zsh = mkOpt (types.submodule {
       options = {
         plugins = mkOption {
-          default = [ "git" "sudo" ];
-          example = [ "git" "sudo" ];
+          default = ["git" "sudo"];
+          example = ["git" "sudo"];
           type = types.listOf types.str;
           description = ''
             List of oh-my-zsh plugins

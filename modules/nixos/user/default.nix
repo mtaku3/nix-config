@@ -15,7 +15,10 @@ with lib.capybara; let
     // {
       ${username} = {
         hashedPasswordFile = config.age.secrets."users/mtaku3/password".path;
-        shell = if userConfig.capybara.app.dev.zsh.enable then userConfig.capybara.app.dev.zsh.package else pkgs.shadow;
+        shell =
+          if userConfig.capybara.app.dev.zsh.enable
+          then userConfig.capybara.app.dev.zsh.package
+          else pkgs.shadow;
       };
     };
 in {

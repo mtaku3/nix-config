@@ -1,4 +1,8 @@
-{lib, inputs, ...}:
+{
+  lib,
+  inputs,
+  ...
+}:
 with lib;
 with lib.capybara; {
   imports = with inputs; [
@@ -53,7 +57,6 @@ with lib.capybara; {
       allowOther = true;
     };
   };
-
 
   home.stateVersion = "23.11";
 }

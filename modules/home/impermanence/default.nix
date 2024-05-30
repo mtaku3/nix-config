@@ -25,26 +25,27 @@ in {
     '';
 
     directories = mkOption {
-      type = with types; listOf (either str (submodule {
-        options = {
-          directory = mkOption {
-            type = str;
-            default = null;
-            description = "The directory path to be linked.";
+      type = with types;
+        listOf (either str (submodule {
+          options = {
+            directory = mkOption {
+              type = str;
+              default = null;
+              description = "The directory path to be linked.";
+            };
+            method = mkOption {
+              type = types.enum ["bindfs" "symlink"];
+              default = "bindfs";
+              description = ''
+                The linking method that should be used for this
+                directory. bindfs is the default and works for most use
+                cases, however some programs may behave better with
+                symlinks.
+              '';
+            };
           };
-          method = mkOption {
-            type = types.enum [ "bindfs" "symlink" ];
-            default = "bindfs";
-            description = ''
-              The linking method that should be used for this
-              directory. bindfs is the default and works for most use
-              cases, however some programs may behave better with
-              symlinks.
-            '';
-          };
-        };
-      }));
-      default = [ ];
+        }));
+      default = [];
       example = [
         "Downloads"
         "Music"
@@ -70,7 +71,7 @@ in {
 
     files = mkOption {
       type = with types; listOf str;
-      default = [ ];
+      default = [];
       example = [
         ".screenrc"
       ];
@@ -85,14 +86,14 @@ in {
       default = null;
       example = true;
       apply = x:
-        if x == null then
+        if x == null
+        then
           warn ''
             home.persistence."${cfg.name}".allowOther not set; assuming 'false'.
             See https://github.com/nix-community/impermanence#home-manager for more info.
           ''
-            false
-        else
-          x;
+          false
+        else x;
       description = ''
         Whether to allow other users, such as
         <literal>root</literal>, access to files through the

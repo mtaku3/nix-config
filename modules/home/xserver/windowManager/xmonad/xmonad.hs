@@ -6,8 +6,10 @@ import System.Exit (exitSuccess)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
 import qualified XMonad.Actions.FlexibleResize as Flex
+import XMonad.Actions.UpdatePointer
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
+import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Layout
@@ -26,8 +28,6 @@ import XMonad.ManageHook
 import XMonad.Operations
 import qualified XMonad.StackSet as W
 import XMonad.Util.SpawnOnce
-import XMonad.Hooks.ManageHelpers
-import XMonad.Actions.UpdatePointer
 
 -- Variables
 myTerminal :: String
@@ -75,8 +75,7 @@ myRootMask =
 myManageHook :: ManageHook
 myManageHook =
   composeAll
-    [
-      className ~? "Vivaldi" --> insertPosition Above Newer,
+    [ className ~? "Vivaldi" --> insertPosition Above Newer,
       className ~? "kitty" --> insertPosition Below Older,
       insertPosition Below Older,
       className =? "Slack" --> doShift "10",
