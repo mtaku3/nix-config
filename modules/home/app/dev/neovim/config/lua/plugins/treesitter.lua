@@ -5,10 +5,10 @@ return {
     dependencies = {
       { name = "nvim-treesitter/nvim-treesitter-textobjects", dir = "@nvim_treesitter_textobjects@" },
     },
-    build = ":TSUpdate",
     config = function()
       -- Defer Treesitter setup after first render to improve startup time of "nvim {filename}"
       vim.defer_fn(function()
+        vim.opt.runtimepath:append("@ts_parser_dirs@")
         require("nvim-treesitter.configs").setup({
           -- -- Add languages to be installed here that you want installed for treesitter
           -- ensure_installed = { "lua" },

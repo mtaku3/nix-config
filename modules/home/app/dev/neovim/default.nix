@@ -13,6 +13,13 @@ in {
   };
 
   config = mkIf cfg.enable (let
+    treesitter = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
+    treesitterSubstitute = {
+      ts_parser_dirs = pkgs.lib.pipe treesitter.dependencies [
+        (map toString)
+        (concatStringsSep ",")
+      ];
+    };
     pnamesToSubstitute = let
       pluginsToLazyLoad = with pkgs.vimPlugins; [
         nvim-cmp
@@ -36,7 +43,7 @@ in {
         neo-tree-nvim
         nvim-web-devicons
         nui-nvim
-        nvim-treesitter
+        treesitter
         nvim-treesitter-textobjects
         nvim-lspconfig
       ];
@@ -48,6 +55,7 @@ in {
           src = ./config + "/${file}";
         }
         // pnamesToSubstitute
+        // treesitterSubstitute
         // opt);
     };
     configFiles = let
@@ -81,6 +89,8 @@ in {
       enable = true;
       defaultEditor = true;
       plugins = with pkgs.vimPlugins; [lazy-nvim];
+      extraPackages = with pkgs; [ripgrep];
+      package = pkgs.capybara.neovim-unwrapped;
     };
     xdg.configFile = configFiles;
   });
