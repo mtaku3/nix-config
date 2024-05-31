@@ -12,6 +12,8 @@
     alejandra
     nixos-generators
     nil
+    haskell-language-server
+    ghc
   ];
 
   scripts.fmt.exec = "nix fmt && ormolu --mode inplace $(find . -name '*.hs')";

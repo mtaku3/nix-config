@@ -2,6 +2,7 @@ local lsp = require("lsp")
 local none_ls = require("none-ls")
 
 lsp.setup("nil_ls", {})
+lsp.setup("hls", {})
 
 none_ls.register({
   none_ls.builtins.formatting.alejandra,
