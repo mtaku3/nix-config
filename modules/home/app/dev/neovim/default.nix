@@ -64,6 +64,7 @@ in {
         "./lua/config/init.lua"
         "./lua/config/keymaps.lua"
         "./lua/config/options.lua"
+        "./lua/lsp/init.lua"
         "./lua/none-ls/init.lua"
         "./lua/plugins/autocompletion.lua"
         "./lua/plugins/colorscheme.lua"
@@ -80,7 +81,6 @@ in {
         "./lua/plugins/treesitter.lua"
         "./lua/plugins/whichkey.lua"
         "./lua/plugins/lsp/init.lua"
-        "./lua/plugins/lsp/utils.lua"
       ];
     in
       foldl (acc: file: acc // configFile file {}) {} files;
