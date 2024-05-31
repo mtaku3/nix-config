@@ -20,6 +20,7 @@ with lib.capybara; {
     system.bluetooth = enabled;
     app.blueman = enabled;
     archetypes.workstation = enabled;
+    nix.devenv-cachix = enabled;
   };
 
   environment.persistence."/persist" = {
