@@ -1,4 +1,0 @@
-{
-  "*.nix": "alejandra -q",
-  "*.hs": "ormolu --no-cabal"
-}

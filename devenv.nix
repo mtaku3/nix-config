@@ -10,10 +10,12 @@
     lint-staged
     ormolu
     alejandra
+    stylua
     nixos-generators
     nil
     haskell-language-server
     ghc
+    lua-language-server
   ];
 
   scripts.fmt.exec = "nix fmt && ormolu --mode inplace $(find . -name '*.hs')";
