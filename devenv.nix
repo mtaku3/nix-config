@@ -9,7 +9,9 @@
     husky
     lint-staged
     ormolu
+    alejandra
     nixos-generators
+    nil
   ];
 
   scripts.fmt.exec = "nix fmt && ormolu --mode inplace $(find . -name '*.hs')";

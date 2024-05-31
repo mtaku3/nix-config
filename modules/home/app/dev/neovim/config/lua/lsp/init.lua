@@ -29,10 +29,6 @@ local on_attach = function(_, bufnr)
   nmap("<leader>wl", function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, "Workspace List Folders")
-
-  nmap("<leader>f", function()
-    vim.lsp.buf.format({ name = "null-ls", timeout_ms = 10000 })
-  end, "Format current buffer with LSP")
 end
 
 function M.setup(name, config)

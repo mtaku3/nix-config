@@ -1,4 +1,4 @@
 {
-  "*.nix": "nix fmt",
-  "*.hs": "ormolu"
+  "*.nix": "alejandra -q",
+  "*.hs": "ormolu --no-cabal"
 }
