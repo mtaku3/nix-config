@@ -8,7 +8,7 @@ return {
           vim.keymap.set("n", "<leader>f", function()
             vim.lsp.buf.format({ name = "null-ls", timeout_ms = 10000 })
           end, { buffer = bufnr, desc = "none-ls: Format current buffer with none-ls" })
-        end
+        end,
       })
     end,
   },
