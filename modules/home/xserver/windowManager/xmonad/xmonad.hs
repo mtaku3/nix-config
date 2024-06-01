@@ -171,7 +171,7 @@ myMouseBindings :: XConfig Layout -> M.Map (KeyMask, Button) (Window -> X ())
 myMouseBindings conf@(XConfig {modMask = modMask}) =
   M.fromList $
     [ ((modMask, button1), \w -> whenX (isFloat w) (focus w >> mouseMoveWindow w >> windows W.shiftMaster)),
-      ((modMask, button2), (\w -> focus w >> Flex.mouseResizeWindow w))
+      ((modMask .|. shiftMask, button1), (\w -> focus w >> Flex.mouseResizeWindow w))
     ]
 
 -- Utils
