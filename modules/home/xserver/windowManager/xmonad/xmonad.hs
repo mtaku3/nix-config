@@ -80,7 +80,8 @@ myManageHook =
       insertPosition Below Older,
       className =? "Slack" --> doShift "10",
       className =? "discord" --> doShift "10",
-      className ~? "blueman-manager" --> doCenterFloat
+      className ~? "blueman-manager" --> doCenterFloat,
+      className ~? "Gimp" --> doCenterFloat
     ]
 
 -- Layouts

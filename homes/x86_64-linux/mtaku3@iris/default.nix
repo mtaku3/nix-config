@@ -21,6 +21,7 @@ with lib.capybara; {
       desktop = {
         slack = enabled;
         discord = enabled;
+        gimp = enabled;
       };
       dev = {
         zsh = {
