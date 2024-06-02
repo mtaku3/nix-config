@@ -16,7 +16,7 @@ with lib.capybara; {
                , font     = "JetBrainsMono NF 10"
                , bgColor  = "#282727"
                , fgColor  = "#c5c9c5"
-               , position = TopSize L 90 18
+               , position = TopSize L 94 18
                , commands = [ Run XMonadLog
                             , Run Cpu ["-t", "<icon=${i}/tb-cpu-2.xpm/> <total>%"] 10
                             , Run Memory ["-t", "<icon=${i}/fa-memory.xpm/> <used>GiB", "-d", "1", "--", "--scale", "1024"] 10

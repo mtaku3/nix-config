@@ -49,7 +49,7 @@ myStartupHook :: X ()
 myStartupHook = do
   spawnOnce "feh --bg-scale @wallpaper@"
   spawnOnce "picom &"
-  spawnOnce "trayer --edge top --align right --width 10 --padding 12 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
+  spawnOnce "trayer --edge top --align right --width 6 --padding 12 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
   spawnOnce "nm-applet &"
   spawnOnce "flameshot &"
   spawnOnce "blueman-applet &"
