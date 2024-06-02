@@ -21,10 +21,11 @@ with lib.capybara; {
                             , Run Cpu ["-t", "<icon=${i}/tb-cpu-2.xpm/> <total>%"] 10
                             , Run Memory ["-t", "<icon=${i}/fa-memory.xpm/> <used>GiB", "-d", "1", "--", "--scale", "1024"] 10
                             , Run Date "%m/%d %H:%M:%S" "date" 10
+                            , Run Volume "default" "Master" ["-t", "<status> <volume>%", "--", "--on", "<icon=${i}/tb-volume.xpm/>", "--off", "<icon=${i}/tb-volume-off.xpm/>"] 10
                             ]
                , sepChar  = "%"
                , alignSep = "}{"
-               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %date%"
+               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %date% | %default:Master%"
                }
       '';
     };

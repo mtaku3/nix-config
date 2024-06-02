@@ -55,6 +55,9 @@ with lib.capybara; {
         ".gnupg"
         ".ssh"
       ];
+      files = [
+        ".local/state/nvim/trust"
+      ];
       allowOther = true;
     };
   };

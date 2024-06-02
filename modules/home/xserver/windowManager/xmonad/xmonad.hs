@@ -2,6 +2,7 @@ import Data.Bits ((.|.))
 import Data.Default.Class
 import qualified Data.Map as M
 import Data.Monoid
+import Graphics.X11.ExtraTypes.XF86
 import System.Exit (exitSuccess)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
@@ -156,7 +157,10 @@ myKeys conf@(XConfig {modMask = modMask}) =
       ((modMask .|. shiftMask, xK_l), sendMessage Expand),
       ((modMask, xK_d), spawn $ myLauncher),
       ((modMask, xK_b), spawn $ myBrowser),
-      ((modMask .|. shiftMask, xK_s), spawn $ "flameshot gui")
+      ((modMask .|. shiftMask, xK_s), spawn $ "flameshot gui"),
+      ((0, xF86XK_AudioRaiseVolume), spawn $ "pactl set-sink-volume 0 +2%"),
+      ((0, xF86XK_AudioLowerVolume), spawn $ "pactl set-sink-volume 0 -2%"),
+      ((0, xF86XK_AudioMute), spawn $ "pactl set-sink-mute 0 toggle")
     ]
       ++ [ ((m .|. modMask, k), windows $ f i)
            | (i, k) <- zip (workspaces conf) ([xK_1 .. xK_9] ++ [xK_0]),
