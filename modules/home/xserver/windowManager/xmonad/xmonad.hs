@@ -75,11 +75,14 @@ myRootMask =
 myManageHook :: ManageHook
 myManageHook =
   composeAll
-    [ className ~? "Vivaldi" --> insertPosition Above Newer,
-      className ~? "kitty" --> insertPosition Below Older,
-      insertPosition Below Older,
+    [ -- Insert position and focus
+      ask >>= \w -> doF (\ws -> if M.member w (W.floating ws) then (W.shiftMaster . W.focusWindow w) ws else ws),
+      return True --> insertPosition Below Older,
+      className ~? "Vivaldi" --> insertPosition Above Newer,
+      -- Workspace
       className =? "Slack" --> doShift "10",
       className =? "discord" --> doShift "10",
+      -- Float
       className ~? "blueman-manager" --> doCenterFloat,
       className ~? "Gimp" --> doCenterFloat
     ]
