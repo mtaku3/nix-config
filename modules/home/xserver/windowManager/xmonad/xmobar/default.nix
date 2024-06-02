@@ -25,7 +25,7 @@ with lib.capybara; {
                             ]
                , sepChar  = "%"
                , alignSep = "}{"
-               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %date% | %default:Master%"
+               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %default:Master% | %date%"
                }
       '';
     };
