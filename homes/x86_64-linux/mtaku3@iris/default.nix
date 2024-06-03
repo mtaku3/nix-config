@@ -54,6 +54,7 @@ with lib.capybara; {
         "Videos"
         ".gnupg"
         ".ssh"
+        "Workspaces"
       ];
       files = [
         ".local/state/nvim/trust"
