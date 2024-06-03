@@ -21,6 +21,8 @@ with lib.capybara; {
     app.blueman = enabled;
     archetypes.workstation = enabled;
     nix.devenv-cachix = enabled;
+
+    app.docker = enabled;
   };
 
   environment.persistence."/persist" = {
@@ -30,6 +32,7 @@ with lib.capybara; {
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
       "/etc/NetworkManager/system-connections"
+      "/var/lib/docker"
     ];
     files = [
       "/var/lib/agenix/agenix_ed25519"
