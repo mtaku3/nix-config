@@ -88,6 +88,7 @@ in {
     programs.neovim = {
       enable = true;
       defaultEditor = true;
+      withRuby = false;
       withNodeJs = true;
       plugins = with pkgs; with pkgs.vimPlugins; [lazy-nvim];
       extraPackages = with pkgs; [ripgrep];

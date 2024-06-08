@@ -12,6 +12,10 @@ in {
     enable = mkBoolOpt false "Whether to enable the devenv";
   };
 
+  imports = [
+    ./direnv.nix
+  ];
+
   config = mkIf cfg.enable {
     home.packages = [pkgs.unstable.devenv];
   };
