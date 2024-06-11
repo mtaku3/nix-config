@@ -22,10 +22,11 @@ with lib.capybara; {
                             , Run Memory ["-t", "<icon=${i}/fa-memory.xpm/> <used>GiB", "-d", "1", "--", "--scale", "1024"] 10
                             , Run Date "%m/%d %H:%M:%S" "date" 10
                             , Run Volume "default" "Master" ["-t", "<status> <volume>%", "--", "--on", "<icon=${i}/tb-volume.xpm/>", "--off", "<icon=${i}/tb-volume-off.xpm/>"] 10
+                            , Run Battery ["-t", "<leftipat> <left>% / <timeleft>", "--", "--on-icon-pattern", "<icon=${i}/tb-battery-charging.xpm/>", "--off-icon-pattern", "<icon=${i}/tb-battery.xpm/>"] 10
                             ]
                , sepChar  = "%"
                , alignSep = "}{"
-               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %default:Master% | %date%"
+               , template = "<hspace=12/> %XMonadLog% }{ %cpu% | %memory% | %default:Master% | %battery% | %date%"
                }
       '';
     };
