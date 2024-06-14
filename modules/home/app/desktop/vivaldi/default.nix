@@ -13,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [pkgs.unstable.vivaldi];
+    home.packages = [pkgs.vivaldi];
     capybara.impermanence.directories = [".config/vivaldi"];
   };
 }

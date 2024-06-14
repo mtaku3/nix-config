@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 with lib;
@@ -15,7 +16,7 @@ in {
     programs.gpg = enabled;
     services.gpg-agent = {
       enable = true;
-      pinentryFlavor = "curses";
+      pinentryPackage = pkgs.pinentry-curses;
     };
     capybara.impermanence.directories = [".gnupg"];
   };

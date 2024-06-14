@@ -19,7 +19,7 @@ in {
     };
     environment.systemPackages = with pkgs; [xorg.xinit];
 
-    services.xserver.libinput.touchpad = {
+    services.libinput.touchpad = {
       naturalScrolling = true;
       disableWhileTyping = true;
       tappingDragLock = false;

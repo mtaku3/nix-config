@@ -13,8 +13,6 @@ in {
 
   config = mkIf cfg.enable {
     capybara = {
-      user = enabled;
-
       system = {
         locale = enabled;
         console = enabled;

@@ -1,14 +1,6 @@
-{
-  lib,
-  inputs,
-  ...
-}:
+{lib, ...}:
 with lib;
 with lib.capybara; {
-  imports = with inputs; [
-    impermanence.nixosModules.home-manager.impermanence
-  ];
-
   home.keyboard = {
     model = "pc104";
     layout = "jp,us";
@@ -63,5 +55,5 @@ with lib.capybara; {
     };
   };
 
-  home.stateVersion = "23.11";
+  home.stateVersion = "24.05";
 }

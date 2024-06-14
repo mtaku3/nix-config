@@ -5,7 +5,7 @@ with lib; rec {
   enabled = {enable = true;};
   disabled = {enable = false;};
   userConfigs = config: let
-    usernames = attrNames config.snowfallorg.user;
+    usernames = attrNames config.snowfallorg.users;
   in
-    foldl (acc: username: acc // {"${username}" = config.snowfallorg.user.${username}.home.config;}) {} usernames;
+    foldl (acc: username: acc // {"${username}" = config.snowfallorg.users.${username}.home.config;}) {} usernames;
 }

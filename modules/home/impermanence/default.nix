@@ -1,13 +1,17 @@
 {
   lib,
   config,
-  pkgs,
+  inputs,
   ...
 }:
 with lib;
 with lib.capybara; let
   cfg = config.capybara.impermanence;
 in {
+  imports = with inputs; [
+    impermanence.nixosModules.home-manager.impermanence
+  ];
+
   options.capybara.impermanence = {
     enable = mkBoolOpt false "Whether to enable the impermanence";
 
