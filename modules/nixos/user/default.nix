@@ -7,7 +7,7 @@
 with lib;
 with lib.capybara; let
   cfg = config.capybara.user;
-  usernames = attrNames config.snowfallorg.user;
+  usernames = attrNames config.snowfallorg.users;
   create-config = acc: username: let
     userConfig = (userConfigs config)."${username}";
   in
