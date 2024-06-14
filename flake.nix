@@ -35,6 +35,7 @@
 
       systems.modules.nixos = with inputs; [
         impermanence.nixosModules.impermanence
+        impermanence.nixosModules.home-manager.impermanence
         agenix.nixosModules.default
       ];
 
