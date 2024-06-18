@@ -18,7 +18,7 @@ in {
       vt = 2;
       settings = {
         default_session = {
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet -s /run/current-system/sw/share/xsessions --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
+          command = "${pkgs.greetd.tuigreet}/bin/tuigreet -x /run/current-system/sw/share/xsessions --no-xsession-wrapper --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
           user = "greeter";
         };
       };
