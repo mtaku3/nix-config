@@ -5,7 +5,7 @@
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     snowfall-lib = {
-      url = "github:snowfallorg/lib";
+      url = "github:mtaku3/snowfall-lib/fix/104";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
