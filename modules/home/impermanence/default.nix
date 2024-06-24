@@ -130,10 +130,7 @@ in {
   config = mkIf cfg.enable {
     home.persistence.${cfg.name} = {
       persistentStoragePath = cfg.name;
-      directories = cfg.directories;
-      files = cfg.files;
-      allowOther = cfg.allowOther;
-      removePrefixDirectory = cfg.removePrefixDirectory;
+      inherit (cfg) directories files allowOther removePrefixDirectory;
     };
   };
 }

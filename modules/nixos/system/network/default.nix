@@ -13,5 +13,9 @@ in {
 
   config = mkIf cfg.enable {
     networking.networkmanager.enable = true;
+
+    capybara.impermanence.directories = [
+      "/etc/NetworkManager/system-connections"
+    ];
   };
 }

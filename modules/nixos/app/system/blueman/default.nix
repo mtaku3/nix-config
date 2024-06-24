@@ -6,9 +6,9 @@
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.app.blueman;
+  cfg = config.capybara.app.system.blueman;
 in {
-  options.capybara.app.blueman = with types; {
+  options.capybara.app.system.blueman = with types; {
     enable = mkBoolOpt false "Whether to enable the blueman";
   };
 

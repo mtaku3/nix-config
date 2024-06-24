@@ -13,7 +13,7 @@ with lib.capybara; let
     acc
     // {
       ${username} = {
-        hashedPasswordFile = config.age.secrets."users/${username}/password".path;
+        hashedPasswordFile = config.age.secrets."users/${username}@${config.system.name}/password".path;
         shell =
           if userConfig.capybara.app.dev.zsh.enable
           then userConfig.capybara.app.dev.zsh.package

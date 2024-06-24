@@ -1,14 +1,13 @@
 {
   lib,
   config,
-  pkgs,
   ...
 }:
 with lib;
 with lib.capybara; let
-  cfg = config.capybara.app.docker;
+  cfg = config.capybara.app.dev.docker;
 in {
-  options.capybara.app.docker = with types; {
+  options.capybara.app.dev.docker = with types; {
     enable = mkBoolOpt false "Whether to enable the docker";
   };
 
