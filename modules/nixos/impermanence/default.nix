@@ -229,5 +229,8 @@ in {
       persistentStoragePath = cfg.name;
       inherit (cfg) files directories hideMounts enableDebugging;
     };
+
+    # Required for home-manager impermanence
+    programs.fuse.userAllowOther = true;
   };
 }

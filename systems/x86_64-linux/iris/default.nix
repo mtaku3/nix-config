@@ -5,9 +5,6 @@ with lib.capybara; {
     ./hardware-configuration.nix
   ];
 
-  # Required for home-manager impermanence
-  programs.fuse.userAllowOther = true;
-
   capybara = {
     system.bluetooth = enabled;
     archetypes.workstation = enabled;
