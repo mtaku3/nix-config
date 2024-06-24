@@ -14,7 +14,10 @@ with lib.capybara; {
         blueman = enabled;
       };
       dev = {
-        docker = enabled;
+        docker = {
+          enable = true;
+          storageDriver = "zfs";
+        };
       };
     };
 
