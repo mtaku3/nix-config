@@ -18,5 +18,9 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [pkgs.devenv];
+
+    capybara.impermanence.directories = [
+      ".local/share/devenv"
+    ];
   };
 }
