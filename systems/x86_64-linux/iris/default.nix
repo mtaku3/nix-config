@@ -8,7 +8,6 @@ with lib.capybara; {
   capybara = {
     system.bluetooth = enabled;
     archetypes.workstation = enabled;
-    nix.devenv-cachix = enabled;
 
     app = {
       system = {
@@ -30,6 +29,11 @@ with lib.capybara; {
       ];
     };
   };
+
+  # Recommended for devenv
+  nix.settings.trusted-users = [
+    "mtaku3"
+  ];
 
   system.stateVersion = "24.05";
 }
