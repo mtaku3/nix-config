@@ -14,6 +14,7 @@ with lib.capybara; {
         slack = enabled;
         discord = enabled;
         gimp = enabled;
+        obsidian = enabled;
       };
       dev = {
         zsh = {
