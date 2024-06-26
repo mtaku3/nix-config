@@ -15,6 +15,7 @@ with lib.capybara; {
         discord = enabled;
         gimp = enabled;
         obsidian = enabled;
+        libreoffice = enabled;
       };
       dev = {
         zsh = {
