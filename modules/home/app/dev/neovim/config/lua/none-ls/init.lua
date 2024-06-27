@@ -13,7 +13,15 @@ M.register_name = none_ls.register_name
 M.reset_sources = none_ls.reset_sources
 M.toggle = none_ls.toggle
 
-M.builtins = none_ls.builtins
+M.builtins = vim.tbl_deep_extend("error", none_ls.builtins, {
+  formatting = {
+    ruff = require("none-ls.formatting.ruff"),
+    ruff_format = require("none-ls.formatting.ruff_format"),
+  },
+  diagnostics = {
+    ruff = require("none-ls.diagnostics.ruff"),
+  },
+})
 M.methods = none_ls.methods
 
 M.formatter = none_ls.formatter

@@ -46,6 +46,7 @@ in {
         treesitter
         nvim-treesitter-textobjects
         nvim-lspconfig
+        pkgs.capybara.none-ls-extras-nvim
       ];
       normalizePname = pname: replaceStrings ["-" "."] ["_" "_"] (toLower pname);
     in

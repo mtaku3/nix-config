@@ -2,6 +2,7 @@ return {
   {
     name = "nvimtools/none-ls.nvim",
     dir = "@none_ls_nvim@",
+    dependencies = { name = "nvimtools/none-ls-extras.nvim", dir = "@none_ls_extras_nvim@" },
     config = function()
       require("null-ls").setup({
         on_attach = function(_, bufnr)
