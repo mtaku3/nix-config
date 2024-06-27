@@ -95,5 +95,9 @@ in {
       package = pkgs.capybara.neovim-unwrapped;
     };
     xdg.configFile = configFiles;
+
+    capybara.impermanence.directories = [
+      ".config/github-copilot"
+    ];
   });
 }
