@@ -16,6 +16,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    capybara.app.dev.zsh.oh-my-zsh.plugins = ["git"];
+
     programs.git = {
       enable = true;
       userName = cfg.username;

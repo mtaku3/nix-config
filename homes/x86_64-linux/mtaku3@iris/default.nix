@@ -20,7 +20,6 @@ with lib.capybara; {
       dev = {
         zsh = {
           enable = true;
-          oh-my-zsh.plugins = [];
         };
         neovim = enabled;
         git = {
@@ -33,7 +32,7 @@ with lib.capybara; {
         gh = enabled;
         tmux = enabled;
         gpg = enabled;
-        devenv = enabled;
+        devbox = enabled;
       };
     };
 
