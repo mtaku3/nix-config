@@ -1,9 +1,6 @@
 node_modules
 
 *.qcow2
-# Devenv
-.devenv*
-devenv.local.nix
 
 # direnv
 .direnv
