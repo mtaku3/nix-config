@@ -167,7 +167,6 @@ in {
 
       persistentStoragePath = mkOption {
         type = path;
-        default = name;
         defaultText = "‹name›";
         description = ''
           The path to persistent storage where the real
