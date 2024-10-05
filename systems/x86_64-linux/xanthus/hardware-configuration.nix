@@ -25,6 +25,7 @@
       device = "nodev";
       efiSupport = true;
       zfsSupport = true;
+      useOSProber = true;
     };
   };
   boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-uuid/05a165d9-db38-4714-8d59-49fde6fbc89a";
