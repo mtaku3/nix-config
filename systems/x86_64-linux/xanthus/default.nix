@@ -12,6 +12,7 @@ with lib.capybara; {
     app = {
       system = {
         blueman = enabled;
+        fprintd = enabled;
       };
       dev = {
         docker = enabled;
