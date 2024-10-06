@@ -23,7 +23,7 @@ in {
   config = let
     xmonadHs = pkgs.substituteAll {
       src = ./xmonad.hs;
-      wallpaper = "${pkgs.capybara.wallpapers}/wallhaven-3zmr6y.jpg";
+      wallpaper = "${pkgs.capybara.wallpapers}/wallhaven-3zmr6y.png";
     };
     libFiles = {};
     xmonadBin = "${
@@ -71,6 +71,7 @@ in {
         capybara.app.desktop.vivaldi.enable = mkForce true;
         capybara.app.desktop.fcitx5.enable = mkForce true;
         capybara.app.desktop.networkmanagerapplet.enable = mkForce true;
+        capybara.app.desktop.i3lock.enable = mkForce true;
         home.packages = [(lowPrio xmonad)];
         home.file = mapAttrs' (name: value:
           attrsets.nameValuePair (".xmonad/lib/" + name) {source = value;})

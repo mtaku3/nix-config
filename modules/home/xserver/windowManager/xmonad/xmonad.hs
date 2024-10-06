@@ -160,7 +160,8 @@ myKeys conf@(XConfig {modMask = modMask}) =
       ((modMask .|. shiftMask, xK_s), spawn $ "flameshot gui"),
       ((0, xF86XK_AudioRaiseVolume), spawn $ "pactl set-sink-volume 0 +2%"),
       ((0, xF86XK_AudioLowerVolume), spawn $ "pactl set-sink-volume 0 -2%"),
-      ((0, xF86XK_AudioMute), spawn $ "pactl set-sink-mute 0 toggle")
+      ((0, xF86XK_AudioMute), spawn $ "pactl set-sink-mute 0 toggle"),
+      ((modMask, xK_l), spawn $ "i3lock -i @wallpaper@")
     ]
       ++ [ ((m .|. modMask, k), windows $ f i)
            | (i, k) <- zip (workspaces conf) ([xK_1 .. xK_9] ++ [xK_0]),

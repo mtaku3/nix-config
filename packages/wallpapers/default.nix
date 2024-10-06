@@ -11,7 +11,7 @@ in
     name = "capybara-wallpapers";
     src = fs.toSource {
       root = ./pictures;
-      fileset = fs.fileFilter (file: file.hasExt "jpg") ./pictures;
+      fileset = fs.fileFilter (file: file.hasExt "jpg" || file.hasExt "png") ./pictures;
     };
     installPhase = "cp -vr . $out";
     meta = {
