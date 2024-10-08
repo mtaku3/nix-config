@@ -31,7 +31,7 @@ for method, table in pairs(export_tables) do
       local ok, builtin
       ok, builtin = pcall(require, string.format("null-ls.builtins.%s.%s", method, k))
       if not ok then
-        ok, builtin = pcall(require, string.format("none-ls.builtins.%s.%s", method, k))
+        ok, builtin = pcall(require, string.format("none-ls.%s.%s", method, k))
         if not ok then
           logger:warn(string.format("failed to load builtin %s for method %s; please check your config", k, method))
           return
