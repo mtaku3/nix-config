@@ -17,7 +17,6 @@ with lib.capybara; {
         obsidian = enabled;
         libreoffice = enabled;
         remmina = enabled;
-        cadnano2 = enabled;
       };
       dev = {
         zsh = {
