@@ -18,6 +18,7 @@ with lib.capybara; {
         libreoffice = enabled;
         remmina = enabled;
         rdp-acri = enabled;
+        zathura = enabled;
       };
       dev = {
         zsh = {
