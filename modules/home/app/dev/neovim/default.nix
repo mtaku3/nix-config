@@ -93,7 +93,7 @@ in {
       withNodeJs = true;
       plugins = with pkgs; with pkgs.vimPlugins; [lazy-nvim];
       extraPackages = with pkgs; [ripgrep];
-      package = pkgs.capybara.neovim-unwrapped;
+      package = pkgs.neovim-unwrapped;
     };
     xdg.configFile = configFiles;
 

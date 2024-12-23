@@ -28,9 +28,12 @@
       useOSProber = true;
     };
   };
-  boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-uuid/05a165d9-db38-4714-8d59-49fde6fbc89a";
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-uuid/05a165d9-db38-4714-8d59-49fde6fbc89a";
+    preLVM = false;
+  };
 
-  boot.initrd.postDeviceCommands = lib.mkAfter ''
+  boot.initrd.postResumeCommands = lib.mkAfter ''
     zfs rollback -r rpool/local/root@blank
   '';
 
