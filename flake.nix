@@ -14,7 +14,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    impermanence.url = "github:mtaku3/impermanence/fix-239";
+    impermanence.url = "github:nix-community/impermanence";
 
     agenix.url = "github:ryantm/agenix";
 
