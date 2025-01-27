@@ -221,17 +221,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1718689170,
-        "narHash": "sha256-IuCotsHwGrQ69zEh57sTxKqPGQhp9KJE902w3yzw6rc=",
-        "owner": "mtaku3",
-        "repo": "snowfall-lib",
-        "rev": "fbe1c41f642b629c4a04e18b4525fa665ad40a03",
+        "lastModified": 1736130495,
+        "narHash": "sha256-4i9nAJEZFv7vZMmrE0YG55I3Ggrtfo5/T07JEpEZ/RM=",
+        "owner": "snowfallorg",
+        "repo": "lib",
+        "rev": "02d941739f98a09e81f3d2d9b3ab08918958beac",
         "type": "github"
       },
       "original": {
-        "owner": "mtaku3",
-        "ref": "fix/104",
-        "repo": "snowfall-lib",
+        "owner": "snowfallorg",
+        "repo": "lib",
         "type": "github"
       }
     },
