@@ -20,6 +20,7 @@ in {
         enable = true;
         greetd = enabled;
       };
+      app.util.zip = enabled;
     };
   };
 }
