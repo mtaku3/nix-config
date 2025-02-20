@@ -36,6 +36,7 @@ with lib.capybara; {
         tmux = enabled;
         gpg = enabled;
         devbox = enabled;
+        termius = enabled;
       };
     };
 
