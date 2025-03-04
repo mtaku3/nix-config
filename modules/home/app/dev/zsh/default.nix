@@ -28,6 +28,7 @@ in {
 
   config = mkIf cfg.enable {
     capybara.app.dev.zsh.oh-my-zsh.plugins = ["sudo"];
+    capybara.shell.path = "${cfg.package}/bin/zsh";
 
     programs.zsh = {
       enable = true;
