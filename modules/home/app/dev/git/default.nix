@@ -15,6 +15,8 @@ in {
     signByDefault = mkBoolOpt true "Whether to sign commits by default";
   };
 
+  imports = [./git-town.nix];
+
   config = mkIf cfg.enable {
     capybara.app.dev.zsh.oh-my-zsh.plugins = ["git"];
 
