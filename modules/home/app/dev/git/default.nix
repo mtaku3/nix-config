@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 with lib;
@@ -32,6 +33,31 @@ in {
         init = {defaultBranch = "main";};
         pull = {rebase = true;};
         push = {autoSetupRemote = true;};
+      };
+      hooks = let
+        pre-push-script = pkgs.writeShellScript "pre-push-script" ''
+          # NOTE: https://gist.github.com/mosra/19abea23cdf6b82ce891c9410612e7e1
+          # Add more branches separated by | if needed
+          protected_branches='master|main'
+
+          # Argument parsing taken from .git/hooks/pre-push.sample
+          if read local_ref local_sha remote_ref remote_sha; then
+            if [[ "$remote_ref" =~ ($protected_branches) ]]; then
+                echo -en "\033[1;33mYou're about to push to $remote_ref, is that what you intended? [y|n] \033[0m"
+                echo -en "\033[1m"
+                read -n 1 -r < /dev/tty
+                echo -en "\033[0m"
+
+                echo
+                if echo $REPLY | grep -E '^[Yy]$' > /dev/null; then
+                    exit 0 # push will execute
+                fi
+                exit 1 # push will not execute
+            fi
+          fi
+        '';
+      in {
+        pre-push = pre-push-script;
       };
     };
   };
