@@ -19,6 +19,7 @@ with lib.capybara; {
         remmina = enabled;
         rdp-acri = enabled;
         zathura = enabled;
+        zoom-us = enabled;
       };
       dev = {
         zsh = {
