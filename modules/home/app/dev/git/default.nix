@@ -29,6 +29,7 @@ in {
         key = cfg.signingKey;
         inherit (cfg) signByDefault;
       };
+      lfs = enabled;
       extraConfig = {
         init = {defaultBranch = "main";};
         pull = {rebase = true;};
