@@ -10,6 +10,8 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
+  virtualisation.vmware.guest.enable = true;
+
   networking.hostId = "c10d381a";
 
   boot.initrd.availableKernelModules = ["ata_piix" "mptspi" "uhci_hcd" "ehci_pci" "ahci" "sd_mod" "sr_mod"];
