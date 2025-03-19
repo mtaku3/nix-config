@@ -29,7 +29,7 @@
     };
   };
   boot.initrd.luks.devices.cryptroot = {
-    device = "/dev/disk/by-uuid/05a165d9-db38-4714-8d59-49fde6fbc89a";
+    device = "/dev/disk/by-uuid/3d2083bf-e812-4880-a391-a2ab3e51f500";
     preLVM = false;
   };
 
@@ -61,8 +61,8 @@
 
   swapDevices = [
     {
-      device = "/dev/zvol/rpool/local/swap";
-      options = ["discard" "0" "1"];
+      device = "/dev/disk/by-partuuid/11b55ee0-2161-4545-a5b5-1767cc134e18";
+      randomEncryption.enable = true;
     }
   ];
 
