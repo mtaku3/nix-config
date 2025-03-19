@@ -48,7 +48,7 @@ myLogHook = updatePointer (0.5, 0.5) (0, 0)
 myStartupHook :: X ()
 myStartupHook = do
   spawnOnce "feh --bg-scale @wallpaper@"
-  spawnOnce "picom &"
+  spawnOnce "picom --backend xrender &"
   spawnOnce "trayer --edge top --align right --width 6 --padding 12 --SetDockType true --SetPartialStrut true --expand true --alpha 0 --tint 0x282727 --height 18 &"
   spawnOnce "nm-applet &"
   spawnOnce "flameshot &"
