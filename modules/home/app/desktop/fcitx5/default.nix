@@ -10,6 +10,7 @@ with lib.capybara; let
 in {
   options.capybara.app.desktop.fcitx5 = {
     enable = mkBoolOpt false "Whether to enable the fcitx5 mozc";
+    layout = mkOpt (types.enum ["jp" "us"]) "jp" "Keyboard layout (jp or us)";
   };
 
   config = mkIf cfg.enable {
@@ -22,7 +23,7 @@ in {
     };
 
     xdg.configFile."fcitx5" = {
-      source = ./config;
+      source = ./config/${cfg.layout};
       recursive = true;
     };
   };

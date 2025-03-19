@@ -26,6 +26,7 @@
       zfsSupport = true;
     };
   };
+  boot.zfs.devNodes = "/dev/disk/by-path";
 
   boot.initrd.postResumeCommands = lib.mkAfter ''
     zfs rollback -r rpool/local/root@blank
