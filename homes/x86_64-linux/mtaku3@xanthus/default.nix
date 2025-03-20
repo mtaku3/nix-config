@@ -29,7 +29,7 @@ with lib.capybara; {
         git = {
           enable = true;
           username = "mtaku3";
-          email = "m.taku3.1222@gmail.com";
+          email = "me@mtaku3.com";
           signingKey = "CE36E3A2959377DA";
           signByDefault = true;
         };

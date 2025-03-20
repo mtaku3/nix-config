@@ -28,8 +28,8 @@ with lib.capybara; {
         git = {
           enable = true;
           username = "mtaku3";
-          email = "m.taku3.1222@gmail.com";
-          signingKey = "93B221AA4888182C";
+          email = "me@mtaku3.com";
+          signingKey = "C4FCBB74F537002F";
           signByDefault = true;
         };
         gh = enabled;
