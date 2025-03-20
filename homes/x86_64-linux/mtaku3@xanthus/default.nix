@@ -30,7 +30,7 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signingKey = "CE36E3A2959377DA";
+          signingKey = "4DB490B409F22369";
           signByDefault = true;
         };
         gh = enabled;
