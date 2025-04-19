@@ -7,5 +7,5 @@ with lib; rec {
   userConfigs = config: let
     usernames = attrNames config.snowfallorg.users;
   in
-    foldl (acc: username: acc // {"${username}" = config.snowfallorg.users.${username}.home.config;}) {} usernames;
+    foldl (acc: username: acc // {"${username}" = config.home-manager.users.${username};}) {} usernames;
 }
