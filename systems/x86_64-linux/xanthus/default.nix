@@ -13,6 +13,7 @@ with lib.capybara; {
       system = {
         blueman = enabled;
         fprintd = enabled;
+        thunderbolt = enabled;
       };
       dev = {
         docker = enabled;
