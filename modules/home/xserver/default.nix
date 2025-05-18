@@ -71,7 +71,7 @@ in {
     ];
 
     systemd.user = {
-      services = mkIf (config.home.keyboard != null) {
+      services = mkIf (config.home.keyboard != null && !config.capybara.app.desktop.xplugd.enable) {
         setxkbmap = {
           Unit = {
             Description = "Set up keyboard in X";

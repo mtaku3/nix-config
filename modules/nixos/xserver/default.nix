@@ -24,5 +24,7 @@ in {
       disableWhileTyping = true;
       tappingDragLock = false;
     };
+
+    capybara.xserver.autorandr = enabled;
   };
 }

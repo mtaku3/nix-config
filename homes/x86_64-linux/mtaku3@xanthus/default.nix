@@ -20,6 +20,8 @@ with lib.capybara; {
         rdp-acri = enabled;
         zathura = enabled;
         zoom-us = enabled;
+        arandr = enabled;
+        xplugd = enabled;
       };
       dev = {
         zsh = {
