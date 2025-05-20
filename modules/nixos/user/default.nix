@@ -1,7 +1,6 @@
 {
   lib,
   config,
-  host,
   ...
 }:
 with lib;
@@ -14,7 +13,10 @@ with lib.capybara; let
     system-users
     // (optionalAttrs user.create {
       ${name} = {
-        hashedPasswordFile = config.age.secrets."users/${name}@${host}/password".path;
+        hashedPasswordFile = let
+          ageKey = "users/${name}/password";
+        in
+          mkIf (builtins.hasAttr ageKey config.age.secrets) config.age.secrets.${ageKey}.path;
         shell = let
           zsh = cfg.capybara.app.dev.zsh;
         in

@@ -2,6 +2,8 @@
   lib,
   config,
   inputs,
+  system,
+  host,
   ...
 }:
 with lib;
@@ -28,11 +30,12 @@ in {
       identityPaths = ["/persist/var/lib/agenix/agenix_ed25519"];
       secrets = let
         user-inputs = snowfall.fs.get-file "";
+        base-path = "${user-inputs}/secrets/${system}/${host}";
       in
         foldl (acc: path:
           if snowfall.path.has-file-extension "age" path
-          then acc // {${removePrefix "${user-inputs}/secrets/" (removeSuffix ".age" (builtins.unsafeDiscardStringContext path))}.file = path;}
-          else acc) {} (snowfall.fs.get-files-recursive "${user-inputs}/secrets");
+          then acc // {${removePrefix base-path (removeSuffix ".age" (builtins.unsafeDiscardStringContext path))}.file = path;}
+          else acc) {} (snowfall.fs.get-files-recursive base-path);
     };
 
     capybara.impermanence.files = [
