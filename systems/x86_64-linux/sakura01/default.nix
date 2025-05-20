@@ -17,6 +17,7 @@ with lib.capybara; {
         "/var/lib/nixos"
         "/var/lib/systemd/coredump"
         "/etc/dokploy"
+        "/etc/deployments"
       ];
     };
   };
