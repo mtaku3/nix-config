@@ -12,7 +12,7 @@ in {
     enable = mkBoolOpt false "Whether to enable the git";
     username = mkOpt types.str null "Name to configure git with";
     email = mkOpt types.str null "Email to configure git with";
-    signingKey = mkOpt types.str null "GPG key to sign commits with";
+    signingKey = mkOpt types.str "" "GPG key to sign commits with";
     signByDefault = mkBoolOpt true "Whether to sign commits by default";
   };
 

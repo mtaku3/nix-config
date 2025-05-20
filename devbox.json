@@ -10,7 +10,8 @@
     "nil@latest",
     "haskell-language-server@latest",
     "ghc@latest",
-    "lua-language-server@latest"
+    "lua-language-server@latest",
+    "age@latest"
   ],
   "shell": {
     "init_hook": [
