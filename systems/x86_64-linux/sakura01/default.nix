@@ -1,4 +1,8 @@
-{lib, ...}:
+{
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 with lib.capybara; {
   imports = [
@@ -21,6 +25,8 @@ with lib.capybara; {
       ];
     };
   };
+
+  users.users.root.packages = with pkgs; [git vim curl wget];
 
   system.stateVersion = "24.11";
 }
