@@ -32,6 +32,7 @@ with lib.capybara; {
         ".gnupg"
         ".ssh"
         "Workspaces"
+        "Deployments"
       ];
       files = [
         ".local/state/nvim/trust"
