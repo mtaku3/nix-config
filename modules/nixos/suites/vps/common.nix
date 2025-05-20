@@ -9,7 +9,10 @@ with lib.capybara; {
     capybara = {
       suites.common = enabled;
 
-      app.server.ssh = enabled;
+      app.server = {
+        docker = enabled;
+        ssh = enabled;
+      };
     };
   };
 }

@@ -16,10 +16,7 @@ in {
     virtualisation.docker = enabled;
 
     capybara.impermanence.directories = [
-      {
-        directory = "/var/lib/docker";
-        method = "symlink";
-      }
+      "/var/lib/docker"
     ];
   };
 }

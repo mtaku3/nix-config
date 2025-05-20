@@ -8,12 +8,6 @@ with lib.capybara; {
   capybara = {
     suites.vps.master = enabled;
 
-    app = {
-      dev = {
-        docker = enabled;
-      };
-    };
-
     agenix = enabled;
     impermanence = {
       enable = true;
