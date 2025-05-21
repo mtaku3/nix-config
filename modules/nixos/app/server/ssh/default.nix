@@ -24,9 +24,5 @@ in {
         PermitRootLogin = "no";
       };
     };
-
-    capybara.impermanence.directories = [
-      "/etc/ssh"
-    ];
   };
 }
