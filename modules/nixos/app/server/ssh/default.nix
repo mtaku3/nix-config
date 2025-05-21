@@ -24,5 +24,17 @@ in {
         PermitRootLogin = "no";
       };
     };
+
+    capybara.impermanence = {
+      directories = [
+        "/etc/ssh/authorized_keys.d"
+      ];
+      files = [
+        "/etc/ssh/ssh_host_ed25519_key"
+        "/etc/ssh/ssh_host_ed25519_key.pub"
+        "/etc/ssh/ssh_host_rsa_key"
+        "/etc/ssh/ssh_host_rsa_key.pub"
+      ];
+    };
   };
 }
