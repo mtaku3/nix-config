@@ -57,14 +57,29 @@
 
   networking = {
     useDHCP = false;
-    interfaces.ens3.ipv4.addresses = [
-      {
-        address = "153.120.5.92";
-        prefixLength = 23;
-      }
-    ];
-    defaultGateway = "153.120.4.1";
-    nameservers = ["1.1.1.1" "8.8.8.8"];
+    interfaces.ens3 = {
+      ipv4.addresses = [
+        {
+          address = "153.120.5.92";
+          prefixLength = 23;
+        }
+      ];
+      ipv6.addresses = [
+        {
+          address = "2401:2500:102:2119:153:120:5:92";
+          prefixLength = 64;
+        }
+      ];
+    };
+    defaultGateway = {
+      address = "153.120.4.1";
+      interface = "ens3";
+    };
+    defaultGateway6 = {
+      address = "fe80::1";
+      interface = "ens3";
+    };
+    nameservers = ["1.1.1.1" "8.8.8.8" "2606:4700:4700::1111" "2001:4860:4860::8888"];
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
