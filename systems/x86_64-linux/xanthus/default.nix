@@ -14,6 +14,7 @@ with lib.capybara; {
         blueman = enabled;
         fprintd = enabled;
         thunderbolt = enabled;
+        wireguard = enabled;
       };
       dev = {
         docker = enabled;
