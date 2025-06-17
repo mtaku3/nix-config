@@ -24,6 +24,7 @@ with lib.capybara; {
         xplugd = enabled;
       };
       dev = {
+        pycharm = enabled;
         zsh = {
           enable = true;
         };
