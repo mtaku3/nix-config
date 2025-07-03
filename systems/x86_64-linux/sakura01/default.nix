@@ -10,7 +10,7 @@ with lib.capybara; {
   ];
 
   capybara = {
-    suites.vps.master = enabled;
+    suites.homelab = enabled;
 
     agenix = enabled;
     impermanence = {
@@ -20,8 +20,6 @@ with lib.capybara; {
         "/var/log"
         "/var/lib/nixos"
         "/var/lib/systemd/coredump"
-        "/etc/dokploy"
-        "/etc/deployments"
       ];
     };
   };

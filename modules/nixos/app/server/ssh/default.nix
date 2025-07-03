@@ -25,11 +25,31 @@ in {
       };
     };
 
-    capybara.impermanence.files = [
-      "/etc/ssh/ssh_host_ed25519_key"
-      "/etc/ssh/ssh_host_ed25519_key.pub"
-      "/etc/ssh/ssh_host_rsa_key"
-      "/etc/ssh/ssh_host_rsa_key.pub"
-    ];
+    age.secrets = {
+      "/ssh/ssh_host_rsa_key" = {
+        path = "/etc/ssh/ssh_host_rsa_key";
+        mode = "600";
+        owner = "root";
+        group = "root";
+      };
+      "/ssh/ssh_host_rsa_key.pub" = {
+        path = "/etc/ssh/ssh_host_rsa_key.pub";
+        mode = "644";
+        owner = "root";
+        group = "root";
+      };
+      "/ssh/ssh_host_ed25519_key" = {
+        path = "/etc/ssh/ssh_host_ed25519_key";
+        mode = "600";
+        owner = "root";
+        group = "root";
+      };
+      "/ssh/ssh_host_ed25519_key.pub" = {
+        path = "/etc/ssh/ssh_host_ed25519_key.pub";
+        mode = "644";
+        owner = "root";
+        group = "root";
+      };
+    };
   };
 }

@@ -6,10 +6,13 @@
   lib,
   pkgs,
   modulesPath,
+  inputs,
   ...
 }: {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
+    inputs.disko.nixosModules.disko
+    ./disko-config.nix
   ];
 
   networking.hostId = "0da9a9be";
@@ -19,41 +22,14 @@
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/vda";
-    zfsSupport = true;
-  };
+  boot.loader.grub.enable = true;
   boot.zfs.devNodes = "/dev/disk/by-path";
 
   boot.initrd.postResumeCommands = lib.mkAfter ''
     zfs rollback -r rpool/local/root@blank
   '';
 
-  fileSystems."/" = {
-    device = "rpool/local/root";
-    fsType = "zfs";
-  };
-
-  fileSystems."/nix" = {
-    device = "rpool/local/nix";
-    fsType = "zfs";
-  };
-
-  fileSystems."/persist" = {
-    device = "rpool/safe/persist";
-    fsType = "zfs";
-    neededForBoot = true;
-  };
-
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/ba93e854-d6a6-4dde-abf2-e8c39b253e14";
-    fsType = "ext4";
-  };
-
-  swapDevices = [
-    {device = "/dev/disk/by-uuid/232ed49f-6325-4cf5-9b94-14efdb23d291";}
-  ];
+  fileSystems."/persist".neededForBoot = true;
 
   networking = {
     useDHCP = false;
