@@ -1,7 +1,7 @@
 return {
   {
     name = "frabjous/knap",
-    dir = "@kanp@",
+    dir = "@knap@",
     ft = { "tex", "plaintex", "bib" },
     config = function()
       -- TODO: Temporarily tex output directory defaults to PDF/, but should be detected from latexmkrc

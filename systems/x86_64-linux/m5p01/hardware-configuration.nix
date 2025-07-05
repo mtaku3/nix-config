@@ -10,19 +10,26 @@
   ...
 }: {
   imports = [
-    (modulesPath + "/profiles/qemu-guest.nix")
+    (modulesPath + "/installer/scan/not-detected.nix")
     inputs.disko.nixosModules.disko
     ./disko-config.nix
   ];
 
-  networking.hostId = "0da9a9be";
+  networking.hostId = "d6238f4e";
 
-  boot.initrd.availableKernelModules = ["ata_piix" "uhci_hcd" "ehci_pci" "virtio_pci" "sr_mod" "virtio_blk"];
+  boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod"];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = [];
+  boot.kernelModules = ["kvm-amd"];
   boot.extraModulePackages = [];
 
-  boot.loader.grub.enable = true;
+  boot.loader = {
+    efi.canTouchEfiVariables = true;
+    grub = {
+      enable = true;
+      device = "nodev";
+      efiSupport = true;
+    };
+  };
   boot.zfs.devNodes = "/dev/disk/by-path";
 
   boot.initrd.postResumeCommands = lib.mkAfter ''
@@ -33,30 +40,21 @@
 
   networking = {
     useDHCP = false;
-    interfaces.ens3 = {
+    interfaces.enp1s0 = {
       ipv4.addresses = [
         {
-          address = "153.120.5.92";
-          prefixLength = 23;
-        }
-      ];
-      ipv6.addresses = [
-        {
-          address = "2401:2500:102:2119:153:120:5:92";
-          prefixLength = 64;
+          address = "192.168.10.2";
+          prefixLength = 24;
         }
       ];
     };
     defaultGateway = {
-      address = "153.120.4.1";
-      interface = "ens3";
+      address = "192.168.10.1";
+      interface = "enp1s0";
     };
-    defaultGateway6 = {
-      address = "fe80::1";
-      interface = "ens3";
-    };
-    nameservers = ["1.1.1.1" "8.8.8.8" "2606:4700:4700::1111" "2001:4860:4860::8888"];
+    nameservers = ["192.168.10.1"];
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

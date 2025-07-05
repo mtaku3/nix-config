@@ -1,4 +1,8 @@
-{lib, ...}:
+{
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 with lib.capybara; {
   imports = [
@@ -6,12 +10,12 @@ with lib.capybara; {
   ];
 
   capybara = {
-    archetypes.workstation = enabled;
+    suites.homelab = enabled;
 
-    app = {
-      dev = {
-        docker = enabled;
-      };
+    app.server.kubernetes = {
+      role = "master";
+      advertiseIP = "192.168.10.2";
+      masterAddress = "192.168.10.2";
     };
 
     agenix = enabled;
@@ -26,5 +30,7 @@ with lib.capybara; {
     };
   };
 
-  system.stateVersion = "24.11";
+  users.users.root.packages = with pkgs; [git vim curl wget];
+
+  system.stateVersion = "25.05";
 }

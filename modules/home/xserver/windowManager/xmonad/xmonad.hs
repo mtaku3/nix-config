@@ -186,7 +186,7 @@ myMouseBindings conf@(XConfig {modMask = modMask}) =
 isFloat :: Window -> X Bool
 isFloat w = gets (M.member w . W.floating . windowset)
 
-spawnSB :: ScreenId -> IO StatusBarConfig
+spawnSB :: ScreenId -> X StatusBarConfig
 spawnSB 0 =
   pure $
     statusBarProp

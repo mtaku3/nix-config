@@ -18,6 +18,7 @@ in {
       suites.common = enabled;
       app.server = {
         ssh = enabled;
+        kubernetes = enabled;
       };
     };
   };

@@ -16,7 +16,7 @@ in {
     programs.gpg = enabled;
     services.gpg-agent = {
       enable = true;
-      pinentryPackage = pkgs.pinentry-curses;
+      pinentry.package = pkgs.pinentry-curses;
     };
     capybara.impermanence.directories = [".gnupg"];
   };

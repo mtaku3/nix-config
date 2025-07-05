@@ -21,8 +21,7 @@ in {
   };
 
   config = let
-    xmonadHs = pkgs.substituteAll {
-      src = ./xmonad.hs;
+    xmonadHs = pkgs.replaceVars ./xmonad.hs {
       wallpaper = "${pkgs.capybara.wallpapers}/wallhaven-3zmr6y.png";
     };
     libFiles = {};

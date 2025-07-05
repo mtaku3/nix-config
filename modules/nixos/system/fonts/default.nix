@@ -18,7 +18,7 @@ in {
         noto-fonts
         noto-fonts-cjk-sans
         noto-fonts-emoji
-        (nerdfonts.override {fonts = ["JetBrainsMono"];})
+        nerd-fonts.jetbrains-mono
       ];
 
       fontconfig.defaultFonts = {

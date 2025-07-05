@@ -3,14 +3,10 @@
     disk = {
       vda = {
         type = "disk";
-        device = "/dev/vda";
+        device = "/dev/nvme0n1";
         content = {
           type = "gpt";
           partitions = {
-            biosboot = {
-              size = "1M";
-              type = "EF02";
-            };
             ESP = {
               size = "1G";
               type = "EF00";
@@ -19,12 +15,6 @@
                 format = "vfat";
                 mountpoint = "/boot";
                 mountOptions = ["umask=0077"];
-              };
-            };
-            swap = {
-              size = "4G";
-              content = {
-                type = "swap";
               };
             };
             zfs = {

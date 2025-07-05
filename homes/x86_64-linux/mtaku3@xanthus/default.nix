@@ -24,7 +24,7 @@ with lib.capybara; {
         xplugd = enabled;
       };
       dev = {
-        cloudflared = enabled;
+        kube-cli = enabled;
         pycharm = enabled;
         zsh = {
           enable = true;

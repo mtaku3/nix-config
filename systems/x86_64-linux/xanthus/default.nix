@@ -7,6 +7,7 @@ with lib.capybara; {
 
   capybara = {
     system.bluetooth = enabled;
+    system.hosts = enabled;
     archetypes.workstation = enabled;
 
     app = {

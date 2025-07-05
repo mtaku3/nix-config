@@ -11,7 +11,8 @@ with lib.capybara;
     src = pkgs.fetchFromGitHub {
       owner = "nvimtools";
       repo = "none-ls-extras.nvim";
-      rev = "336e84b9e43c0effb735b08798ffac382920053b";
-      hash = "sha256-UtU4oWSRTKdEoMz3w8Pk95sROuo3LEwxSDAm169wxwk=";
+      rev = "924fe88a9983c7d90dbb31fc4e3129a583ea0a90";
+      hash = "sha256-OJHg2+h3zvlK7LJ8kY6f7et0w6emnxfcDbjD1YyWRTw=";
     };
+    dependencies = [pkgs.vimPlugins.none-ls-nvim];
   }
