@@ -27,6 +27,8 @@ in {
           apiserverAddress = api;
           easyCerts = true;
 
+          apiserver.allowPrivileged = true;
+
           addons.dns = enabled;
         }
         (optionalAttrs (cfg.role == "master") {
