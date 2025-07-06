@@ -75,6 +75,12 @@ in {
         group = "kubernetes";
         mode = "0755";
       }
+      {
+        directory = "/var/lib/cni";
+        user = "root";
+        group = "root";
+        mode = "0600";
+      }
     ];
   };
 }
