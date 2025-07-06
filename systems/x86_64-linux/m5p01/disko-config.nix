@@ -61,6 +61,11 @@
             options.mountpoint = "legacy";
             mountpoint = "/persist";
           };
+
+          "openebs-zfspv" = {
+            type = "zfs_fs";
+            options.mountpoint = "none";
+          };
         };
       };
     };
