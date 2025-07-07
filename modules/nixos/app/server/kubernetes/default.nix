@@ -8,6 +8,10 @@ with lib;
 with lib.capybara; let
   cfg = config.capybara.app.server.kubernetes;
 in {
+  disabledModules = ["services/cluster/kubernetes/pki.nix"];
+
+  imports = [./pki.nix];
+
   options.capybara.app.server.kubernetes = with types; {
     enable = mkBoolOpt false "Whether to enable the kubernetes";
     advertiseIP = mkOpt types.str "" "IP address to advertise for the Kubernetes API server";
@@ -30,6 +34,8 @@ in {
           apiserver.allowPrivileged = true;
 
           addons.dns = enabled;
+
+          dataDir = "/var/lib/kubelet";
         }
         (optionalAttrs (cfg.role == "master") {
           roles = ["master" "node"];
@@ -65,21 +71,9 @@ in {
       }
       {
         directory = "/var/lib/kubelet";
-        user = "root";
-        group = "root";
-        mode = "0755";
-      }
-      {
-        directory = "/var/lib/kubernetes";
         user = "kubernetes";
         group = "kubernetes";
         mode = "0755";
-      }
-      {
-        directory = "/var/lib/cni";
-        user = "root";
-        group = "root";
-        mode = "0600";
       }
     ];
   };
