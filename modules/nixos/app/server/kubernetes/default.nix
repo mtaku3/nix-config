@@ -8,9 +8,15 @@ with lib;
 with lib.capybara; let
   cfg = config.capybara.app.server.kubernetes;
 in {
-  disabledModules = ["services/cluster/kubernetes/pki.nix"];
+  disabledModules = [
+    "services/cluster/kubernetes/pki.nix"
+    "services/cluster/kubernetes/kubelet.nix"
+  ];
 
-  imports = [./pki.nix];
+  imports = [
+    ./pki.nix
+    ./kubelet.nix
+  ];
 
   options.capybara.app.server.kubernetes = with types; {
     enable = mkBoolOpt false "Whether to enable the kubernetes";
