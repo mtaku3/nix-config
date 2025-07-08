@@ -17,6 +17,7 @@ in {
     capybara = {
       suites.common = enabled;
       app.server = {
+        fail2ban = enabled;
         ssh = enabled;
         kubernetes = enabled;
       };
