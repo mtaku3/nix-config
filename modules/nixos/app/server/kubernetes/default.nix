@@ -10,11 +10,17 @@ with lib.capybara; let
 in {
   disabledModules = [
     "services/cluster/kubernetes/pki.nix"
+    "services/cluster/kubernetes/apiserver.nix"
+    "services/cluster/kubernetes/controller-manager.nix"
+    "services/cluster/kubernetes/flannel.nix"
     "services/cluster/kubernetes/kubelet.nix"
   ];
 
   imports = [
     ./pki.nix
+    ./apiserver.nix
+    ./controller-manager.nix
+    ./flannel.nix
     ./kubelet.nix
   ];
 
