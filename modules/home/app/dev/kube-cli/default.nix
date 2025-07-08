@@ -18,5 +18,12 @@ in {
     capybara.impermanence.directories = [
       ".kube"
     ];
+
+    programs.zsh.shellAliases = {
+      k = "kubectl";
+      ks = "kubeseal";
+      kh = "helm";
+      kx = "kustomize";
+    };
   };
 }
