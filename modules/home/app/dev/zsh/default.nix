@@ -32,11 +32,21 @@ in {
 
     programs.zsh = {
       enable = true;
+      plugins = [
+        {
+          name = "zsh-powerlevel10k";
+          src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/";
+          file = "powerlevel10k.zsh-theme";
+        }
+        {
+          name = "powerlevel10k-config";
+          src = ./powerlevel10k-config;
+          file = "config.zsh";
+        }
+      ];
       oh-my-zsh = {
         enable = true;
         plugins = cfg.oh-my-zsh.plugins;
-        custom = "${./theme}";
-        theme = "nixos";
       };
       package = cfg.package;
     };
