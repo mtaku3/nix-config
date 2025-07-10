@@ -32,6 +32,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Required for CephFS
+    systemd.services.containerd.serviceConfig.LimitNOFILE = mkForce null;
+
     virtualisation.containerd.settings.plugins."io.containerd.grpc.v1.cri".containerd.snapshotter = "overlayfs";
 
     services.kubernetes = let
