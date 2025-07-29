@@ -30,6 +30,7 @@ with lib.capybara; {
         xplugd = enabled;
       };
       dev = {
+        claude-code = enabled;
         minio-cli = enabled;
         kube-cli = enabled;
         pycharm = enabled;
