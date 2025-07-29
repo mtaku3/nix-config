@@ -43,6 +43,9 @@ in {
                     keyboard,connected,"M.M Studio JW68")
                       setxkbmap -layout us
                       ;;
+                    keyboard,connected,"xrdpKeyboard")
+                      setxkbmap -layout us
+                      ;;
                     keyboard,connected,*)
                       setxkbmap ${toString homeKeyboardArgs}
                       ;;

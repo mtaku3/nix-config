@@ -6,9 +6,13 @@ with lib.capybara; {
   ];
 
   capybara = {
-    system.bluetooth = enabled;
-    system.hosts = enabled;
+    system = {
+      bluetooth = enabled;
+      hosts = enabled;
+      power.do-not-sleep = enabled;
+    };
     archetypes.workstation = enabled;
+    xserver.xrdp = enabled;
 
     app = {
       system = {

@@ -8,7 +8,13 @@ with lib.capybara; {
   };
 
   capybara = {
-    xserver.windowManager.xmonad = enabled;
+    xserver = {
+      windowManager.xmonad = enabled;
+      xrdp = {
+        enable = true;
+        session = "xmonad";
+      };
+    };
     app = {
       desktop = {
         slack = enabled;
