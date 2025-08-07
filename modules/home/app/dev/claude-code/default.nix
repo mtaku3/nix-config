@@ -13,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [pkgs.unstable.claude-code pkgs.unstable.repomix];
+    home.packages = [pkgs.unstable.claude-code pkgs.unstable.repomix pkgs.capybara.ccusage];
 
     capybara.impermanence.directories = [".claude"];
   };
