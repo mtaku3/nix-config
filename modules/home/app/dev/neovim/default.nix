@@ -48,6 +48,7 @@ in {
           nvim-treesitter-textobjects
           nvim-lspconfig
           which-key-nvim
+          lazygit-nvim
           ;
         none-ls-extras-nvim = pkgs.capybara.none-ls-extras-nvim;
       };
@@ -79,6 +80,7 @@ in {
         (withPlugins "./lua/plugins/treesitter.lua" (with plugins; [treesitter nvim-treesitter-textobjects]) treesitterSubstitute)
         # (withPlugins "./lua/plugins/whichkey.lua" (with plugins; [which-key-nvim]) {})
         (withPlugins "./lua/plugins/lsp/init.lua" (with plugins; [nvim-lspconfig nvim-cmp telescope-nvim]) {})
+        (withPlugins "./lua/plugins/lazygit.lua" (with plugins; [lazygit-nvim]) {})
       ];
   in {
     programs.neovim = {
@@ -91,6 +93,15 @@ in {
       package = pkgs.neovim-unwrapped;
     };
     xdg.configFile = configFiles;
+
+    programs.lazygit = {
+      enable = true;
+      settings = {
+        gui.language = "en";
+        # os.edit = "nvim --server $NVIM --remote-send '<C-\\><C-n>:q<CR>' && echo nvim --server $NVIM --remote-expr \'vim.cmd(\"edit \" .. vim.fn.fnameescape({{filename}}))\' >> debug.log";
+        os.edit = "nvim --server $NVIM --remote-send '<C-\\><C-n>:q<CR>:lua vim.cmd(\"edit \" .. vim.fn.fnameescape({{filename}}))<CR>'";
+      };
+    };
 
     capybara.impermanence.directories = [
       ".config/github-copilot"
