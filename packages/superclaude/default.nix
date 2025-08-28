@@ -5,21 +5,28 @@
 }:
 with lib;
 with lib.capybara;
-with pkgs.python3Packages;
-  buildPythonPackage rec {
+with pkgs.python311Packages;
+  buildPythonApplication {
     pname = "superclaude";
     version = "4.0.8";
 
     src = fetchPypi {
       inherit pname version;
-      hash = "";
+      sha256 = "sha256-pd5+Zlaan9pxU9L15hPEiLEA22Hi2QhxaQFl2IijEE8=";
     };
 
-    doCheck = false;
-
     pyproject = true;
-    build-system = [
+
+    nativeBuildInputs = [
       setuptools
       wheel
     ];
+
+    postPatch = ''
+      substituteInPlace pyproject.toml \
+        --replace 'SuperClaude = "SuperClaude.__main__:main"' ""
+    '';
+
+    doCheck = false;
+    pythonImportsCheck = ["SuperClaude"];
   }
