@@ -68,9 +68,7 @@ in {
           COMMON_DIR="$(git rev-parse --git-common-dir)"
           TOP_WT="$(dirname "$COMMON_DIR")"
 
-          FILES=( "devbox.json" "devbox.lock" ".envrc" ".nvim.lua" )
-
-          for f in "${FILES[@]}"; do
+          for f in devbox.json devbox.lock .envrc .nvim.lua; do
             src="$TOP_WT/$f"
             dst="$CUR_WT/$f"
             if [ ! -e "$dst" ] && [ -e "$src" ]; then
