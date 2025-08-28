@@ -57,8 +57,30 @@ in {
             fi
           fi
         '';
+        post-checkout-script = pkgs.writeShellScript "post-checkout-script" ''
+          GIT_DIR="$(git rev-parse --git-dir)"
+          case "$GIT_DIR" in
+            */.git/worktrees/*) : ;;
+            *) exit 0 ;;
+          esac
+
+          CUR_WT="$(git rev-parse --show-toplevel)"
+          COMMON_DIR="$(git rev-parse --git-common-dir)"
+          TOP_WT="$(dirname "$COMMON_DIR")"
+
+          FILES=( "devbox.json" "devbox.lock" ".envrc" ".nvim.lua" )
+
+          for f in "${FILES[@]}"; do
+            src="$TOP_WT/$f"
+            dst="$CUR_WT/$f"
+            if [ ! -e "$dst" ] && [ -e "$src" ]; then
+              cp "$src" "$dst"
+            fi
+          done
+        '';
       in {
         pre-push = pre-push-script;
+        post-checkout = post-checkout-script;
       };
     };
   };
