@@ -6,7 +6,7 @@
 with lib;
 with lib.capybara;
 with pkgs.python311Packages;
-  buildPythonApplication {
+  buildPythonApplication rec {
     pname = "superclaude";
     version = "4.0.8";
 
