@@ -16,5 +16,6 @@ in {
     home.packages = [pkgs.unstable.claude-code pkgs.unstable.repomix pkgs.capybara.superclaude];
 
     capybara.impermanence.directories = [".claude"];
+    capybara.impermanence.files = [".claude.json"];
   };
 }
