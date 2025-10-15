@@ -61,6 +61,11 @@
             options.mountpoint = "legacy";
             mountpoint = "/persist";
           };
+
+          "linstor" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/linstor";
+          };
         };
       };
     };
