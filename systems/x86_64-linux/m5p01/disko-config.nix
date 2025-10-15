@@ -61,11 +61,6 @@
             options.mountpoint = "legacy";
             mountpoint = "/persist";
           };
-
-          "k8s-tank" = {
-            type = "zfs_fs";
-            options.mountpoint = "none";
-          };
         };
       };
     };
