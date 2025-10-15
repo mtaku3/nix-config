@@ -19,9 +19,11 @@
 
   boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod"];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-amd" "drbd9"];
-  boot.blacklistedKernelModules = ["drbd"];
+  boot.kernelModules = ["kvm-amd" "drbd"];
   boot.extraModulePackages = with config.boot.kernelPackages; [drbd];
+  boot.extraModprobeConfig = ''
+    install drbd /run/current-system/sw/bin/modprobe --ignore-install drbd
+  '';
 
   boot.loader = {
     efi.canTouchEfiVariables = true;
