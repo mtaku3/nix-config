@@ -62,7 +62,7 @@
             mountpoint = "/persist";
           };
 
-          "openebs-zfspv" = {
+          "k8s-tank" = {
             type = "zfs_fs";
             options.mountpoint = "none";
           };
