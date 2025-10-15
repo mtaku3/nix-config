@@ -19,8 +19,8 @@
 
   boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod"];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-amd"];
-  boot.extraModulePackages = [];
+  boot.kernelModules = ["kvm-amd" "drbd"];
+  boot.extraModulePackages = with config.boot.kernelPackages; [drbd];
 
   boot.loader = {
     efi.canTouchEfiVariables = true;
