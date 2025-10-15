@@ -19,7 +19,8 @@
 
   boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod"];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-amd" "drbd"];
+  boot.kernelModules = ["kvm-amd" "drbd9"];
+  boot.blacklistedKernelModules = ["drbd"];
   boot.extraModulePackages = with config.boot.kernelPackages; [drbd];
 
   boot.loader = {
