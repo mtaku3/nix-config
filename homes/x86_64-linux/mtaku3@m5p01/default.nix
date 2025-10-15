@@ -24,6 +24,7 @@ with lib.capybara; {
         tmux = enabled;
         gpg = enabled;
         kube-cli = enabled;
+        devbox = enabled;
       };
     };
 
