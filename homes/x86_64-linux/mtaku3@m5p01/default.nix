@@ -17,7 +17,8 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signByDefault = false;
+          signingKey = "FD062C104F287179";
+          signByDefault = true;
         };
         gh = enabled;
         tmux = enabled;
