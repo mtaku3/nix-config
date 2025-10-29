@@ -18,8 +18,8 @@ in {
       disableTaildrop = true;
     };
 
-    capybara.impermanence.files = [
-      "/run/secrets/tailscale_key"
+    capybara.impermanence.directories = [
+      "/var/lib/tailscale"
     ];
   };
 }
