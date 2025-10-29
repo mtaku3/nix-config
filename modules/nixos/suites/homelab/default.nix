@@ -12,7 +12,20 @@ in {
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.enable = false;
+    networking.firewall = {
+      allowedTCPPortRanges = [
+        {
+          from = 0;
+          to = 65535;
+        }
+      ];
+      allowedUDPPortRanges = [
+        {
+          from = 0;
+          to = 65535;
+        }
+      ];
+    };
 
     capybara = {
       suites.common = enabled;
