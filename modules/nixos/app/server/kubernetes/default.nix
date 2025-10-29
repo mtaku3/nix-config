@@ -14,6 +14,7 @@ in {
     "services/cluster/kubernetes/controller-manager.nix"
     "services/cluster/kubernetes/flannel.nix"
     "services/cluster/kubernetes/kubelet.nix"
+    "services/cluster/kubernetes/proxy.nix"
   ];
 
   imports = [
@@ -22,6 +23,7 @@ in {
     ./controller-manager.nix
     ./flannel.nix
     ./kubelet.nix
+    ./proxy.nix
   ];
 
   options.capybara.app.server.kubernetes = with types; {
@@ -46,6 +48,10 @@ in {
           apiserver.allowPrivileged = true;
 
           addons.dns = enabled;
+
+          proxy.extraOpts = ''
+            --proxy-mode ipvs --ipvs-scheduler rr
+          '';
 
           dataDir = "/var/lib/kubelet";
         }
