@@ -8,7 +8,6 @@ with lib.capybara; {
   capybara = {
     system = {
       bluetooth = enabled;
-      hosts = enabled;
       power.do-not-sleep = enabled;
     };
     archetypes.workstation = enabled;
