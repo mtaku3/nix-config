@@ -15,6 +15,7 @@ in {
     capybara = {
       system = {
         audio = enabled;
+        network.tailscale = enabled;
       };
       xserver = {
         enable = true;
