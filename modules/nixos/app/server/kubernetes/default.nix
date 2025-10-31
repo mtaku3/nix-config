@@ -49,10 +49,6 @@ in {
 
           addons.dns = enabled;
 
-          proxy.extraOpts = ''
-            --proxy-mode ipvs --ipvs-scheduler rr
-          '';
-
           dataDir = "/var/lib/kubelet";
         }
         (optionalAttrs (cfg.role == "master") {
