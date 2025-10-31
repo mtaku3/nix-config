@@ -9,6 +9,8 @@ with lib.capybara; {
     ./hardware-configuration.nix
   ];
 
+  boot.kernelPackages = pkgs.linuxPackages_5_15;
+
   capybara = {
     suites.homelab = enabled;
 
