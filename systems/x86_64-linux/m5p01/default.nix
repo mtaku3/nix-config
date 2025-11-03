@@ -18,7 +18,6 @@ with lib.capybara; {
         advertiseIP = "192.168.10.2";
         masterAddress = "192.168.10.2";
       };
-      docker = enabled;
     };
 
     agenix = enabled;
@@ -32,8 +31,6 @@ with lib.capybara; {
       ];
     };
   };
-
-  users.users.mtaku3.extraGroups = ["docker"];
 
   users.users.root.packages = with pkgs; [git vim curl wget];
 
