@@ -25,6 +25,7 @@ with lib.capybara; {
         gpg = enabled;
         kube-cli = enabled;
         devbox = enabled;
+        claude-code = enabled;
       };
     };
 
