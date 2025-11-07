@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  inputs,
   ...
 }:
 with lib;
@@ -13,7 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [kubectl kubeseal kubernetes-helm kustomize];
+    home.packages = with pkgs; [kubectl kubeseal kubernetes-helm kustomize pkgs.capybara.kubecerts];
 
     capybara.impermanence.directories = [
       ".kube"

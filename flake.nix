@@ -24,6 +24,8 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    kubecerts.url = "github:mtaku3/kubecerts";
   };
 
   outputs = inputs: let
