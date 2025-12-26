@@ -35,9 +35,10 @@ in {
   config = mkIf cfg.enable {
     # 2. Etcd
     services.etcd = {
-      listenClientUrls = ["https://127.0.0.1:2379"];
+      # listenClientUrls = ["https://127.0.0.1:2379"];
+      listenClientUrls = ["https://0.0.0.0:2379"];
       listenPeerUrls = ["https://127.0.0.1:2380"];
-      advertiseClientUrls = ["https://127.0.0.1:2379"];
+      advertiseClientUrls = ["https://${cfg.advertiseIP}:2379"];
       initialCluster = ["${top.masterAddress}=https://127.0.0.1:2380"];
       initialAdvertisePeerUrls = ["https://127.0.0.1:2380"];
       # advertiseClientUrls = ["https://etcd.local:2379"];
