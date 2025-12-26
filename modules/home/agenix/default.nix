@@ -11,7 +11,7 @@ with lib.capybara; let
   cfg = config.capybara.agenix;
 in {
   imports = with inputs; [
-    agenix.nixosModules.default
+    agenix.homeManagerModules.default
   ];
 
   options.capybara.agenix = with types; {
@@ -19,17 +19,11 @@ in {
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = config.capybara.impermanence.enable;
-        message = "agenix module depends on impermanence";
-      }
-    ];
-
     age = {
       identityPaths = ["/persist/var/lib/agenix/agenix_ed25519"];
+      secretsDir = "${config.home.homeDirectory}/.agenix";
       secrets = let
-        base-path = snowfall.fs.get-file "secrets/${system}/${host}";
+        base-path = snowfall.fs.get-file "secrets/${system}/${host}/users/${config.snowfallorg.user.name}";
         prefix-to-remove = "${base-path}/";
       in
         foldl (acc: path:
@@ -37,9 +31,6 @@ in {
           then acc // {${removePrefix prefix-to-remove (removeSuffix ".age" (builtins.unsafeDiscardStringContext path))}.file = path;}
           else acc) {} (snowfall.fs.get-files-recursive base-path);
     };
-
-    capybara.impermanence.files = [
-      "/var/lib/agenix/agenix_ed25519"
-    ];
   };
 }
+

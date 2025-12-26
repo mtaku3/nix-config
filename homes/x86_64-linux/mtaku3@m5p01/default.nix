@@ -23,7 +23,10 @@ with lib.capybara; {
         gh = enabled;
         tmux = enabled;
         gpg = enabled;
-        kube-cli = enabled;
+        kube-cli = {
+          enable = true;
+          masterAddress = "https://192.168.10.2:6443";
+        };
         devbox = enabled;
         claude-code = enabled;
       };
@@ -43,6 +46,8 @@ with lib.capybara; {
       ];
       allowOther = true;
     };
+
+    agenix = enabled;
   };
 
   home.stateVersion = "25.05";

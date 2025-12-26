@@ -14,7 +14,7 @@ with lib.capybara; let
     // (optionalAttrs user.create {
       ${name} = {
         hashedPasswordFile = let
-          ageKey = "/users/${name}/password";
+          ageKey = "users/${name}/password";
         in
           mkIf (builtins.hasAttr ageKey config.age.secrets) config.age.secrets.${ageKey}.path;
         shell = let
