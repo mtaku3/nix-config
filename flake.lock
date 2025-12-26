@@ -197,11 +197,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1763121623,
-        "narHash": "sha256-/W/7D2GDBUWEyejGviTVoUEuX+r0HB4V3cPdSTlQ9Q0=",
+        "lastModified": 1766759028,
+        "narHash": "sha256-sVHjqpCP6vG3z9yMWIFAZGc9IhCHn5NzfDpapkCV2Tw=",
         "owner": "mtaku3",
         "repo": "kubecerts",
-        "rev": "5ccb649e38b39fc2705e842db8f1d7892bd7e29e",
+        "rev": "af084c9eaaa951fe223b7050985678fb14bba64e",
         "type": "github"
       },
       "original": {
