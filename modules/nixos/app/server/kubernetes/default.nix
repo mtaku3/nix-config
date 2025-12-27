@@ -9,15 +9,16 @@ with lib.capybara; let
   cfg = config.capybara.app.server.kubernetes;
   api = "https://${cfg.masterAddress}:6443";
 in {
-  # disabledModules = [
+  disabledModules = [
   #   "services/cluster/kubernetes/pki.nix"
   #   "services/cluster/kubernetes/apiserver.nix"
   #   "services/cluster/kubernetes/controller-manager.nix"
   #   "services/cluster/kubernetes/flannel.nix"
   #   "services/cluster/kubernetes/kubelet.nix"
   #   "services/cluster/kubernetes/proxy.nix"
-  # ];
-  #
+    "services/cluster/kubernetes/addons/dns.nix"
+  ];
+
   imports = [
     #   ./pki.nix
     #   ./apiserver.nix
@@ -26,6 +27,7 @@ in {
     #   ./kubelet.nix
     #   ./proxy.nix
     ./mypki.nix
+    ./mydns.nix
   ];
 
   options.capybara.app.server.kubernetes = with types; {
@@ -86,6 +88,8 @@ in {
           securePort = 6443;
           advertiseAddress = cfg.advertiseIP;
         };
+        scheduler.address = "0.0.0.0";
+        controllerManager.bindAddress = "0.0.0.0";
       };
     })
     (mkIf (cfg.role == "node") {

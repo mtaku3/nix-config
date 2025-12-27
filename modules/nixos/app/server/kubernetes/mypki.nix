@@ -105,20 +105,27 @@ in {
 
       controllerManager = mkIf top.controllerManager.enable {
         serviceAccountKeyFile = secret "sa.key";
-        # rootCaFile = secret "front-proxy-ca.crt";
         rootCaFile = secret "ca.crt";
+        tlsCertFile = secret "controller-manager.crt";
+        tlsKeyFile = secret "controller-manager.key";
 
-        extraOpts = concatStringsSep " " [
-          "--cluster-signing-key-file=${secret "ca.key"}"
-          "--client-ca-file=${secret "ca.crt"}"
-          "--cluster-signing-cert-file=${secret "ca.crt"}"
-          "--requestheader-client-ca-file=${secret "front-proxy-ca.crt"}"
+        extraOpts = let
+          kubeconfig = top.lib.mkKubeConfig "kube-controller-manager" top.controllerManager.kubeconfig;
+        in
+          concatStringsSep " " [
+            "--cluster-signing-key-file=${secret "ca.key"}"
+            "--client-ca-file=${secret "ca.crt"}"
+            "--cluster-signing-cert-file=${secret "ca.crt"}"
+            "--requestheader-client-ca-file=${secret "front-proxy-ca.crt"}"
 
-          "--requestheader-username-headers=X-Remote-User"
-          "--requestheader-group-headers=X-Remote-Group"
-          "--requestheader-extra-headers-prefix=X-Remote-Extra-"
-          "--requestheader-allowed-names=front-proxy-client"
-        ];
+            "--requestheader-username-headers=X-Remote-User"
+            "--requestheader-group-headers=X-Remote-Group"
+            "--requestheader-extra-headers-prefix=X-Remote-Extra-"
+            "--requestheader-allowed-names=front-proxy-client"
+
+            "--authentication-kubeconfig=${kubeconfig}"
+            "--authorization-kubeconfig=${kubeconfig}"
+          ];
 
         kubeconfig = {
           certFile = secret "controller-manager-client.crt";
@@ -127,6 +134,18 @@ in {
       };
 
       scheduler = mkIf top.scheduler.enable {
+        extraOpts = let
+          kubeconfig = top.lib.mkKubeConfig "kube-scheduler" top.scheduler.kubeconfig;
+        in
+          concatStringsSep " " [
+            "--client-ca-file=${secret "ca.crt"}"
+            "--tls-cert-file=${secret "scheduler.crt"}"
+            "--tls-private-key-file=${secret "scheduler.key"}"
+
+            "--authentication-kubeconfig=${kubeconfig}"
+            "--authorization-kubeconfig=${kubeconfig}"
+          ];
+
         kubeconfig = {
           certFile = secret "scheduler-client.crt";
           keyFile = secret "scheduler-client.key";
@@ -358,6 +377,16 @@ in {
         owner = "kubernetes";
         group = "kubernetes";
       };
+      "kubernetes/pki/controller-manager.crt" = {
+        mode = "644";
+        owner = "root";
+        group = "root";
+      };
+      "kubernetes/pki/controller-manager.key" = {
+        mode = "400";
+        owner = "kubernetes";
+        group = "kubernetes";
+      };
 
       # 11. Scheduler
       "kubernetes/pki/scheduler-client.crt" = {
@@ -366,6 +395,16 @@ in {
         group = "root";
       };
       "kubernetes/pki/scheduler-client.key" = {
+        mode = "400";
+        owner = "kubernetes";
+        group = "kubernetes";
+      };
+      "kubernetes/pki/scheduler.crt" = {
+        mode = "644";
+        owner = "root";
+        group = "root";
+      };
+      "kubernetes/pki/scheduler.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
