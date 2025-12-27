@@ -260,8 +260,8 @@ in {
       };
       "kubernetes/pki/flannel-client.key" = {
         mode = "400";
-        owner = "kubernetes";
-        group = "kubernetes";
+        owner = "root";
+        group = "root";
       };
       "kubernetes/pki/flannel-etcd-client.crt" = {
         mode = "644";
@@ -270,8 +270,8 @@ in {
       };
       "kubernetes/pki/flannel-etcd-client.key" = {
         mode = "400";
-        owner = "kubernetes";
-        group = "kubernetes";
+        owner = "root";
+        group = "root";
       };
 
       # 5. API Server (Etcd Client)
