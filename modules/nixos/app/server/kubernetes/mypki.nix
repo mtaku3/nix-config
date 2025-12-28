@@ -10,7 +10,7 @@ with lib; let
 
   # Helper to shorten the secret path lookup
   # Usage: secret "ca.crt" -> config.age.secrets."/kubernetes/pki/ca.crt".path
-  secret = name: config.age.secrets."kubernetes/pki/${name}".path;
+  secret = name: config.age.secrets."homelab-k8s/${name}".path;
 
   # Helper to generate kubeconfig files using direct secret paths
   mkKubeConfig = name: {
@@ -197,237 +197,237 @@ in {
 
     age.secrets = {
       # 1. Cluster Root CA
-      "kubernetes/pki/ca.crt" = {
+      "homelab-k8s/ca.crt" = {
         mode = "644";
         owner = "root";
         group = "kubernetes";
       };
-      "kubernetes/pki/ca.key" = {
+      "homelab-k8s/ca.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 2. Cluster Admin
-      "kubernetes/pki/cluster-admin-client.crt" = {
+      "homelab-k8s/cluster-admin-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/cluster-admin-client.key" = {
+      "homelab-k8s/cluster-admin-client.key" = {
         mode = "400";
         owner = "root";
         group = "kubernetes";
       };
 
       # 3. Etcd
-      "kubernetes/pki/etcd/ca.crt" = {
+      "homelab-k8s/etcd/ca.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/etcd/ca.key" = {
+      "homelab-k8s/etcd/ca.key" = {
         mode = "400";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/etcd/server.crt" = {
+      "homelab-k8s/etcd/server.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/etcd/server.key" = {
+      "homelab-k8s/etcd/server.key" = {
         mode = "400";
         owner = "etcd";
         group = "kubernetes";
       };
-      "kubernetes/pki/etcd/peer.crt" = {
+      "homelab-k8s/etcd/peer.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/etcd/peer.key" = {
+      "homelab-k8s/etcd/peer.key" = {
         mode = "400";
         owner = "etcd";
         group = "kubernetes";
       };
 
       # 4. Flannel
-      "kubernetes/pki/flannel-client.crt" = {
+      "homelab-k8s/flannel-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/flannel-client.key" = {
+      "homelab-k8s/flannel-client.key" = {
         mode = "400";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/flannel-etcd-client.crt" = {
+      "homelab-k8s/flannel-etcd-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/flannel-etcd-client.key" = {
+      "homelab-k8s/flannel-etcd-client.key" = {
         mode = "400";
         owner = "root";
         group = "root";
       };
 
       # 5. API Server (Etcd Client)
-      "kubernetes/pki/apiserver-etcd-client.crt" = {
+      "homelab-k8s/apiserver-etcd-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/apiserver-etcd-client.key" = {
+      "homelab-k8s/apiserver-etcd-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 6. API Server (Serving)
-      "kubernetes/pki/apiserver.crt" = {
+      "homelab-k8s/apiserver.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/apiserver.key" = {
+      "homelab-k8s/apiserver.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 7. Service Accounts
-      "kubernetes/pki/sa.pub" = {
+      "homelab-k8s/sa.pub" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/sa.key" = {
+      "homelab-k8s/sa.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 8. API Server (Kubelet Client)
-      "kubernetes/pki/apiserver-kubelet-client.crt" = {
+      "homelab-k8s/apiserver-kubelet-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/apiserver-kubelet-client.key" = {
+      "homelab-k8s/apiserver-kubelet-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
-      "kubernetes/pki/kubelet-client.crt" = {
+      "homelab-k8s/kubelet-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/kubelet-client.key" = {
+      "homelab-k8s/kubelet-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
-      "kubernetes/pki/kubelet.crt" = {
+      "homelab-k8s/kubelet.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/kubelet.key" = {
+      "homelab-k8s/kubelet.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 9. API Server (Front Proxy)
-      "kubernetes/pki/front-proxy-ca.crt" = {
+      "homelab-k8s/front-proxy-ca.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/front-proxy-ca.key" = {
+      "homelab-k8s/front-proxy-ca.key" = {
         mode = "400";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/front-proxy-client.crt" = {
+      "homelab-k8s/front-proxy-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/front-proxy-client.key" = {
+      "homelab-k8s/front-proxy-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 10. Controller Manager
-      "kubernetes/pki/controller-manager-client.crt" = {
+      "homelab-k8s/controller-manager-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/controller-manager-client.key" = {
+      "homelab-k8s/controller-manager-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
-      "kubernetes/pki/controller-manager.crt" = {
+      "homelab-k8s/controller-manager.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/controller-manager.key" = {
+      "homelab-k8s/controller-manager.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 11. Scheduler
-      "kubernetes/pki/scheduler-client.crt" = {
+      "homelab-k8s/scheduler-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/scheduler-client.key" = {
+      "homelab-k8s/scheduler-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
-      "kubernetes/pki/scheduler.crt" = {
+      "homelab-k8s/scheduler.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/scheduler.key" = {
+      "homelab-k8s/scheduler.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
       # 12. Addon Manager
-      "kubernetes/pki/addon-manager-client.crt" = {
+      "homelab-k8s/addon-manager-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/addon-manager-client.key" = {
+      "homelab-k8s/addon-manager-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";
       };
 
-      "kubernetes/pki/kube-proxy-client.crt" = {
+      "homelab-k8s/kube-proxy-client.crt" = {
         mode = "644";
         owner = "root";
         group = "root";
       };
-      "kubernetes/pki/kube-proxy-client.key" = {
+      "homelab-k8s/kube-proxy-client.key" = {
         mode = "400";
         owner = "kubernetes";
         group = "kubernetes";

@@ -11,7 +11,8 @@
     "haskell-language-server@latest",
     "ghc@latest",
     "lua-language-server@latest",
-    "age@latest"
+    "age@latest",
+    "sops@latest"
   ],
   "shell": {
     "init_hook": [
@@ -21,11 +22,11 @@
       "test": [
         "echo \"Error: no test specified\" && exit 1"
       ],
-      "fmt":     "nix fmt && ormolu --mode inplace $(find . -name '*.hs')",
-      "cleanup": "rm *.qcow2 || true",
-      "dev":     "cleanup && $(nix flake check \".?submodules=1#\" || true) && $(nixos-generate -f vm --flake \".?submodules=1#$1\" | tail -n 1)",
-      "switch":  "nixos-rebuild switch --flake \".?submodules=1#$1\"",
-      "check":   "nix flake check \".?submodules=1#\"",
+      "fmt":           "nix fmt && ormolu --mode inplace $(find . -name '*.hs')",
+      "cleanup":       "rm *.qcow2 || true",
+      "dev":           "cleanup && $(nix flake check \".?submodules=1#\" || true) && $(nixos-generate -f vm --flake \".?submodules=1#$1\" | tail -n 1)",
+      "switch":        "nixos-rebuild switch --flake \".?submodules=1#$1\"",
+      "check":         "nix flake check \".?submodules=1#\"",
       "remote-switch": "nixos-rebuild switch --flake \".?submodules=1#$2\" --target-host $1 --build-host $1 --use-remote-sudo --fast"
     }
   }

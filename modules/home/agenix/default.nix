@@ -2,7 +2,6 @@
   lib,
   config,
   inputs,
-  system,
   host,
   ...
 }:
@@ -20,10 +19,10 @@ in {
 
   config = mkIf cfg.enable {
     age = {
-      identityPaths = ["/persist/var/lib/agenix/agenix_ed25519"];
+      identityPaths = ["/persist/var/lib/agenix/${config.home.username}@${host}"];
       secretsDir = "${config.home.homeDirectory}/.agenix";
       secrets = let
-        base-path = snowfall.fs.get-file "secrets/${system}/${host}/users/${config.home.username}";
+        base-path = snowfall.fs.get-file "secrets/${host}/home/${config.home.username}";
         prefix-to-remove = "${base-path}/";
       in
         foldl (acc: path:
@@ -33,4 +32,3 @@ in {
     };
   };
 }
-
