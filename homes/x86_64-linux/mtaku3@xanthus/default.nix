@@ -32,7 +32,10 @@ with lib.capybara; {
       dev = {
         claude-code = enabled;
         minio-cli = enabled;
-        kube-cli = enabled;
+        kube-cli = {
+          enable = true;
+          masterAddress = "https://192.168.10.2:6443";
+        };
         pycharm = enabled;
         zsh = {
           enable = true;
@@ -71,6 +74,8 @@ with lib.capybara; {
       ];
       allowOther = true;
     };
+
+    agenix = enabled;
   };
 
   home.stateVersion = "24.05";

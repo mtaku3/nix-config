@@ -13,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [jetbrains.pycharm-professional];
+    home.packages = with pkgs; [jetbrains.pycharm];
     capybara.impermanence.directories = [".config/JetBrains"];
   };
 }

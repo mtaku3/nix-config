@@ -15,10 +15,9 @@ in {
   config = mkIf cfg.enable {
     services.greetd = {
       enable = true;
-      vt = 2;
       settings = {
         default_session = {
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet -x /run/current-system/sw/share/xsessions --no-xsession-wrapper --remember-session --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
+          command = "${pkgs.tuigreet}/bin/tuigreet -x /run/current-system/sw/share/xsessions --no-xsession-wrapper --remember-session --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
           user = "greeter";
         };
       };

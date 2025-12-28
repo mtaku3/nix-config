@@ -23,14 +23,16 @@ in {
 
     programs.git = {
       enable = true;
-      userName = cfg.username;
-      userEmail = cfg.email;
       signing = {
         key = cfg.signingKey;
         inherit (cfg) signByDefault;
       };
       lfs = enabled;
-      extraConfig = {
+      settings = {
+        user = {
+          name = cfg.username;
+          email = cfg.email;
+        };
         init = {defaultBranch = "main";};
         pull = {rebase = true;};
         push = {autoSetupRemote = true;};

@@ -42,7 +42,7 @@ in {
       case $session in
         ${
         if cfg.windowManager.xmonad.enable
-        then "xmonad ) exec $HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system};;"
+        then "xmonad ) exec $HOME/.xmonad/xmonad-${pkgs.system};;"
         else ""
       }
       esac

@@ -12,6 +12,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    services.logind.lidSwitchExternalPower = "ignore";
+    services.logind.settings.Login.HandleLidSwitchExternalPower = "ignore";
   };
 }

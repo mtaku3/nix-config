@@ -23,7 +23,7 @@ in {
       identityPaths = ["/persist/var/lib/agenix/agenix_ed25519"];
       secretsDir = "${config.home.homeDirectory}/.agenix";
       secrets = let
-        base-path = snowfall.fs.get-file "secrets/${system}/${host}/users/${config.snowfallorg.user.name}";
+        base-path = snowfall.fs.get-file "secrets/${system}/${host}/users/${config.home.username}";
         prefix-to-remove = "${base-path}/";
       in
         foldl (acc: path:
