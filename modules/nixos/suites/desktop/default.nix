@@ -17,9 +17,9 @@ in {
         audio = enabled;
         network.tailscale = enabled;
       };
+      greetd = enabled;
       xserver = {
         enable = true;
-        greetd = enabled;
       };
       app.util.zip = enabled;
     };

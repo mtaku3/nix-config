@@ -8,6 +8,10 @@ with lib; rec {
     usernames = attrNames config.snowfallorg.users;
   in
     foldl (acc: username: acc // {"${username}" = config.home-manager.users.${username};}) {} usernames;
+  users-any = predicate: config: let
+    user-configs = attrValues config.home-manager.users;
+  in
+    lists.any predicate user-configs;
   mkAliasOptionModuleRecursive = from: to: let
     getOptionPathsFromAttrsRecursive = root: options: let
       rootOpt = getAttrFromPath root options;

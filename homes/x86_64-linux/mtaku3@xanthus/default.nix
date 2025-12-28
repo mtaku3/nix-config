@@ -32,10 +32,10 @@ with lib.capybara; {
       dev = {
         claude-code = enabled;
         minio-cli = enabled;
-        kube-cli = {
-          enable = true;
-          masterAddress = "https://192.168.10.2:6443";
-        };
+        # kube-cli = {
+        #   enable = true;
+        #   masterAddress = "https://192.168.10.2:6443";
+        # };
         pycharm = enabled;
         zsh = {
           enable = true;
