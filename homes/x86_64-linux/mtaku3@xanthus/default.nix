@@ -15,6 +15,7 @@ with lib.capybara; {
         session = "xmonad";
       };
     };
+    wayland.windowManager.hyprland = enabled;
     app = {
       desktop = {
         slack = enabled;
