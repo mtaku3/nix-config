@@ -21,7 +21,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    capybara.app.desktop.flameshot.enable = mkDefault true;
+    capybara.app.desktop.swappy = enabled;
 
     wayland.windowManager.hyprland = {
       enable = true;
@@ -155,7 +155,7 @@ in {
                 "$mod, RETURN, exec, $app2unit kitty"
                 "$mod, B, exec, $app2unit vivaldi"
                 "$mod, D, exec, fuzzel"
-                "$mod SHIFT, S, exec, $app2unit flameshot gui"
+                "$mod SHIFT, S, exec, grim -g \"$(slurp)\" - | swappy -f -"
 
                 "$mod, Escape, exec, pidof hyprlock || hyprlock"
                 "$mod SHIFT, Escape, exec, systemctl suspend"
@@ -210,5 +210,7 @@ in {
           }
         ];
     };
+
+    home.packages = with pkgs.unstable; [wl-clipboard];
   };
 }
