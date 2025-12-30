@@ -71,6 +71,7 @@ in {
         capybara.app.desktop.fcitx5.enable = mkForce true;
         capybara.app.desktop.networkmanagerapplet.enable = mkForce true;
         capybara.app.desktop.i3lock.enable = mkForce true;
+        capybara.app.desktop.flameshot.enable = mkDefault true;
         home.packages = [(lowPrio xmonad)];
         home.file = mapAttrs' (name: value:
           attrsets.nameValuePair (".xmonad/lib/" + name) {source = value;})

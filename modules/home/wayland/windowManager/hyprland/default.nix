@@ -21,6 +21,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    capybara.app.desktop.flameshot.enable = mkDefault true;
+
     wayland.windowManager.hyprland = {
       enable = true;
 
