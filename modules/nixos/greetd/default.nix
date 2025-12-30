@@ -83,7 +83,7 @@ in {
       enable = true;
       settings = {
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet -x /run/current-system/sw/share/xsessions --no-xsession-wrapper --remember-session --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
+          command = "${pkgs.tuigreet}/bin/tuigreet -x /run/current-system/sw/share/xsessions -s /run/current-system/sw/share/wayland-sessions --no-xsession-wrapper --remember-session --power-shutdown 'sudo shutdown -h now' --power-reboot 'sudo shutdown -r now'";
           user = "greeter";
         };
       };
