@@ -3,7 +3,7 @@ local none_ls = require("none-ls")
 
 lsp.setup("nil_ls", {})
 lsp.setup("hls", {})
-lsp.setup("lua_ls", {})
+-- lsp.setup("lua_ls", {})
 
 none_ls.register({
   none_ls.builtins.formatting.alejandra,
