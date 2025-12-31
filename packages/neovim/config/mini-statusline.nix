@@ -31,10 +31,20 @@
                 local clients = vim.lsp.get_clients({ bufnr = 0 })
                 if #clients == 0 then return "" end
 
+                -- Map of names you want to shorten
+                local replacements = {
+                  ["GitHub Copilot"] = "copilot",
+                }
+
                 local names = {}
                 for _, client in ipairs(clients) do
-                  table.insert(names, client.name)
+                  -- Check if the name exists in our replacements table; if not, use the original
+                  local name = replacements[client.name] or client.name
+                  table.insert(names, name)
                 end
+
+                -- Sort names alphabetically
+                table.sort(names)
 
                 -- Returns icon + names, e.g., " nixd, efm"
                 return " " .. table.concat(names, ", ")
@@ -53,6 +63,10 @@
                 for _, fmt in ipairs(formatters) do
                   table.insert(names, fmt.name)
                 end
+
+                -- Sort names alphabetically
+                table.sort(names)
+
                 return "󰗈 " .. table.concat(names, ", ")
               end)()
 
