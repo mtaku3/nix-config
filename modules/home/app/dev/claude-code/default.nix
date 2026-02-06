@@ -16,6 +16,7 @@ in {
   config = mkIf cfg.enable {
     programs.claude-code = {
       enable = true;
+      package = pkgs.unstable.claude-code;
       memory.source = ./CLAUDE.md;
       settings = {
         theme = "dark";
