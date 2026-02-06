@@ -45,7 +45,16 @@ in {
         apiserverAddress = api;
         easyCerts = false;
 
-        apiserver.allowPrivileged = true;
+        apiserver = {
+          allowPrivileged = true;
+          verbosity = 1; # Warn level
+        };
+
+        controllerManager.verbosity = 1; # Warn level
+
+        kubelet.verbosity = 1; # Warn level
+
+        proxy.verbosity = 1; # Warn level
 
         addons.dns = enabled;
 
@@ -53,6 +62,16 @@ in {
       };
 
       virtualisation.containerd.settings.plugins."io.containerd.grpc.v1.cri".containerd.snapshotter = "overlayfs";
+
+      # Set etcd log level to warn
+      services.etcd.extraConf = {
+        "log-level" = "warn";
+      };
+
+      # Set flannel log verbosity to warning level (Go log levels: 0=panic, 1=error, 2=warning)
+      systemd.services.flannel = mkIf config.services.kubernetes.flannel.enable {
+        serviceConfig.Environment = ["GLOG_v=2"];
+      };
 
       capybara.impermanence.directories = [
         {
