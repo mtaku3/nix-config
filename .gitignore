@@ -7,3 +7,5 @@ node_modules
 
 # pre-commit
 .pre-commit-config.yaml
+
+/.serena
