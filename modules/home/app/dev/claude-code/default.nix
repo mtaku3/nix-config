@@ -17,7 +17,7 @@ in {
     programs.claude-code = {
       enable = true;
       package = pkgs.unstable.claude-code;
-      memory.source = ./CLAUDE.md;
+      # memory.source = ./CLAUDE.md;
       settings = {
         theme = "dark";
         autoUpdates = false;
@@ -83,35 +83,35 @@ in {
         };
       };
 
-      agents = foldl (acc: path: let
-        filename = snowfall.path.get-file-name-without-extension path;
-      in
-        acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./agents);
-
-      commands = foldl (acc: path: let
-        filename = snowfall.path.get-file-name-without-extension path;
-      in
-        acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./commands);
-
-      hooks = foldl (acc: path: let
-        filename = snowfall.path.get-file-name-without-extension path;
-      in
-        acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./hooks);
-
-      skills = let
-        base-path = ./skills;
-        prefix-to-remove = "${base-path}/";
-      in
-        foldl (acc: path: let
-          skill = removePrefix prefix-to-remove (removeSuffix "/SKILL.md" (builtins.unsafeDiscardStringContext path));
-        in
-          acc // {"${skill}" = builtins.readFile path;}) {} (snowfall.fs.get-files-recursive base-path);
+      # agents = foldl (acc: path: let
+      #   filename = snowfall.path.get-file-name-without-extension path;
+      # in
+      #   acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./agents);
+      #
+      # commands = foldl (acc: path: let
+      #   filename = snowfall.path.get-file-name-without-extension path;
+      # in
+      #   acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./commands);
+      #
+      # hooks = foldl (acc: path: let
+      #   filename = snowfall.path.get-file-name-without-extension path;
+      # in
+      #   acc // {"${filename}" = builtins.readFile path;}) {} (snowfall.fs.get-files ./hooks);
+      #
+      # skills = let
+      #   base-path = ./skills;
+      #   prefix-to-remove = "${base-path}/";
+      # in
+      #   foldl (acc: path: let
+      #     skill = removePrefix prefix-to-remove (removeSuffix "/SKILL.md" (builtins.unsafeDiscardStringContext path));
+      #   in
+      #     acc // {"${skill}" = builtins.readFile path;}) {} (snowfall.fs.get-files-recursive base-path);
 
       mcpServers = let
         mcp-module = inputs.mcp-servers-nix.lib.evalModule pkgs {
           programs = {
             context7.enable = true;
-            codex.enable = true;
+            # codex.enable = true;
             serena = {
               enable = true;
               context = "claude-code";
