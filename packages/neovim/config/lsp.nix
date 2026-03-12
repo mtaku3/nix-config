@@ -43,6 +43,16 @@
             };
           };
         };
+
+        # php
+        intelephense = {
+          enable = true;
+          config = {
+            cmd = ["intelephense" "--stdio"];
+            filetypes = ["php"];
+            root_markers = ["composer.json" ".git"];
+          };
+        };
       };
 
       keymaps = [
