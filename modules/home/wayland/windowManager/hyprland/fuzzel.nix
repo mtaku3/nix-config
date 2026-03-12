@@ -5,8 +5,10 @@
   ...
 }:
 with lib;
-with lib.capybara; {
-  config = {
+with lib.capybara; let
+  top = config.capybara.wayland.windowManager.hyprland;
+in {
+  config = mkIf top.enable {
     programs.fuzzel = {
       enable = true;
       settings = {

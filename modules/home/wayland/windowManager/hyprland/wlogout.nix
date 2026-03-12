@@ -15,8 +15,9 @@ with lib.capybara; let
       cp *.svg $out/share/wlogout/icons/
     '';
   };
+  top = config.capybara.wayland.windowManager.hyprland;
 in {
-  config = {
+  config = mkIf top.enable {
     programs.wlogout = {
       enable = true;
 

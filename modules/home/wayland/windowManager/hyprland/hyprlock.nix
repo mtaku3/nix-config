@@ -25,8 +25,9 @@ with lib.capybara; let
 
     echo "''${ICONS[$INDEX]} $PERC%"
   '';
+  top = config.capybara.wayland.windowManager.hyprland;
 in {
-  config = {
+  config = mkIf top.enable {
     programs.hyprlock = {
       enable = true;
       settings = {
