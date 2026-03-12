@@ -44,6 +44,16 @@
           };
         };
 
+        # java
+        jdtls = {
+          enable = true;
+          config = {
+            cmd = ["jdtls"];
+            filetypes = ["java"];
+            root_markers = ["pom.xml" "build.gradle" "build.gradle.kts" ".git"];
+          };
+        };
+
         # php
         intelephense = {
           enable = true;
