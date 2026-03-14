@@ -29,6 +29,10 @@ in {
 
         permissions = {
           deny = [
+            "Read(./.env)"
+            "Read(./.env.*)"
+            "Write(./.env)"
+            "Write(./.env.*)"
             "Bash(rm -rf /*)"
             "Bash(rm -rf /)"
             "Bash(sudo rm -:*)"
