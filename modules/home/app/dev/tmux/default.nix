@@ -30,6 +30,13 @@ in {
         bind -r l select-pane -R
 
         set -g focus-events on
+        set -g mouse on
+        set -g set-clipboard on
+
+        bind-key -T edit-mode-vi WheelUpPane send-keys -X scroll-up
+        bind-key -T edit-mode-vi WheelDownPane send-keys -X scroll-down
+
+        bind -T copy-mode-vi v send -X begin-selection
 
         set-option -gu default-command
         set-option -g default-shell ${config.capybara.shell.path}
