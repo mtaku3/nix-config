@@ -32,6 +32,8 @@ with lib.capybara; {
     };
   };
 
+  services.journald.storage = "persistent";
+
   users.users.root.packages = with pkgs; [git vim curl wget];
 
   system.stateVersion = "25.05";
