@@ -29,6 +29,8 @@ in {
         bind -r k select-pane -U
         bind -r l select-pane -R
 
+        set -g focus-events on
+
         set-option -gu default-command
         set-option -g default-shell ${config.capybara.shell.path}
       '';

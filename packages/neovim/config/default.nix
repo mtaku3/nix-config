@@ -38,7 +38,15 @@
       wrap = false;
       backup = false;
       exrc = false;
+      autoread = true;
     };
+
+    autoCmd = [
+      {
+        event = ["FocusGained" "BufEnter"];
+        command = "checktime";
+      }
+    ];
 
     colorschemes.kanagawa.enable = true;
 
