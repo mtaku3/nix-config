@@ -56,6 +56,7 @@
       interface = "enp1s0";
     };
     nameservers = ["192.168.10.1"];
+    enableIPv6 = false;
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
