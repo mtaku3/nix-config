@@ -1,0 +1,28 @@
+{
+  disko.devices = {
+    disk = {
+      vda = {
+        type = "disk";
+        device = "/dev/vda";
+        imageSize = "10G";
+        content = {
+          type = "gpt";
+          partitions = {
+            boot = {
+              size = "1M";
+              type = "EF02";
+            };
+            root = {
+              size = "100%";
+              content = {
+                type = "filesystem";
+                format = "ext4";
+                mountpoint = "/";
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}

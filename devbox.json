@@ -12,7 +12,8 @@
     "ghc@latest",
     "lua-language-server@latest",
     "age@latest",
-    "sops@latest"
+    "sops@latest",
+    "nixos-anywhere@latest"
   ],
   "shell": {
     "init_hook": [

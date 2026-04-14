@@ -406,6 +406,54 @@
         }
       }
     },
+    "nixos-anywhere@latest": {
+      "last_modified": "2026-04-05T07:14:34Z",
+      "resolved": "github:NixOS/nixpkgs/bd48fcede9287ff448ecc84c4e94a4fca4bd0d72#nixos-anywhere",
+      "source": "devbox-search",
+      "version": "1.13.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/j84vqwvgmlzcmf3ljxj22aniblscp0q4-nixos-anywhere-1.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/j84vqwvgmlzcmf3ljxj22aniblscp0q4-nixos-anywhere-1.13.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/z03z5q6p1hgzbmpw7qbw7k9fk948pw5w-nixos-anywhere-1.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/z03z5q6p1hgzbmpw7qbw7k9fk948pw5w-nixos-anywhere-1.13.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/fds78gyxq1vgdwb5dq7cp6yp6a542wrb-nixos-anywhere-1.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/fds78gyxq1vgdwb5dq7cp6yp6a542wrb-nixos-anywhere-1.13.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6yjv2972j3qxqkdh5w0rbdw8s6ri4xdc-nixos-anywhere-1.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/6yjv2972j3qxqkdh5w0rbdw8s6ri4xdc-nixos-anywhere-1.13.0"
+        }
+      }
+    },
     "nixos-generators@latest": {
       "last_modified": "2024-09-12T11:58:09Z",
       "resolved": "github:NixOS/nixpkgs/280db3decab4cbeb22a4599bd472229ab74d25e1#nixos-generators",

@@ -10,12 +10,13 @@ with lib.capybara; let
 in {
   options.capybara.app.server.ssh = with types; {
     enable = mkBoolOpt false "Whether to enable the ssh";
+    port = mkOpt types.port 22 "SSH port to listen on";
   };
 
   config = mkIf cfg.enable {
     services.openssh = {
       enable = true;
-      ports = [22];
+      ports = [cfg.port];
       settings = {
         PasswordAuthentication = false;
         AllowUsers = null;

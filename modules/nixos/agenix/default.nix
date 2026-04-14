@@ -18,15 +18,13 @@ in {
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = config.capybara.impermanence.enable;
-        message = "agenix module depends on impermanence";
-      }
-    ];
-
     age = {
-      identityPaths = ["/persist/var/lib/agenix/${host}"];
+      identityPaths = let
+        prefix =
+          if config.capybara.impermanence.enable
+          then config.capybara.impermanence.name
+          else "";
+      in ["${prefix}/var/lib/agenix/${host}"];
       secrets = let
         base-path = snowfall.fs.get-file "secrets/${host}/system";
         prefix-to-remove = "${base-path}/";
@@ -37,7 +35,7 @@ in {
           else acc) {} (snowfall.fs.get-files-recursive base-path);
     };
 
-    capybara.impermanence.directories = [
+    capybara.impermanence.directories = mkIf config.capybara.impermanence.enable [
       "/var/lib/agenix"
     ];
   };
