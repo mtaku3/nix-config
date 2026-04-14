@@ -33,7 +33,7 @@ in {
         fail2ban = enabled;
         ssh = enabled;
         kubernetes = enabled;
-        netbird = enabled;
+        tailscale = enabled;
       };
     };
   };
