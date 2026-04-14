@@ -13,7 +13,7 @@ with lib.capybara; {
     suites.homelab-gw = {
       enable = true;
       sshPort = 2222;
-      forwardTarget = "100.83.21.66";
+      forwardTarget = "100.83.165.61";
       externalInterface = "ens3";
     };
 
