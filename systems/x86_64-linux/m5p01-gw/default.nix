@@ -20,6 +20,8 @@ with lib.capybara; {
     agenix = enabled;
   };
 
+  nix.settings.trusted-users = ["mtaku3"];
+
   services.journald = {
     storage = "persistent";
     extraConfig = ''
