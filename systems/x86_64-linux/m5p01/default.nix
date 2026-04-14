@@ -20,6 +20,8 @@ with lib.capybara; {
       };
     };
 
+    app.dev.nix-ld.enable = true;
+
     agenix = enabled;
     impermanence = {
       enable = true;
