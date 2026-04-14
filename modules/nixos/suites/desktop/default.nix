@@ -15,13 +15,13 @@ in {
     capybara = {
       system = {
         audio = enabled;
-        network.tailscale = enabled;
       };
       greetd = enabled;
       xserver = {
         enable = true;
       };
       app.util.zip = enabled;
+      app.server.netbird = enabled;
     };
   };
 }
