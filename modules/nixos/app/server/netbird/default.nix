@@ -27,8 +27,6 @@ in {
         # This opens necessary firewall ports in the Netbird client's network interface
         openInternalFirewall = true;
       };
-
-      useRoutingFeatures = "both";
     };
 
     capybara.impermanence.directories = [

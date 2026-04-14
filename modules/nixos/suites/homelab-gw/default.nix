@@ -38,49 +38,31 @@ in {
       };
     };
 
-    # Open all ports for forwarded traffic
-    networking.firewall = {
-      allowedTCPPortRanges = [
-        {
-          from = 0;
-          to = 65535;
-        }
-      ];
-      allowedUDPPortRanges = [
-        {
-          from = 0;
-          to = 65535;
-        }
-      ];
-    };
-
     # IP forwarding
     boot.kernel.sysctl = {
       "net.ipv4.ip_forward" = 1;
     };
 
-    # NAT
-    networking.nat = {
+    # NAT and DNAT rules: forward all traffic to target except SSH and netbird ports
+    networking.nftables = {
       enable = true;
-      externalInterface = cfg.externalInterface;
-      internalInterfaces = ["wt0"];
+      tables.homelab-gw = {
+        family = "ip";
+        content = ''
+          chain prerouting {
+            type nat hook prerouting priority dstnat; policy accept;
+            tcp dport ${toString cfg.sshPort} accept
+            udp dport 51821 accept
+            tcp dport != ${toString cfg.sshPort} dnat to ${cfg.forwardTarget}
+            udp dport != 51821 dnat to ${cfg.forwardTarget}
+          }
+
+          chain postrouting {
+            type nat hook postrouting priority srcnat; policy accept;
+            oifname "nb-wt0" masquerade
+          }
+        '';
+      };
     };
-
-    # DNAT rules: forward all traffic to target except SSH and netbird ports
-    networking.firewall.extraCommands = ''
-      iptables -t nat -A PREROUTING -p tcp --dport ${toString cfg.sshPort} -j RETURN
-      iptables -t nat -A PREROUTING -p tcp -j DNAT --to-destination ${cfg.forwardTarget}
-      iptables -t nat -A PREROUTING -p udp --dport 51821 -j RETURN
-      iptables -t nat -A PREROUTING -p udp -j DNAT --to-destination ${cfg.forwardTarget}
-      iptables -t nat -A POSTROUTING -o wt0 -j MASQUERADE
-    '';
-
-    networking.firewall.extraStopCommands = ''
-      iptables -t nat -D PREROUTING -p tcp --dport ${toString cfg.sshPort} -j RETURN 2>/dev/null || true
-      iptables -t nat -D PREROUTING -p tcp -j DNAT --to-destination ${cfg.forwardTarget} 2>/dev/null || true
-      iptables -t nat -D PREROUTING -p udp --dport 51821 -j RETURN 2>/dev/null || true
-      iptables -t nat -D PREROUTING -p udp -j DNAT --to-destination ${cfg.forwardTarget} 2>/dev/null || true
-      iptables -t nat -D POSTROUTING -o wt0 -j MASQUERADE 2>/dev/null || true
-    '';
   };
 }
