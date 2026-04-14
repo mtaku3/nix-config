@@ -86,6 +86,7 @@ in {
             fallthrough in-addr.arpa ip6.arpa
           }
           prometheus :${toString ports.metrics}
+          rewrite stop type AAAA A
           forward . /etc/resolv.conf
           cache 30
           loop
