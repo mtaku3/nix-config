@@ -24,11 +24,11 @@
     "cc-dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1776350666,
-        "narHash": "sha256-DDDw/0jkW0/owV/tBy+UDr9bbx1lgv6Zqu4GKhjhs7Q=",
+        "lastModified": 1776351049,
+        "narHash": "sha256-KCMY4bLCqYS/lzEmn+SCFARBxbUqHv1ui0rfP2ERi8Y=",
         "owner": "mtaku3",
         "repo": "cc-dotfiles",
-        "rev": "eb7ba2a587fa704716d4169f72e29a9ec463a79b",
+        "rev": "4c373a11972571478a51aecca867300cd15c9d98",
         "type": "github"
       },
       "original": {
