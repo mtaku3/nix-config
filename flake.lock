@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "cc-dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776350666,
+        "narHash": "sha256-DDDw/0jkW0/owV/tBy+UDr9bbx1lgv6Zqu4GKhjhs7Q=",
+        "owner": "mtaku3",
+        "repo": "cc-dotfiles",
+        "rev": "eb7ba2a587fa704716d4169f72e29a9ec463a79b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mtaku3",
+        "repo": "cc-dotfiles",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -424,6 +440,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "cc-dotfiles": "cc-dotfiles",
         "disko": "disko",
         "home-manager": "home-manager_2",
         "impermanence": "impermanence",

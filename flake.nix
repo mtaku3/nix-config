@@ -38,6 +38,11 @@
     };
 
     mcp-servers-nix.url = "github:natsukium/mcp-servers-nix";
+
+    cc-dotfiles = {
+      url = "github:mtaku3/cc-dotfiles";
+      flake = false;
+    };
   };
 
   outputs = inputs: let
