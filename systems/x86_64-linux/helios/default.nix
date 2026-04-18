@@ -10,17 +10,18 @@ with lib.capybara; {
   ];
 
   capybara = {
-    suites.homelab = enabled;
+    suites.common = enabled;
 
     app.server = {
-      kubernetes = {
-        role = "master";
-        advertiseIP = "192.168.10.102";
-        masterAddress = "192.168.10.102";
-      };
+      ssh = enabled;
+      fail2ban = enabled;
+      netbird = enabled;
     };
 
-    app.dev.nix-ld.enable = true;
+    app.dev = {
+      docker = enabled;
+      nix-ld.enable = true;
+    };
 
     agenix = enabled;
     impermanence = {

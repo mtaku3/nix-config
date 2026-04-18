@@ -11,6 +11,7 @@ with lib.capybara; {
 
     app = {
       dev = {
+        claude-code = enabled;
         zsh = {
           enable = true;
         };
@@ -19,18 +20,14 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signingKey = "FD062C104F287179";
+          signingKey = "4DB490B409F22369";
           signByDefault = true;
         };
         gh = enabled;
         tmux = enabled;
         gpg = enabled;
-        kube-cli = {
-          enable = true;
-          masterAddress = "https://192.168.10.102:6443";
-        };
         devbox = enabled;
-        claude-code = enabled;
+        termius = enabled;
       };
     };
 
@@ -39,6 +36,10 @@ with lib.capybara; {
       name = "/persist/home/mtaku3";
       directories = [
         "Downloads"
+        "Music"
+        "Pictures"
+        "Documents"
+        "Videos"
         ".gnupg"
         ".ssh"
         "Workspaces"

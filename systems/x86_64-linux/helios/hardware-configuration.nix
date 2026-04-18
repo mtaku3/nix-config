@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   modulesPath,
   inputs,
@@ -11,15 +10,12 @@
     ./disko-config.nix
   ];
 
-  networking.hostId = "d6238f4e";
+  networking.hostId = "09ac8919";
 
   boot.initrd.availableKernelModules = ["uhci_hcd" "ehci_pci" "ahci" "virtio_pci" "virtio_scsi" "sd_mod" "sr_mod"];
   boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-amd" "drbd"];
-  boot.extraModulePackages = with config.boot.kernelPackages; [drbd];
-  boot.extraModprobeConfig = ''
-    install drbd /run/current-system/sw/bin/modprobe --ignore-install drbd
-  '';
+  boot.kernelModules = ["kvm-amd"];
+  boot.extraModulePackages = [];
 
   boot.loader = {
     efi.canTouchEfiVariables = true;
@@ -42,7 +38,7 @@
     interfaces.ens18 = {
       ipv4.addresses = [
         {
-          address = "192.168.10.102";
+          address = "192.168.10.101";
           prefixLength = 24;
         }
       ];
