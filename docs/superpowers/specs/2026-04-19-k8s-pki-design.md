@@ -65,6 +65,11 @@ read-modify-written; their plaintext is only read to sign leaves. Scope flags
 `--host`, `--user`, `--cert` combinable. `--force` ignores the 30-day
 threshold.
 
+**Does not repair recipient drift.** Adding a new host or user means running
+`bootstrap` (which handles both cert generation and re-encryption to match
+current policy). `renew` is intentionally narrow — it's the cron-safe
+command, doing one thing.
+
 ### `rotate-ca` — explicit CA rotation
 
 Regenerates CAs (default: all three + SA keypair) and every leaf signed by
@@ -174,19 +179,23 @@ These expose *age recipient public keys* (separate from SSH auth
 
 ### Recipient policy (`lib/k8s-pki/recipients.nix`)
 
-A pure function `{ hosts, users } → recipientsByFile`. Rules, in order of
-specificity:
+A pure function `{ hosts, users } → recipientsByFile`. Terminology used
+below:
+
+- **k8s hosts** — NixOS configurations where
+  `capybara.app.server.kubernetes.enable == true`.
+- **master hosts** — subset with `role == "master"`.
+- **kubectl users** — home-manager users where
+  `capybara.app.dev.kube-cli.enable == true`.
+
+Rules, in order of specificity:
 
 | File category | Recipients |
 |---|---|
-| `common/k8s-pki/*.crt`, `sa.pub` (public halves of CAs) | Every k8s-enabled host's `hostPubkeys` + every kubectl user's `userPubkeys` |
-| `common/k8s-pki/*.key`, `sa.key` (private halves of CAs) | **Master** hosts' `hostPubkeys` + every kubectl user's `userPubkeys` |
-| `<host>/system/homelab-k8s/**` | That host's `hostPubkeys` + every kubectl user's `userPubkeys` |
+| `common/k8s-pki/*.crt`, `sa.pub` (public halves of CAs) | All k8s hosts' `hostPubkeys` + all kubectl users' `userPubkeys` |
+| `common/k8s-pki/*.key`, `sa.key` (private halves of CAs) | Master hosts' `hostPubkeys` + all kubectl users' `userPubkeys` |
+| `<host>/system/homelab-k8s/**` | That host's `hostPubkeys` + all kubectl users' `userPubkeys` |
 | `<host>/home/<user>/homelab-k8s/**` | That user's `userPubkeys` |
-
-Users in "every kubectl user" = home-manager users with
-`capybara.app.dev.kube-cli.enable == true`. Hosts in "every k8s-enabled host"
-= NixOS configurations with `capybara.app.server.kubernetes.enable == true`.
 
 **Rationale for the public/private split on `common/`:** limits blast radius
 if a worker node is compromised (it can decrypt trust anchors but not CA
