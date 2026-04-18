@@ -15,7 +15,7 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [
-      pkgs.unstable.claude-code
+      inputs.nix-claude-code.packages.${pkgs.system}.default
       pkgs.nodejs
       pkgs.python3
       pkgs.uv
