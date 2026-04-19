@@ -111,12 +111,14 @@ renew_host_leaf() {
   log info "RESIGN $hostName/$leaf"
   [ "$DRY_RUN" -eq 1 ] && return
 
-  local hostJson leafJson signer cn_raw cn hosts_arr_json expiry profile_name profile_json
+  local hostJson leafJson signer cn_raw cn org_raw org hosts_arr_json expiry profile_name profile_json
   hostJson=$(jq -c --arg h "$hostName" '.hosts[$h]' "$K8S_PKI_DATA")
   leafJson=$(jq -c --arg l "$leaf"     '.specs.leaves[$l]' "$K8S_PKI_DATA")
   signer=$(jq -r '.signer' <<<"$leafJson")
   cn_raw=$(jq -r '.CN' <<<"$leafJson")
   cn=$(printf '%s' "$cn_raw" | tmpl_host "$hostJson")
+  org_raw=$(jq -r '.O // ""' <<<"$leafJson")
+  org=$(printf '%s' "$org_raw" | tmpl_host "$hostJson")
   hosts_arr_json=$(jq -c '.hosts // []' <<<"$leafJson" \
     | jq -r '.[]' | tmpl_host "$hostJson" | jq -R . | jq -s .)
   expiry=$(jq -r '.expiry' <<<"$leafJson")
@@ -126,7 +128,7 @@ renew_host_leaf() {
   local ca_prefix; ca_prefix=$(prepare_ca "$signer")
   local outdir; outdir=$(mktemp -d)
   mkdir -p "$outdir/$(dirname "$leaf")"
-  cfssl_gen_leaf "$leaf" "$cn" "$ca_prefix" "$profile_json" "$hosts_arr_json" "$expiry" "$outdir"
+  cfssl_gen_leaf "$leaf" "$cn" "$org" "$ca_prefix" "$profile_json" "$hosts_arr_json" "$expiry" "$outdir"
   write_encrypted "$crt_key" "$outdir/${leaf}.pem"
   write_encrypted "$key_key" "$outdir/${leaf}-key.pem"
   rm -rf "$outdir"

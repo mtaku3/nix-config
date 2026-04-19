@@ -213,6 +213,9 @@ gen_host_leaf() {
       signer=$(jq -r '.signer' <<<"$leafJson")
       cn_raw=$(jq -r '.CN' <<<"$leafJson")
       cn=$(printf '%s' "$cn_raw" | tmpl_host "$hostJson")
+      local org_raw org
+      org_raw=$(jq -r '.O // ""' <<<"$leafJson")
+      org=$(printf '%s' "$org_raw" | tmpl_host "$hostJson")
       hosts_arr_json=$(jq -c '.hosts // []' <<<"$leafJson" \
         | jq -r '.[]' | tmpl_host "$hostJson" | jq -R . | jq -s .)
       local expiry profile_name profile_json
@@ -223,7 +226,7 @@ gen_host_leaf() {
       local ca_prefix; ca_prefix=$(prepare_ca "$signer")
       local outdir; outdir=$(mktemp -d)
       mkdir -p "$outdir/$(dirname "$leaf")"
-      cfssl_gen_leaf "$leaf" "$cn" "$ca_prefix" "$profile_json" "$hosts_arr_json" "$expiry" "$outdir"
+      cfssl_gen_leaf "$leaf" "$cn" "$org" "$ca_prefix" "$profile_json" "$hosts_arr_json" "$expiry" "$outdir"
       write_encrypted "$crt_key" "$outdir/${leaf}.pem"
       write_encrypted "$key_key" "$outdir/${leaf}-key.pem"
       rm -rf "$outdir"

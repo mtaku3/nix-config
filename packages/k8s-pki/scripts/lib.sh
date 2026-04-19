@@ -105,18 +105,28 @@ cfssl_gen_ca() {
   rm -f "$csr" "$outdir/$name.csr"
 }
 
-# cfssl_gen_leaf NAME CN CA_PREFIX PROFILE_JSON HOSTS_JSON EXPIRY OUTDIR
+# cfssl_gen_leaf NAME CN O CA_PREFIX PROFILE_JSON HOSTS_JSON EXPIRY OUTDIR
 #   CA_PREFIX points to files <prefix>.pem and <prefix>-key.pem.
+#   O may be empty string; if non-empty, added as names[0].O in the CSR.
 #   Outputs OUTDIR/NAME.pem and OUTDIR/NAME-key.pem.
 cfssl_gen_leaf() {
-  local name="$1" cn="$2" ca_prefix="$3" profile_json="$4" hosts_json="$5" expiry="$6" outdir="$7"
+  local name="$1" cn="$2" org="$3" ca_prefix="$4" profile_json="$5" hosts_json="$6" expiry="$7" outdir="$8"
   local csr cfg
   csr=$(mktemp); cfg=$(mktemp)
-  jq -n --arg cn "$cn" --argjson hosts "$hosts_json" '{
-    CN: $cn,
-    hosts: $hosts,
-    key: { algo: "rsa", size: 2048 }
-  }' > "$csr"
+  if [ -n "$org" ]; then
+    jq -n --arg cn "$cn" --arg o "$org" --argjson hosts "$hosts_json" '{
+      CN: $cn,
+      hosts: $hosts,
+      names: [{O: $o}],
+      key: { algo: "rsa", size: 2048 }
+    }' > "$csr"
+  else
+    jq -n --arg cn "$cn" --argjson hosts "$hosts_json" '{
+      CN: $cn,
+      hosts: $hosts,
+      key: { algo: "rsa", size: 2048 }
+    }' > "$csr"
+  fi
   jq -n --argjson profile "$profile_json" --arg expiry "$expiry" '{
     signing: {
       default: { expiry: $expiry },
