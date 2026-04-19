@@ -41,6 +41,8 @@ with lib.capybara; {
 
   services.journald.storage = "persistent";
 
+  nix.settings.trusted-users = ["mtaku3"];
+
   users.users.root.packages = with pkgs; [git vim curl wget];
 
   system.stateVersion = "25.05";

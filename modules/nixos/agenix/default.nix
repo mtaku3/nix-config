@@ -37,6 +37,7 @@ in {
               }
             else acc) {}
           files;
+        secrets-root = snowfall.fs.get-file "secrets";
         common-base = snowfall.fs.get-file "secrets/common";
         host-base = snowfall.fs.get-file "secrets/${host}/system";
         common-files =
@@ -48,7 +49,9 @@ in {
           then snowfall.fs.get-files-recursive host-base
           else [];
       in
-        (mkSecrets "${common-base}/" common-files)
+        # Keep `common/...` prefix for shared secrets so modules can namespace them
+        # explicitly (e.g. `common/k8s-pki/ca.crt` vs `k8s-pki/...`).
+        (mkSecrets "${secrets-root}/" common-files)
         // (mkSecrets "${host-base}/" host-files);
     };
 
