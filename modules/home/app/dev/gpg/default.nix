@@ -40,27 +40,40 @@ in {
         }
       ];
 
-      home.activation.importGpgSubkeys = config.lib.dag.entryAfter ["writeBoundary"] ''
-        SUB_KEY_PATH=${escapeShellArg subKeyPath}
-        KEY_ID=${escapeShellArg cfg.keyId}
-        if [ ! -r "$SUB_KEY_PATH" ]; then
-          echo "gpg import: $SUB_KEY_PATH not readable yet, skipping" >&2
-        elif ${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons "$KEY_ID" 2>/dev/null \
-             | grep -q '^sec'; then
-          : "already imported"
-        else
-          echo "gpg import: importing subkeys for $KEY_ID" >&2
-          ${pkgs.gnupg}/bin/gpg --import "$SUB_KEY_PATH" || \
-            echo "gpg import: failed (will retry next activation)" >&2
-          if ${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons "$KEY_ID" 2>/dev/null \
-             | grep -q '^sec'; then
-            FPR=$(${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons --with-fingerprint \
-                  "$KEY_ID" | ${pkgs.gawk}/bin/awk -F: '$1=="fpr"{print $10; exit}')
-            printf '%s:6:\n' "$FPR" \
-              | ${pkgs.gnupg}/bin/gpg --import-ownertrust 2>/dev/null || true
-          fi
-        fi
-      '';
+      systemd.user.services.import-gpg-subkeys = {
+        Unit = {
+          Description = "Import GPG subkeys from agenix";
+          After = ["agenix.service"];
+          Requires = ["agenix.service"];
+        };
+        Install.WantedBy = ["default.target"];
+        Service = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = let
+            script = pkgs.writeShellScript "import-gpg-subkeys" ''
+              set -eu
+              SUB_KEY_PATH=${escapeShellArg subKeyPath}
+              KEY_ID=${escapeShellArg cfg.keyId}
+              if [ ! -r "$SUB_KEY_PATH" ]; then
+                echo "gpg import: $SUB_KEY_PATH not readable, aborting" >&2
+                exit 1
+              fi
+              if ${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons "$KEY_ID" 2>/dev/null \
+                 | grep -q '^sec'; then
+                echo "gpg import: $KEY_ID already present" >&2
+                exit 0
+              fi
+              echo "gpg import: importing subkeys for $KEY_ID" >&2
+              ${pkgs.gnupg}/bin/gpg --import "$SUB_KEY_PATH"
+              FPR=$(${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons --with-fingerprint \
+                    "$KEY_ID" | ${pkgs.gawk}/bin/awk -F: '$1=="fpr"{print $10; exit}')
+              [ -n "$FPR" ] || { echo "gpg import: key $KEY_ID not found after import" >&2; exit 1; }
+              printf '%s:6:\n' "$FPR" | ${pkgs.gnupg}/bin/gpg --import-ownertrust
+            '';
+          in "${script}";
+        };
+      };
     })
   ]);
 }
