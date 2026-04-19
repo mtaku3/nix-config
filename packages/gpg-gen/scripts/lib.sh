@@ -92,6 +92,8 @@ gen_master_key() {
   local pw="$3"
   local params
   params=$(mktemp)
+  # Shred-then-remove even if gpg below fails.
+  trap 'shred -u "$params" 2>/dev/null || rm -f "$params"' RETURN
   cat >"$params" <<EOF
 Key-Type: ECDSA
 Key-Curve: nistp521
@@ -103,7 +105,6 @@ Passphrase: $pw
 %commit
 EOF
   gpg --batch --pinentry-mode loopback --generate-key "$params" >/dev/null 2>&1
-  rm -f "$params"
 
   gpg --list-secret-keys --with-colons --with-fingerprint "$email" \
     | awk -F: '$1=="fpr"{print $10; exit}'
@@ -128,7 +129,10 @@ export_all() {
   local outdir="$2"
   local pw="$3"
   mkdir -p "$outdir"
+  local old_umask
+  old_umask=$(umask)
   umask 077
+  trap 'umask "$old_umask"' RETURN
 
   gpg --batch --pinentry-mode loopback --passphrase "$pw" \
     -a --export-secret-keys "$fpr" > "$outdir/mastersub.key"
