@@ -68,4 +68,12 @@ if [ "$MODE" = "out" ]; then
   exit 0
 fi
 
-die "agenix mode not yet implemented" 1
+ensure_secrets_submodule
+RECIPIENTS="$(resolve_recipients "$HOST" "$USER_")"
+write_agenix_output "$EXPORT_DIR" "$HOST" "$USER_" "$RECIPIENTS"
+
+log info "KEY ID: $FPR"
+log info "NEXT: commit inside secrets/ submodule, then in the parent repo,"
+log info "      set signingKey = \"$FPR\" and capybara.app.dev.gpg.{importSubkeys = true; keyId = \"$FPR\";}."
+
+cold_storage_prompt "$EXPORT_DIR/mastersub.key" "$EXPORT_DIR/revoke.asc"

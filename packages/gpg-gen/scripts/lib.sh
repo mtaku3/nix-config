@@ -174,3 +174,43 @@ prompt_if_empty() {
     read -r "$var" </dev/tty
   fi
 }
+
+# ensure_secrets_submodule — die if secrets/ submodule isn't checked out.
+ensure_secrets_submodule() {
+  local repo_root
+  repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" \
+    || die "not inside a git repo" 1
+  [ -d "$repo_root/secrets/.git" ] || [ -f "$repo_root/secrets/.git" ] \
+    || die "secrets/ submodule is not initialized; run: git submodule update --init" 1
+}
+
+# write_agenix_output EXPORT_DIR HOST USER RECIPIENTS — place encrypted sub.key
+# and plain public.asc into the secrets/ submodule.
+write_agenix_output() {
+  local export_dir="$1"
+  local host="$2"
+  local user="$3"
+  local recipients="$4"
+  local repo_root
+  repo_root="$(git rev-parse --show-toplevel)"
+  local target_dir="$repo_root/secrets/$host/home/$user/gpg"
+  mkdir -p "$target_dir"
+
+  age_encrypt_to_recipients "$target_dir/sub.key.age" "$recipients" \
+    < "$export_dir/sub.key"
+  install -m 0644 "$export_dir/public.asc" "$target_dir/public.asc"
+  log info "wrote $target_dir/sub.key.age (encrypted)"
+  log info "wrote $target_dir/public.asc (plain)"
+}
+
+# cold_storage_prompt PATHS... — print a warning listing paths and block until Enter.
+cold_storage_prompt() {
+  printf '\n' >/dev/tty
+  printf '!! COLD STORAGE REQUIRED !!\n' >/dev/tty
+  printf 'Move the following files to a secure offline medium NOW:\n' >/dev/tty
+  for p in "$@"; do
+    printf '  %s\n' "$p" >/dev/tty
+  done
+  printf '\nPress Enter when moved (files will be shredded on exit): ' >/dev/tty
+  read -r _ </dev/tty
+}
