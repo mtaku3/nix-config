@@ -57,3 +57,21 @@ teardown() {
   [ "$status" -eq 7 ]
   [[ "$output" == *"boom"* ]]
 }
+
+@test "age_decrypt_in uses AGENIX_IDENTITIES" {
+  local idfile="$TMPDIR_TEST/id"
+  age-keygen -o "$idfile" 2>/dev/null
+  local pub; pub=$(age-keygen -y "$idfile" 2>/dev/null)
+  local ct="$TMPDIR_TEST/ct.age"
+  echo "hello world" | age -r "$pub" -o "$ct"
+
+  # Without AGENIX_IDENTITIES, decrypt should fail (no default identity)
+  unset AGENIX_IDENTITIES
+  HOME="$TMPDIR_TEST/empty-home" SSH_AUTH_SOCK= run age_decrypt_in "$ct"
+  [ "$status" -ne 0 ]
+
+  # With AGENIX_IDENTITIES, decrypt should succeed and output the plaintext
+  AGENIX_IDENTITIES="$idfile" run age_decrypt_in "$ct"
+  [ "$status" -eq 0 ]
+  [ "$output" = "hello world" ]
+}

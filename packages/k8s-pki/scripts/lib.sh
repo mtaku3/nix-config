@@ -58,10 +58,19 @@ age_encrypt_to() {
   age "${args[@]}" -o "$out"
 }
 
-# age_decrypt_in FILE — decrypt ciphertext to stdout via default age identity discovery
+# age_decrypt_in FILE — decrypt ciphertext to stdout.
+# Identities are read from $AGENIX_IDENTITIES (newline-separated paths).
+# If unset, relies on age's default identity discovery.
 age_decrypt_in() {
   local in="$1"
-  age -d "$in"
+  local -a args=()
+  if [ -n "${AGENIX_IDENTITIES:-}" ]; then
+    while IFS= read -r id; do
+      [ -z "$id" ] && continue
+      args+=(-i "$id")
+    done <<< "$AGENIX_IDENTITIES"
+  fi
+  age -d "${args[@]}" "$in"
 }
 
 # jq_data EXPR — run jq over $K8S_PKI_DATA
