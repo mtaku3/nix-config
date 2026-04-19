@@ -65,11 +65,16 @@ in {
                 exit 0
               fi
               echo "gpg import: importing subkeys for $KEY_ID" >&2
-              ${pkgs.gnupg}/bin/gpg --import "$SUB_KEY_PATH"
+              ${pkgs.gnupg}/bin/gpg --batch --pinentry-mode loopback \
+                --passphrase ''' --import "$SUB_KEY_PATH"
               FPR=$(${pkgs.gnupg}/bin/gpg --list-secret-keys --with-colons --with-fingerprint \
                     "$KEY_ID" | ${pkgs.gawk}/bin/awk -F: '$1=="fpr"{print $10; exit}')
               [ -n "$FPR" ] || { echo "gpg import: key $KEY_ID not found after import" >&2; exit 1; }
               printf '%s:6:\n' "$FPR" | ${pkgs.gnupg}/bin/gpg --import-ownertrust
+              # Wrap private keys at rest with an empty passphrase so future
+              # signs don't trigger pinentry's "set new passphrase" dialog.
+              echo wrap | ${pkgs.gnupg}/bin/gpg --batch --pinentry-mode loopback \
+                --passphrase ''' --local-user "$FPR" --sign >/dev/null
             '';
           in "${script}";
         };
