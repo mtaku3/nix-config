@@ -19,10 +19,14 @@
   masterPubkeys =
     flatten (concatMap (h: h.hostPubkeys)
       (attrValues (filterAttrs (_: h: h.role == "master") hosts)));
-  allUserPubkeys = flatten (concatMap (u: u.userPubkeys) (attrValues users));
 
-  publicRecipients = unique (allHostPubkeys ++ allUserPubkeys);
-  privateRecipients = unique (masterPubkeys ++ allUserPubkeys);
+  # Strict least-privilege policy:
+  # - CA public halves: every k8s host (so kubelet, apiserver, etc. can verify).
+  # - CA private halves: master hosts only (controller-manager signs CSRs;
+  #   the generator operator downloads the master identity on demand).
+  # Kubectl users are NOT persistent recipients on server-side files.
+  publicRecipients = unique allHostPubkeys;
+  privateRecipients = unique masterPubkeys;
 
   commonPublicPaths = [
     "common/k8s-pki/ca.crt"
@@ -92,7 +96,8 @@
   perHost =
     concatMapAttrs (
       hostName: h: let
-        hostRecipients = unique (h.hostPubkeys ++ allUserPubkeys);
+        # Strict: only the host itself decrypts its own system secrets.
+        hostRecipients = unique h.hostPubkeys;
         prefix = "secrets/${hostName}/system/homelab-k8s";
       in
         builtins.listToAttrs (map (leaf: {
