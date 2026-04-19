@@ -27,13 +27,29 @@ in {
           else "";
       in ["${prefix}/var/lib/agenix/${host}"];
       secrets = let
-        base-path = snowfall.fs.get-file "secrets/${host}/system";
-        prefix-to-remove = "${base-path}/";
+        mkSecrets = prefix: files:
+          foldl (acc: path:
+            if snowfall.path.has-file-extension "age" path
+            then
+              acc
+              // {
+                ${removePrefix prefix (removeSuffix ".age" (builtins.unsafeDiscardStringContext path))}.file = path;
+              }
+            else acc) {}
+          files;
+        common-base = snowfall.fs.get-file "secrets/common";
+        host-base = snowfall.fs.get-file "secrets/${host}/system";
+        common-files =
+          if builtins.pathExists common-base
+          then snowfall.fs.get-files-recursive common-base
+          else [];
+        host-files =
+          if builtins.pathExists host-base
+          then snowfall.fs.get-files-recursive host-base
+          else [];
       in
-        foldl (acc: path:
-          if snowfall.path.has-file-extension "age" path
-          then acc // {${removePrefix prefix-to-remove (removeSuffix ".age" (builtins.unsafeDiscardStringContext path))}.file = path;}
-          else acc) {} (snowfall.fs.get-files-recursive base-path);
+        (mkSecrets "${common-base}/" common-files)
+        // (mkSecrets "${host-base}/" host-files);
     };
 
     capybara.impermanence.directories = mkIf config.capybara.impermanence.enable [
