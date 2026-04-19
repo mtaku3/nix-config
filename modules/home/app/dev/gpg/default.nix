@@ -40,7 +40,7 @@ in {
         }
       ];
 
-      home.activation.importGpgSubkeys = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      home.activation.importGpgSubkeys = config.lib.dag.entryAfter ["writeBoundary"] ''
         SUB_KEY_PATH=${escapeShellArg subKeyPath}
         KEY_ID=${escapeShellArg cfg.keyId}
         if [ ! -r "$SUB_KEY_PATH" ]; then
