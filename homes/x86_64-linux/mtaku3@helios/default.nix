@@ -51,6 +51,7 @@ with lib.capybara; {
         ".gnupg"
         ".ssh"
         "Workspaces"
+        ".vscode-server"
       ];
       files = [
         ".local/state/nvim/trust"
