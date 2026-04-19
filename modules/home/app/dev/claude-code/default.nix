@@ -2,7 +2,6 @@
   lib,
   config,
   pkgs,
-  inputs,
   ...
 }:
 with lib;
@@ -14,17 +13,17 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # claude-code is installed via the native installer
+    # (curl -fsSL https://claude.ai/install.sh | bash) so it can self-update.
+    # The installer drops a launcher at ~/.local/bin/claude and runtime
+    # files under ~/.claude/local/.
     home.packages = [
-      inputs.nix-claude-code.packages.${pkgs.system}.default
       pkgs.nodejs
       pkgs.python3
       pkgs.uv
     ];
 
-    # home.file.".claude" = {
-    #   source = "${inputs.cc-dotfiles}/.claude";
-    #   recursive = true;
-    # };
+    home.sessionPath = ["$HOME/.local/bin"];
 
     capybara.impermanence.directories = [
       ".claude"
@@ -32,6 +31,9 @@ in {
       ".cache/uv"
       ".npm"
     ];
-    capybara.impermanence.files = [".claude.json"];
+    capybara.impermanence.files = [
+      ".claude.json"
+      ".local/bin/claude"
+    ];
   };
 }

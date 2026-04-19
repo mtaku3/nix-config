@@ -34,18 +34,6 @@
       url = "github:nix-community/nixvim/nixos-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    mcp-servers-nix.url = "github:natsukium/mcp-servers-nix";
-
-    nix-claude-code = {
-      url = "github:ryoppippi/nix-claude-code";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    cc-dotfiles = {
-      url = "github:mtaku3/cc-dotfiles";
-      flake = false;
-    };
   };
 
   outputs = inputs: let

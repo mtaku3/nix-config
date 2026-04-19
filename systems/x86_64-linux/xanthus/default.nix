@@ -22,6 +22,7 @@ with lib.capybara; {
       };
       dev = {
         docker = enabled;
+        nix-ld = enabled;
       };
     };
 
