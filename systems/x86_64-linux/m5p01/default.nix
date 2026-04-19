@@ -17,6 +17,11 @@ with lib.capybara; {
         role = "master";
         advertiseIP = "192.168.10.102";
         masterAddress = "192.168.10.102";
+        kube-vip = {
+          enable = true;
+          interface = "ens18";
+          address = "192.168.10.100";
+        };
       };
     };
 

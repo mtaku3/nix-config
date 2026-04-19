@@ -16,6 +16,7 @@ in {
   imports = [
     ./mypki.nix
     ./mydns.nix
+    ./kube-vip.nix
   ];
 
   options.capybara.app.server.kubernetes = with types; {
