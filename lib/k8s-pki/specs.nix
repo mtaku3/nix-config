@@ -135,7 +135,7 @@
     };
     "flannel-client" = {
       signer = "ca";
-      CN = "system:flannel";
+      CN = "flannel-client";
       profile = "client";
       expiry = "8760h";
       scope = "all";
