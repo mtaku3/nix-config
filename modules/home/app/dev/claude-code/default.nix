@@ -21,10 +21,10 @@ in {
       pkgs.uv
     ];
 
-    home.file.".claude" = {
-      source = "${inputs.cc-dotfiles}/.claude";
-      recursive = true;
-    };
+    # home.file.".claude" = {
+    #   source = "${inputs.cc-dotfiles}/.claude";
+    #   recursive = true;
+    # };
 
     capybara.impermanence.directories = [
       ".claude"
