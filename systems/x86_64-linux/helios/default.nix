@@ -56,7 +56,7 @@ with lib.capybara; {
     owner = "mtaku3";
     group = "users";
   };
-  age.secrets."sshfs/id_ed25519_tga_pilot" = {
+  age.secrets."sshfs/id_ed25519_t4" = {
     mode = "400";
     owner = "mtaku3";
     group = "users";
@@ -97,7 +97,7 @@ with lib.capybara; {
       "reconnect"
       "ServerAliveInterval=15"
       "ServerAliveCountMax=3"
-      "IdentityFile=${config.age.secrets."sshfs/id_ed25519_tga_pilot".path}"
+      "IdentityFile=${config.age.secrets."sshfs/id_ed25519_t4".path}"
       "UserKnownHostsFile=/var/lib/sshfs/known_hosts"
       "StrictHostKeyChecking=accept-new"
     ];
