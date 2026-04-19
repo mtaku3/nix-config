@@ -37,22 +37,16 @@ in {
               }
             else acc) {}
           files;
-        secrets-root = snowfall.fs.get-file "secrets";
-        common-base = snowfall.fs.get-file "secrets/common";
         host-base = snowfall.fs.get-file "secrets/${host}/system";
-        common-files =
-          if builtins.pathExists common-base
-          then snowfall.fs.get-files-recursive common-base
-          else [];
         host-files =
           if builtins.pathExists host-base
           then snowfall.fs.get-files-recursive host-base
           else [];
       in
-        # Keep `common/...` prefix for shared secrets so modules can namespace them
-        # explicitly (e.g. `common/k8s-pki/ca.crt` vs `k8s-pki/...`).
-        (mkSecrets "${secrets-root}/" common-files)
-        // (mkSecrets "${host-base}/" host-files);
+        # Shared `secrets/common/...` are opt-in per module so non-recipient hosts
+        # don't try (and fail) to decrypt them. Modules under e.g.
+        # `app/server/kubernetes/mypki.nix` mount their own subset explicitly.
+        mkSecrets "${host-base}/" host-files;
     };
 
     capybara.impermanence.directories = mkIf config.capybara.impermanence.enable [

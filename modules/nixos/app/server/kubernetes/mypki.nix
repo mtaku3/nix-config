@@ -378,7 +378,13 @@ in {
           group = "root";
         };
       };
-      commonEntries = {
+      commonRoot = lib.snowfall.fs.get-file "secrets";
+      withCommonFile = name: attrs:
+        attrs
+        // {
+          file = "${commonRoot}/${name}.age";
+        };
+      commonEntries = mapAttrs withCommonFile {
         "common/k8s-pki/ca.crt" = {
           mode = "644";
           owner = "root";
