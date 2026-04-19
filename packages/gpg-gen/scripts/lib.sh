@@ -83,3 +83,62 @@ age_encrypt_to_recipients() {
   [ "${#args[@]}" -gt 0 ] || die "no recipients" 1
   age -e "${args[@]}" -o "$out"
 }
+
+# gen_master_key NAME EMAIL PASSPHRASE — create cert-only NIST P-521 master key,
+# no expiry, protected with PASSPHRASE. Echoes the primary fingerprint on stdout.
+gen_master_key() {
+  local name="$1"
+  local email="$2"
+  local pw="$3"
+  local params
+  params=$(mktemp)
+  cat >"$params" <<EOF
+Key-Type: ECDSA
+Key-Curve: nistp521
+Key-Usage: cert
+Name-Real: $name
+Name-Email: $email
+Expire-Date: 0
+Passphrase: $pw
+%commit
+EOF
+  gpg --batch --pinentry-mode loopback --generate-key "$params" >/dev/null 2>&1
+  rm -f "$params"
+
+  gpg --list-secret-keys --with-colons --with-fingerprint "$email" \
+    | awk -F: '$1=="fpr"{print $10; exit}'
+}
+
+# add_subkeys FPR PASSPHRASE — add [E], [S], [A] subkeys (nistp521, no expiry).
+add_subkeys() {
+  local fpr="$1"
+  local pw="$2"
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
+    --quick-add-key "$fpr" nistp521 encr never >/dev/null 2>&1
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
+    --quick-add-key "$fpr" nistp521 sign never >/dev/null 2>&1
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
+    --quick-add-key "$fpr" nistp521 auth never >/dev/null 2>&1
+}
+
+# export_all FPR OUTDIR PASSPHRASE — write mastersub.key, sub.key, public.asc,
+# revoke.asc into OUTDIR.
+export_all() {
+  local fpr="$1"
+  local outdir="$2"
+  local pw="$3"
+  mkdir -p "$outdir"
+  umask 077
+
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
+    -a --export-secret-keys "$fpr" > "$outdir/mastersub.key"
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
+    -a --export-secret-subkeys "$fpr" > "$outdir/sub.key"
+  gpg -a --export "$fpr" > "$outdir/public.asc"
+
+  # Revocation cert — gpg 2.4 rejects --batch here; use --no-tty + --command-fd.
+  # Prompt sequence: y (confirm create), 0 (reason: no reason), "" (description), y (confirm).
+  printf 'y\n0\n\ny\n' | gpg --no-tty --pinentry-mode loopback --passphrase "$pw" \
+    --command-fd 0 --status-fd 2 \
+    -a --gen-revoke "$fpr" > "$outdir/revoke.asc" 2>/dev/null
+}
