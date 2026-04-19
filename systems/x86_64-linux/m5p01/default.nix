@@ -22,7 +22,12 @@ with lib.capybara; {
 
     app.dev.nix-ld.enable = true;
 
-    agenix = enabled;
+    agenix = {
+      enable = true;
+      hostPubkeys = [
+        "age1xcjwq56825tfcf8hncvleteppwlzya542kc5lfauwpest9g65qpqv0a6kn"
+      ];
+    };
     impermanence = {
       enable = true;
       name = "/persist";

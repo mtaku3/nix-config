@@ -49,7 +49,12 @@ with lib.capybara; {
       allowOther = true;
     };
 
-    agenix = enabled;
+    agenix = {
+      enable = true;
+      userPubkeys = [
+        "age18jn6pdtsy47aqmxnl32qc5w3jlfc2865ufjhdke2s4syc23g6fvsq9rsv7"
+      ];
+    };
   };
 
   home.stateVersion = "25.05";

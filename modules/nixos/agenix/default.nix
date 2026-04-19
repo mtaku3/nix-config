@@ -15,6 +15,7 @@ in {
 
   options.capybara.agenix = with types; {
     enable = mkBoolOpt false "Whether to enable the agenix";
+    hostPubkeys = mkOpt (listOf str) [] "Age recipient public keys for this host";
   };
 
   config = mkIf cfg.enable {
