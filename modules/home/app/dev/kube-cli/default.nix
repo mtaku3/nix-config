@@ -16,7 +16,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [kubectl kubeseal kubernetes-helm kustomize pkgs.capybara.kubecerts];
+    home.packages = with pkgs; [kubectl kubeseal kubernetes-helm kustomize pkgs.capybara.k8s-pki.status];
 
     home.file.".kube/config".text = builtins.toJSON {
       apiVersion = "v1";
