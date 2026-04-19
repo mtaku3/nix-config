@@ -36,6 +36,9 @@ in {
         apiserver = {
           allowPrivileged = true;
           verbosity = 1; # Warn level
+          extraOpts = ''
+            --service-node-port-range=0-65534
+          '';
         };
 
         controllerManager.verbosity = 1; # Warn level
