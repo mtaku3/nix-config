@@ -6,13 +6,15 @@
   k8sLib = lib.k8s-pki;
   cfgs = self.nixosConfigurations;
 
-  k8sHosts =
-    lib.filterAttrs (
-      _: v:
-        (v.config.capybara.app.server.kubernetes.enable or false)
-        && v.pkgs.stdenv.hostPlatform.system == system
-    )
+  systemHosts =
+    lib.filterAttrs
+    (_: v: v.pkgs.stdenv.hostPlatform.system == system)
     cfgs;
+
+  k8sHosts =
+    lib.filterAttrs
+    (_: v: (v.config.capybara.app.server.kubernetes.enable or false))
+    systemHosts;
 
   hosts =
     lib.mapAttrs (name: v: let
@@ -24,6 +26,9 @@
     })
     k8sHosts;
 
+  # Users are discovered across every host (not only k8s hosts), because a
+  # workstation enabling kube-cli needs its own client certs even when it is
+  # not itself a cluster node.
   users =
     lib.concatMapAttrs (
       hostName: v: let
@@ -41,7 +46,7 @@
           (_: u: (u.capybara.app.dev.kube-cli.enable or false))
           hmUsers)
     )
-    k8sHosts;
+    systemHosts;
 
   specs = k8sLib.specs;
   recipients = k8sLib.recipients {inherit hosts users;};

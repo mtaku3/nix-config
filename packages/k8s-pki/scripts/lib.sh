@@ -58,6 +58,42 @@ age_encrypt_to() {
   age "${args[@]}" -o "$out"
 }
 
+# is_age_identity_file PATH — heuristically accept native-age or OpenSSH private keys.
+# Reads only the first 4KB to sniff the header. Exit 0 if plausible, 1 otherwise.
+is_age_identity_file() {
+  local f="$1"
+  head -c 4096 "$f" 2>/dev/null \
+    | grep -aqE 'AGE-SECRET-KEY-1|-----BEGIN (OPENSSH|RSA|EC) PRIVATE KEY-----|-----BEGIN PRIVATE KEY-----'
+}
+
+# load_identity_dir DIR — append every regular file in DIR (non-recursive) to AGENIX_IDENTITIES.
+# Accepts a file path as well. Skips silently if DIR is empty.
+load_identity_dir() {
+  local path="$1"
+  [ -n "$path" ] || return 0
+  [ -e "$path" ] || die "identity path does not exist: $path" 2
+  local entries=""
+  if [ -d "$path" ]; then
+    local f
+    for f in "$path"/*; do
+      [ -f "$f" ] || continue
+      is_age_identity_file "$f" || continue
+      entries="${entries}${f}"$'\n'
+    done
+  else
+    entries="${path}"$'\n'
+  fi
+  [ -n "$entries" ] || die "no identity files found in: $path" 2
+  log info "loaded identities from $path:"
+  printf '%s' "$entries" | sed 's/^/  /' >&2
+  if [ -n "${AGENIX_IDENTITIES:-}" ]; then
+    AGENIX_IDENTITIES="${AGENIX_IDENTITIES}"$'\n'"${entries%$'\n'}"
+  else
+    AGENIX_IDENTITIES="${entries%$'\n'}"
+  fi
+  export AGENIX_IDENTITIES
+}
+
 # age_decrypt_in FILE — decrypt ciphertext to stdout.
 # Identities are read from $AGENIX_IDENTITIES (newline-separated paths).
 # If unset, relies on age's default identity discovery.

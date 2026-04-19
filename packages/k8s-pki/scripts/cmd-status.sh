@@ -11,13 +11,15 @@ JSON=0
 while [ $# -gt 0 ]; do
   # shellcheck disable=SC2034  # VERBOSE reserved for future verbose output
   case "$1" in
-    -v|--verbose) VERBOSE=1 ;;
-    --json)       JSON=1 ;;
+    -v|--verbose)   VERBOSE=1 ;;
+    --json)         JSON=1 ;;
+    --identity-dir) load_identity_dir "$2"; shift ;;
     -h|--help)
       cat <<EOF
-Usage: k8s-pki-status [-v|--verbose] [--json]
+Usage: k8s-pki-status [-v|--verbose] [--json] [--identity-dir DIR]
 
 Reports expiry + recipient drift for every PKI ciphertext.
+  --identity-dir DIR   extra age identities (file or directory of files)
 Exit codes: 0 clean, 3 drift/missing/stale.
 EOF
       exit 0 ;;

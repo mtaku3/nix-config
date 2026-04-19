@@ -8,14 +8,15 @@ SCOPE_HOST="" SCOPE_USER="" SCOPE_CERT=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --force)   FORCE=1 ;;
-    --dry-run) DRY_RUN=1 ;;
-    --host)    SCOPE_HOST="$2"; shift ;;
-    --user)    SCOPE_USER="$2"; shift ;;
-    --cert)    SCOPE_CERT="$2"; shift ;;
+    --force)        FORCE=1 ;;
+    --dry-run)      DRY_RUN=1 ;;
+    --host)         SCOPE_HOST="$2"; shift ;;
+    --user)         SCOPE_USER="$2"; shift ;;
+    --cert)         SCOPE_CERT="$2"; shift ;;
+    --identity-dir) load_identity_dir "$2"; shift ;;
     -h|--help)
       cat <<EOF
-Usage: k8s-pki-renew [--host H] [--user U] [--cert NAME] [--force] [--dry-run]
+Usage: k8s-pki-renew [--host H] [--user U] [--cert NAME] [--force] [--dry-run] [--identity-dir DIR]
 
 Re-signs leaves within 30d of expiry (or all leaves with --force).
 CAs are never touched. Does not repair recipient drift — use 'bootstrap' for that.

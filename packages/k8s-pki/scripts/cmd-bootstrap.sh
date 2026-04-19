@@ -9,17 +9,21 @@ DRY_RUN=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --force)   FORCE=1 ;;
-    --dry-run) DRY_RUN=1 ;;
+    --force)        FORCE=1 ;;
+    --dry-run)      DRY_RUN=1 ;;
+    --identity-dir) load_identity_dir "$2"; shift ;;
     -h|--help)
       cat <<EOF
-Usage: k8s-pki-bootstrap [--force] [--dry-run]
+Usage: k8s-pki-bootstrap [--force] [--dry-run] [--identity-dir DIR]
 
 Converges PKI state:
   - Generates missing CA, SA, per-host leaf, per-user cert.
   - Re-encrypts any file whose recipients differ from current policy.
   - Re-signs any leaf within 30d of expiry.
   - --force re-signs all leaves regardless of expiry (CAs untouched).
+  - --identity-dir adds every file in DIR (or DIR itself if a file) as
+    an age identity. Repeat to add more. Falls back to age's default
+    identity discovery when unset.
 EOF
       exit 0 ;;
     *) die "unknown flag: $1" 2 ;;

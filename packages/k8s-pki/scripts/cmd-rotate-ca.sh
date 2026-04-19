@@ -9,15 +9,17 @@ CA_NAME=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dry-run) DRY_RUN=1 ;;
-    --ca)      CA_NAME="$2"; shift ;;
+    --dry-run)      DRY_RUN=1 ;;
+    --ca)           CA_NAME="$2"; shift ;;
+    --identity-dir) load_identity_dir "$2"; shift ;;
     -h|--help)
       cat <<EOF
-Usage: k8s-pki-rotate-ca [--ca NAME] [--dry-run]
+Usage: k8s-pki-rotate-ca [--ca NAME] [--dry-run] [--identity-dir DIR]
 
 Rotates CAs (default: all three + SA keypair) and every leaf signed by them.
   --ca ca | etcd/ca | front-proxy-ca
   --dry-run
+  --identity-dir DIR   extra age identities (file or directory of files)
 EOF
       exit 0 ;;
     *) die "unknown flag: $1" 2 ;;
