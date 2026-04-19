@@ -47,3 +47,26 @@ parse_args() {
     MODE="out"
   fi
 }
+
+# resolve_recipients HOST USER — echo one age pubkey per line; die if none found.
+# Honors NIX_BIN for testability (default: "nix").
+resolve_recipients() {
+  local host="$1"
+  local user="$2"
+  local nix_bin="${NIX_BIN:-nix}"
+  local host_attr=".#nixosConfigurations.${host}.config.capybara.agenix.hostPubkeys"
+  local user_attr=".#nixosConfigurations.${host}.config.home-manager.users.${user}.capybara.agenix.userPubkeys"
+
+  local host_json user_json
+  host_json="$("$nix_bin" eval --json "$host_attr" 2>/dev/null || echo '[]')"
+  user_json="$("$nix_bin" eval --json "$user_attr" 2>/dev/null || echo '[]')"
+
+  local combined
+  combined="$(jq -r '.[]' <<<"$host_json"; jq -r '.[]' <<<"$user_json")"
+  combined="$(printf '%s\n' "$combined" | sed '/^$/d' | sort -u)"
+
+  if [ -z "$combined" ]; then
+    die "no age recipients found for ${user}@${host} (check capybara.agenix.hostPubkeys and userPubkeys)" 1
+  fi
+  printf '%s\n' "$combined"
+}

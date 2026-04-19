@@ -59,3 +59,37 @@ teardown() {
   [ "$status" -eq 2 ]
   [[ "$output" == *"unknown"* ]]
 }
+
+@test "resolve_recipients: merges host+user pubkeys" {
+  # Build a stub that returns different JSON per attrpath substring
+  local stub="$TMPDIR_TEST/nix"
+  cat >"$stub" <<'EOF'
+#!/usr/bin/env bash
+# Expect: nix eval --json ".#nixosConfigurations.HOST.config.capybara.agenix.hostPubkeys"
+#     or: nix eval --json ".#nixosConfigurations.HOST.config.home-manager.users.USER.capybara.agenix.userPubkeys"
+for a in "$@"; do
+  case "$a" in
+    *hostPubkeys*) echo '["age1host"]'; exit 0 ;;
+    *userPubkeys*) echo '["age1user"]'; exit 0 ;;
+  esac
+done
+exit 1
+EOF
+  chmod +x "$stub"
+  NIX_BIN="$stub" run resolve_recipients helios mtaku3
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"age1host"* ]]
+  [[ "$output" == *"age1user"* ]]
+}
+
+@test "resolve_recipients: empty lists → exit non-zero" {
+  local stub="$TMPDIR_TEST/nix"
+  cat >"$stub" <<'EOF'
+#!/usr/bin/env bash
+echo '[]'
+EOF
+  chmod +x "$stub"
+  NIX_BIN="$stub" run resolve_recipients helios mtaku3
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"no age recipients"* ]]
+}
