@@ -84,7 +84,7 @@ with lib.capybara; {
       "sftp_server=/usr/lib/openssh/sftp-server\\040-u0"
     ];
   };
-  fileSystems."/mnt/tga-pilot-fs" = {
+  fileSystems."/mnt/t4" = {
     device = "un02216@login.t4.gsic.titech.ac.jp:/gs/bs/tga-miubiq_data_common/matsushita-pilot-fs";
     fsType = "fuse.sshfs";
     options = [
