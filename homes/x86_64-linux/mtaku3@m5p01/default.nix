@@ -19,18 +19,12 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signingKey = "FD062C104F287179";
-          signByDefault = true;
         };
-        gh = enabled;
         tmux = enabled;
-        gpg = enabled;
         kube-cli = {
           enable = true;
           masterAddress = "https://192.168.10.102:6443";
         };
-        devbox = enabled;
-        claude-code = enabled;
       };
     };
 
@@ -40,8 +34,6 @@ with lib.capybara; {
       directories = [
         "Downloads"
         ".gnupg"
-        ".ssh"
-        "Workspaces"
       ];
       files = [
         ".local/state/nvim/trust"
