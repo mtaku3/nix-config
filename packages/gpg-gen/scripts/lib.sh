@@ -8,62 +8,67 @@ die() {
   exit "$code"
 }
 
-# parse_args "$@" — sets globals MODE, HOST, USER_, OUT_DIR, NAME, EMAIL.
-# Exits 2 on usage error. Uses USER_ because USER is a common env var.
+# parse_args "$@" — sets globals DO_AGENIX, DO_OUT, HOST, USER_, OUT_DIR, NAME,
+# EMAIL, WANT_PASSPHRASE. Exits 2 on usage error. Both modes may be set
+# simultaneously; at least one is required. Uses USER_ because USER is a common
+# env var.
 parse_args() {
-  MODE=""
+  DO_AGENIX=0
+  DO_OUT=0
   HOST=""
   USER_=""
   OUT_DIR=""
   NAME=""
   EMAIL=""
-  local want_agenix=0
-  local want_out=0
+  WANT_PASSPHRASE=0
 
   while [ "$#" -gt 0 ]; do
     case "$1" in
-      --agenix) want_agenix=1; shift ;;
-      --out)    want_out=1; OUT_DIR="${2:?--out needs DIR}"; shift 2 ;;
-      --host)   HOST="${2:?--host needs HOST}"; shift 2 ;;
-      --user)   USER_="${2:?--user needs USER}"; shift 2 ;;
-      --name)   NAME="${2:?--name needs NAME}"; shift 2 ;;
-      --email)  EMAIL="${2:?--email needs EMAIL}"; shift 2 ;;
-      *)        die "unknown flag: $1" 2 ;;
+      --agenix)     DO_AGENIX=1; shift ;;
+      --out)        DO_OUT=1; OUT_DIR="${2:?--out needs DIR}"; shift 2 ;;
+      --host)       HOST="${2:?--host needs HOST}"; shift 2 ;;
+      --user)       USER_="${2:?--user needs USER}"; shift 2 ;;
+      --name)       NAME="${2:?--name needs NAME}"; shift 2 ;;
+      --email)      EMAIL="${2:?--email needs EMAIL}"; shift 2 ;;
+      --passphrase) WANT_PASSPHRASE=1; shift ;;
+      *)            die "unknown flag: $1" 2 ;;
     esac
   done
 
-  if [ "$want_agenix" -eq 1 ] && [ "$want_out" -eq 1 ]; then
-    die "only one mode allowed (--agenix or --out)" 2
-  fi
-  if [ "$want_agenix" -eq 0 ] && [ "$want_out" -eq 0 ]; then
-    die "mode required: --agenix or --out" 2
+  if [ "$DO_AGENIX" -eq 0 ] && [ "$DO_OUT" -eq 0 ]; then
+    die "mode required: --agenix and/or --out" 2
   fi
 
-  if [ "$want_agenix" -eq 1 ]; then
-    MODE="agenix"
+  if [ "$DO_AGENIX" -eq 1 ]; then
     [ -n "$HOST" ] || die "--agenix requires --host" 2
     [ -n "$USER_" ] || die "--agenix requires --user" 2
-  else
-    MODE="out"
   fi
 }
 
+# jq_data [JQ_ARGS...] — run jq -r against $GPG_GEN_DATA with the given args.
+# Last arg is the expression, per jq convention.
+jq_data() {
+  jq -r "$@" "$GPG_GEN_DATA"
+}
+
 # resolve_recipients HOST USER — echo one age pubkey per line; die if none found.
-# Honors NIX_BIN for testability (default: "nix").
+# Reads from the flake-derived JSON at $GPG_GEN_DATA (see packages/gpg-gen/data.nix).
 resolve_recipients() {
   local host="$1"
   local user="$2"
-  local nix_bin="${NIX_BIN:-nix}"
-  local host_attr=".#nixosConfigurations.${host}.config.capybara.agenix.hostPubkeys"
-  local user_attr=".#nixosConfigurations.${host}.config.home-manager.users.${user}.capybara.agenix.userPubkeys"
+  [ -n "${GPG_GEN_DATA:-}" ] || die "GPG_GEN_DATA is unset (not running via nix run?)" 1
+  [ -r "$GPG_GEN_DATA" ]     || die "GPG_GEN_DATA not readable: $GPG_GEN_DATA" 1
 
-  local host_json user_json
-  host_json="$("$nix_bin" eval --json "$host_attr" 2>/dev/null || echo '[]')"
-  user_json="$("$nix_bin" eval --json "$user_attr" 2>/dev/null || echo '[]')"
+  jq -e --arg h "$host" '.hosts[$h]' "$GPG_GEN_DATA" >/dev/null 2>&1 \
+    || die "host '$host' not present in flake (no matching nixosConfiguration for this system)" 1
+  jq -e --arg k "${user}@${host}" '.users[$k]' "$GPG_GEN_DATA" >/dev/null 2>&1 \
+    || die "user '${user}@${host}' not present in flake" 1
 
   local combined
-  combined="$(jq -r '.[]' <<<"$host_json"; jq -r '.[]' <<<"$user_json")"
-  combined="$(printf '%s\n' "$combined" | sed '/^$/d' | sort -u)"
+  combined="$({
+    jq_data --arg h "$host" '.hosts[$h].hostPubkeys[]?'
+    jq_data --arg k "${user}@${host}" '.users[$k].userPubkeys[]?'
+  } | sed '/^$/d' | sort -u)"
 
   if [ -z "$combined" ]; then
     die "no age recipients found for ${user}@${host} (check capybara.agenix.hostPubkeys and userPubkeys)" 1
@@ -85,7 +90,8 @@ age_encrypt_to_recipients() {
 }
 
 # gen_master_key NAME EMAIL PASSPHRASE — create cert-only NIST P-521 master key,
-# no expiry, protected with PASSPHRASE. Echoes the primary fingerprint on stdout.
+# no expiry. If PASSPHRASE is empty, the key is unprotected (%no-protection);
+# otherwise it's protected with PASSPHRASE. Echoes the primary fingerprint.
 gen_master_key() {
   local name="$1"
   local email="$2"
@@ -94,16 +100,22 @@ gen_master_key() {
   params=$(mktemp -p "$GNUPGHOME")
   # Shred-then-remove even if gpg below fails.
   trap 'shred -u "$params" 2>/dev/null || rm -f "$params"' RETURN
-  cat >"$params" <<EOF
+  {
+    cat <<EOF
 Key-Type: ECDSA
 Key-Curve: nistp521
 Key-Usage: cert
 Name-Real: $name
 Name-Email: $email
 Expire-Date: 0
-Passphrase: $pw
-%commit
 EOF
+    if [ -n "$pw" ]; then
+      printf 'Passphrase: %s\n' "$pw"
+    else
+      printf '%%no-protection\n'
+    fi
+    printf '%%commit\n'
+  } >"$params"
   gpg --batch --pinentry-mode loopback --generate-key "$params" >/dev/null 2>&1
 
   gpg --list-secret-keys --with-colons --with-fingerprint "$email" \
@@ -154,7 +166,7 @@ log() {
 }
 
 # prompt_passphrase — read a passphrase twice from /dev/tty, echo to stdout.
-# Exits non-zero if the two don't match.
+# Exits non-zero if the two don't match or if empty (caller requested one).
 prompt_passphrase() {
   local p1 p2
   printf 'Passphrase: ' >/dev/tty
@@ -162,7 +174,7 @@ prompt_passphrase() {
   printf 'Confirm:    ' >/dev/tty
   read -rs p2 </dev/tty; printf '\n' >/dev/tty
   [ "$p1" = "$p2" ] || die "passphrases do not match" 1
-  [ -n "$p1" ] || die "empty passphrase" 1
+  [ -n "$p1" ] || die "empty passphrase (omit --passphrase for unprotected key)" 1
   printf '%s' "$p1"
 }
 

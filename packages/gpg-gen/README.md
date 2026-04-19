@@ -5,6 +5,11 @@ Automates GPG key generation per the Zenn method (NIST P-521, cert-only master,
 
 ## Modes
 
+`--agenix` and `--out` may be combined. When both are set, the raw files land
+in `--out DIR` (no cold-storage prompt or shred — you manage them), *and* the
+encrypted `sub.key.age` + plain `public.asc` are written into the `secrets/`
+submodule.
+
 ### `--out DIR` — non-NixOS / manual
 
 Writes `mastersub.key`, `sub.key`, `public.asc`, `revoke.asc` to `DIR`. Nothing
@@ -13,6 +18,9 @@ touches the repo. You manage placement/cold-storage yourself.
 ```
 nix run .#gpg-gen -- --out /mnt/usb/gpg-backup --name "Your Name" --email you@example.com
 ```
+
+The generated key is unprotected by default. Pass `--passphrase` to be prompted
+for one.
 
 ### `--agenix --host HOST --user USER` — NixOS via agenix
 

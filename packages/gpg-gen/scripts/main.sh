@@ -4,16 +4,21 @@ source "$GPG_GEN_LIB"
 
 usage() {
   cat <<'EOF'
-Usage: gpg-gen [--agenix --host HOST --user USER | --out DIR] [--name NAME] [--email EMAIL]
+Usage: gpg-gen [--agenix --host HOST --user USER] [--out DIR]
+               [--name NAME] [--email EMAIL] [--passphrase]
 
-Modes (exactly one required):
+Modes (at least one required, both may be combined):
   --agenix --host HOST --user USER   Encrypt sub.key into the secrets/ submodule
                                      at secrets/HOST/home/USER/gpg/sub.key.age
   --out DIR                          Write raw exported files to DIR
+                                     (when combined with --agenix, skips the
+                                     cold-storage prompt since files are
+                                     already in a user-owned location)
 
 Options:
   --name NAME    Real name for the key UID (prompts if omitted)
   --email EMAIL  Email for the key UID (prompts if omitted)
+  --passphrase   Prompt for a passphrase; without this flag the key has none
   --help         Show this help
 EOF
 }
@@ -27,7 +32,7 @@ parse_args "$@"
 prompt_if_empty NAME "Real name"
 prompt_if_empty EMAIL "Email"
 
-if [ "$MODE" = "agenix" ]; then
+if [ "$DO_AGENIX" -eq 1 ]; then
   ensure_secrets_submodule
   # Resolve recipients now so we fail fast if the flake isn't set up.
   RECIPIENTS="$(resolve_recipients "$HOST" "$USER_")"
@@ -49,7 +54,12 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-PASSPHRASE="$(prompt_passphrase)"
+if [ "$WANT_PASSPHRASE" -eq 1 ]; then
+  PASSPHRASE="$(prompt_passphrase)"
+else
+  PASSPHRASE=""
+  log info "generating unprotected key (no passphrase); pass --passphrase to set one"
+fi
 
 log info "generating master key (this may take a minute)…"
 FPR="$(gen_master_key "$NAME" "$EMAIL" "$PASSPHRASE")"
@@ -64,21 +74,27 @@ export_all "$FPR" "$EXPORT_DIR" "$PASSPHRASE"
 # shellcheck disable=SC2012
 log info "exported: $(ls "$EXPORT_DIR" | tr '\n' ' ')"
 
-if [ "$MODE" = "out" ]; then
+if [ "$DO_OUT" -eq 1 ]; then
   mkdir -p "$OUT_DIR"
   install -m 0600 "$EXPORT_DIR/mastersub.key" "$OUT_DIR/mastersub.key"
   install -m 0600 "$EXPORT_DIR/sub.key"       "$OUT_DIR/sub.key"
   install -m 0644 "$EXPORT_DIR/public.asc"    "$OUT_DIR/public.asc"
   install -m 0600 "$EXPORT_DIR/revoke.asc"    "$OUT_DIR/revoke.asc"
   log info "wrote all four files to $OUT_DIR"
-  log info "KEY ID: $FPR"
-  exit 0
 fi
 
-write_agenix_output "$EXPORT_DIR" "$HOST" "$USER_" "$RECIPIENTS"
+if [ "$DO_AGENIX" -eq 1 ]; then
+  write_agenix_output "$EXPORT_DIR" "$HOST" "$USER_" "$RECIPIENTS"
+  log info "NEXT: commit inside secrets/ submodule, then in the parent repo,"
+  log info "      set signingKey = \"$FPR\" and capybara.app.dev.gpg.{importSubkeys = true; keyId = \"$FPR\";}."
+fi
 
 log info "KEY ID: $FPR"
-log info "NEXT: commit inside secrets/ submodule, then in the parent repo,"
-log info "      set signingKey = \"$FPR\" and capybara.app.dev.gpg.{importSubkeys = true; keyId = \"$FPR\";}."
 
-cold_storage_prompt "$EXPORT_DIR/mastersub.key" "$EXPORT_DIR/revoke.asc"
+# If --out was supplied, the sensitive files live in OUT_DIR (user-owned) —
+# skip the cold-storage prompt and the shred of tmp copies is handled by the
+# cleanup trap. Otherwise (agenix-only), block until the user relocates the
+# tempdir copies.
+if [ "$DO_AGENIX" -eq 1 ] && [ "$DO_OUT" -eq 0 ]; then
+  cold_storage_prompt "$EXPORT_DIR/mastersub.key" "$EXPORT_DIR/revoke.asc"
+fi

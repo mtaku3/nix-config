@@ -11,17 +11,36 @@ teardown() {
   rm -rf "$TMPDIR_TEST"
 }
 
-@test "parse_args: --agenix with host+user sets MODE=agenix" {
+@test "parse_args: --agenix with host+user sets DO_AGENIX" {
   parse_args --agenix --host helios --user mtaku3
-  [ "$MODE" = "agenix" ]
+  [ "$DO_AGENIX" = "1" ]
+  [ "$DO_OUT" = "0" ]
   [ "$HOST" = "helios" ]
   [ "$USER_" = "mtaku3" ]
 }
 
-@test "parse_args: --out sets MODE=out and OUT_DIR" {
+@test "parse_args: WANT_PASSPHRASE defaults to 0" {
+  parse_args --out /tmp/x
+  [ "$WANT_PASSPHRASE" = "0" ]
+}
+
+@test "parse_args: --passphrase sets WANT_PASSPHRASE=1" {
+  parse_args --out /tmp/x --passphrase
+  [ "$WANT_PASSPHRASE" = "1" ]
+}
+
+@test "parse_args: --out sets DO_OUT and OUT_DIR" {
   parse_args --out /tmp/backup
-  [ "$MODE" = "out" ]
+  [ "$DO_OUT" = "1" ]
+  [ "$DO_AGENIX" = "0" ]
   [ "$OUT_DIR" = "/tmp/backup" ]
+}
+
+@test "parse_args: --agenix and --out together sets both" {
+  parse_args --agenix --host h --user u --out /tmp/x
+  [ "$DO_AGENIX" = "1" ]
+  [ "$DO_OUT" = "1" ]
+  [ "$OUT_DIR" = "/tmp/x" ]
 }
 
 @test "parse_args: --name and --email are captured" {
@@ -34,12 +53,6 @@ teardown() {
   run parse_args --name "Alice"
   [ "$status" -eq 2 ]
   [[ "$output" == *"mode required"* ]]
-}
-
-@test "parse_args: both --agenix and --out → exit 2" {
-  run parse_args --agenix --host h --user u --out /tmp/x
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"one mode"* ]]
 }
 
 @test "parse_args: --agenix without --host → exit 2" {
@@ -60,38 +73,39 @@ teardown() {
   [[ "$output" == *"unknown"* ]]
 }
 
-@test "resolve_recipients: merges host+user pubkeys" {
-  # Build a stub that returns different JSON per attrpath substring
-  local stub="$TMPDIR_TEST/nix"
-  cat >"$stub" <<'EOF'
-#!/usr/bin/env bash
-# Expect: nix eval --json ".#nixosConfigurations.HOST.config.capybara.agenix.hostPubkeys"
-#     or: nix eval --json ".#nixosConfigurations.HOST.config.home-manager.users.USER.capybara.agenix.userPubkeys"
-for a in "$@"; do
-  case "$a" in
-    *hostPubkeys*) echo '["age1host"]'; exit 0 ;;
-    *userPubkeys*) echo '["age1user"]'; exit 0 ;;
-  esac
-done
-exit 1
+@test "resolve_recipients: merges host+user pubkeys from data JSON" {
+  export GPG_GEN_DATA="$TMPDIR_TEST/data.json"
+  cat >"$GPG_GEN_DATA" <<'EOF'
+{
+  "hosts": { "helios": { "hostPubkeys": ["age1host"] } },
+  "users": { "mtaku3@helios": { "name": "mtaku3", "host": "helios", "userPubkeys": ["age1user"] } }
+}
 EOF
-  chmod +x "$stub"
-  NIX_BIN="$stub" run resolve_recipients helios mtaku3
+  run resolve_recipients helios mtaku3
   [ "$status" -eq 0 ]
   [[ "$output" == *"age1host"* ]]
   [[ "$output" == *"age1user"* ]]
 }
 
 @test "resolve_recipients: empty lists → exit non-zero" {
-  local stub="$TMPDIR_TEST/nix"
-  cat >"$stub" <<'EOF'
-#!/usr/bin/env bash
-echo '[]'
+  export GPG_GEN_DATA="$TMPDIR_TEST/data.json"
+  cat >"$GPG_GEN_DATA" <<'EOF'
+{
+  "hosts": { "helios": { "hostPubkeys": [] } },
+  "users": { "mtaku3@helios": { "name": "mtaku3", "host": "helios", "userPubkeys": [] } }
+}
 EOF
-  chmod +x "$stub"
-  NIX_BIN="$stub" run resolve_recipients helios mtaku3
+  run resolve_recipients helios mtaku3
   [ "$status" -ne 0 ]
   [[ "$output" == *"no age recipients"* ]]
+}
+
+@test "resolve_recipients: unknown host → exit non-zero" {
+  export GPG_GEN_DATA="$TMPDIR_TEST/data.json"
+  echo '{"hosts":{},"users":{}}' >"$GPG_GEN_DATA"
+  run resolve_recipients nosuch mtaku3
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"not present in flake"* ]]
 }
 
 @test "age_encrypt_to_recipients: round-trips via two recipients" {
