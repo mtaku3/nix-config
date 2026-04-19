@@ -46,12 +46,16 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signingKey = "4DB490B409F22369";
+          signingKey = "69591FC896F588B338B692DC0B5BC19B0BDA0630";
           signByDefault = true;
         };
         gh = enabled;
         tmux = enabled;
-        gpg = enabled;
+        gpg = {
+          enable = true;
+          importSubkeys = true;
+          keyId = "69591FC896F588B338B692DC0B5BC19B0BDA0630";
+        };
         devbox = enabled;
         termius = enabled;
       };

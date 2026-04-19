@@ -20,12 +20,16 @@ with lib.capybara; {
           enable = true;
           username = "mtaku3";
           email = "me@mtaku3.com";
-          signingKey = "4DB490B409F22369";
+          signingKey = "C29192ED1ABAAF1073F3B4DB6EBE5C8A537E7406";
           signByDefault = true;
         };
         gh = enabled;
         tmux = enabled;
-        gpg = enabled;
+        gpg = {
+          enable = true;
+          importSubkeys = true;
+          keyId = "C29192ED1ABAAF1073F3B4DB6EBE5C8A537E7406";
+        };
         devbox = enabled;
         termius = enabled;
       };
@@ -50,7 +54,12 @@ with lib.capybara; {
       allowOther = true;
     };
 
-    agenix = enabled;
+    agenix = {
+      enable = true;
+      userPubkeys = [
+        "age1fje5j6rwhvd6kzd0ttedtaaslppx499glwqrty0wj0ryysrqzghs4mc503"
+      ];
+    };
   };
 
   home.stateVersion = "25.05";

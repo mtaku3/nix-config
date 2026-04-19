@@ -27,13 +27,13 @@ in {
 
     capybara.impermanence.directories = [
       ".claude"
+      ".local/bin"
       ".local/share/uv"
       ".cache/uv"
       ".npm"
     ];
     capybara.impermanence.files = [
       ".claude.json"
-      ".local/bin/claude"
     ];
   };
 }
