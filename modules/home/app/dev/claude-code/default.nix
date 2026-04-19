@@ -25,6 +25,22 @@ in {
 
     home.sessionPath = ["$HOME/.local/bin"];
 
+    home.activation.installClaudeCode = let
+      installer = pkgs.writeShellApplication {
+        name = "install-claude-code";
+        runtimeInputs = [pkgs.curl];
+        text = ''
+          if [ ! -x "$HOME/.local/bin/claude" ]; then
+            curl -fsSL https://claude.ai/install.sh | bash
+          fi
+        '';
+      };
+    in {
+      after = ["writeBoundary"];
+      before = [];
+      data = "run ${installer}/bin/install-claude-code";
+    };
+
     capybara.impermanence.directories = [
       ".claude"
       ".local/bin"
