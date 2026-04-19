@@ -56,6 +56,11 @@ with lib.capybara; {
     owner = "mtaku3";
     group = "users";
   };
+  age.secrets."sshfs/id_ed25519_tga_pilot" = {
+    mode = "400";
+    owner = "mtaku3";
+    group = "users";
+  };
   systemd.tmpfiles.rules = [
     "d /var/lib/sshfs 0700 root root -"
   ];
@@ -77,6 +82,24 @@ with lib.capybara; {
       "UserKnownHostsFile=/var/lib/sshfs/known_hosts"
       "StrictHostKeyChecking=accept-new"
       "sftp_server=/usr/lib/openssh/sftp-server\\040-u0"
+    ];
+  };
+  fileSystems."/mnt/tga-pilot-fs" = {
+    device = "un02216@login.t4.gsic.titech.ac.jp:/gs/bs/tga-miubiq_data_common/matsushita-pilot-fs";
+    fsType = "fuse.sshfs";
+    options = [
+      "allow_other"
+      "_netdev"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=30"
+      "reconnect"
+      "ServerAliveInterval=15"
+      "ServerAliveCountMax=3"
+      "IdentityFile=${config.age.secrets."sshfs/id_ed25519_tga_pilot".path}"
+      "UserKnownHostsFile=/var/lib/sshfs/known_hosts"
+      "StrictHostKeyChecking=accept-new"
     ];
   };
 
