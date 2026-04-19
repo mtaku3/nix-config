@@ -450,58 +450,49 @@ These drive `gpg`. Verification is manual (bats testing against gpg is slow and 
 Append to `packages/gpg-gen/scripts/lib.sh`:
 
 ```bash
-# gen_master_key NAME EMAIL — create cert-only NIST P-521 master key, no expiry.
-# Echoes the primary-key fingerprint on stdout.
-# Generates without passphrase; use gpg_set_passphrase afterward.
+# gen_master_key NAME EMAIL PASSPHRASE — create cert-only NIST P-521 master key,
+# no expiry, protected with PASSPHRASE. Echoes the primary fingerprint on stdout.
 gen_master_key() {
   local name="$1"
   local email="$2"
+  local pw="$3"
   local params
   params=$(mktemp)
   cat >"$params" <<EOF
-%no-protection
 Key-Type: ECDSA
 Key-Curve: nistp521
 Key-Usage: cert
 Name-Real: $name
 Name-Email: $email
 Expire-Date: 0
+Passphrase: $pw
 %commit
 EOF
-  gpg --batch --generate-key "$params" >/dev/null 2>&1
+  gpg --batch --pinentry-mode loopback --generate-key "$params" >/dev/null 2>&1
   rm -f "$params"
 
-  # Fingerprint of the most recently created secret key (primary).
   gpg --list-secret-keys --with-colons --with-fingerprint "$email" \
     | awk -F: '$1=="fpr"{print $10; exit}'
 }
 
-# add_subkeys FPR — add [E], [S], [A] subkeys (nistp521, no expiry).
+# add_subkeys FPR PASSPHRASE — add [E], [S], [A] subkeys (nistp521, no expiry).
 add_subkeys() {
   local fpr="$1"
-  gpg --batch --pinentry-mode loopback \
+  local pw="$2"
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
     --quick-add-key "$fpr" nistp521 encr never >/dev/null 2>&1
-  gpg --batch --pinentry-mode loopback \
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
     --quick-add-key "$fpr" nistp521 sign never >/dev/null 2>&1
-  gpg --batch --pinentry-mode loopback \
+  gpg --batch --pinentry-mode loopback --passphrase "$pw" \
     --quick-add-key "$fpr" nistp521 auth never >/dev/null 2>&1
 }
 
-# gpg_set_passphrase FPR PASSPHRASE — set a passphrase on the key.
-gpg_set_passphrase() {
-  local fpr="$1"
-  local pw="$2"
-  gpg --batch --pinentry-mode loopback \
-    --passphrase '' --new-passphrase "$pw" \
-    --change-passphrase "$fpr" >/dev/null 2>&1
-}
-
-# export_all FPR OUTDIR — write mastersub.key, sub.key, public.asc, revoke.asc into OUTDIR.
-# Assumes passphrase already set; uses loopback pinentry with $PASSPHRASE from caller.
+# export_all FPR OUTDIR PASSPHRASE — write mastersub.key, sub.key, public.asc,
+# revoke.asc into OUTDIR.
 export_all() {
   local fpr="$1"
   local outdir="$2"
-  local pw="${PASSPHRASE:?PASSPHRASE env var required for export_all}"
+  local pw="$3"
   mkdir -p "$outdir"
   umask 077
 
@@ -511,13 +502,11 @@ export_all() {
     -a --export-secret-subkeys "$fpr" > "$outdir/sub.key"
   gpg -a --export "$fpr" > "$outdir/public.asc"
 
-  # Revocation cert — gpg requires an interactive reason by default;
-  # feed it via --command-fd with reason code 0 (no reason), "y" to confirm.
-  {
-    printf 'y\n0\n\ny\n'
-  } | gpg --batch --pinentry-mode loopback --passphrase "$pw" \
-       --command-fd 0 --status-fd 2 \
-       -a --gen-revoke "$fpr" > "$outdir/revoke.asc" 2>/dev/null
+  # Revocation cert — gpg 2.4 rejects --batch here; use --no-tty + --command-fd.
+  # Prompt sequence: y (confirm create), 0 (reason: no reason), "" (description), y (confirm).
+  printf 'y\n0\n\ny\n' | gpg --no-tty --pinentry-mode loopback --passphrase "$pw" \
+    --command-fd 0 --status-fd 2 \
+    -a --gen-revoke "$fpr" > "$outdir/revoke.asc" 2>/dev/null
 }
 ```
 
@@ -527,17 +516,17 @@ Run:
 
 ```bash
 TMP="$(mktemp -d)"
-GNUPGHOME="$TMP/gnupg" mkdir -p "$GNUPGHOME"; chmod 700 "$GNUPGHOME"
-export GNUPGHOME
+mkdir -p "$TMP/gnupg"; chmod 700 "$TMP/gnupg"
+export GNUPGHOME="$TMP/gnupg"
 source packages/gpg-gen/scripts/lib.sh
-FPR=$(gen_master_key "Plan Smoke" "smoke@example.com")
+FPR=$(gen_master_key "Plan Smoke" "smoke@example.com" "smoketest")
 echo "master: $FPR"
-add_subkeys "$FPR"
-gpg_set_passphrase "$FPR" "smoketest"
-PASSPHRASE=smoketest export_all "$FPR" "$TMP/out"
+add_subkeys "$FPR" "smoketest"
+export_all "$FPR" "$TMP/out" "smoketest"
 ls "$TMP/out"
 gpg --list-secret-keys
-rm -rf "$TMP" "$GNUPGHOME"
+rm -rf "$TMP"
+unset GNUPGHOME
 ```
 
 Expected: `mastersub.key sub.key public.asc revoke.asc` all exist; `gpg -K` shows
@@ -636,20 +625,18 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+PASSPHRASE="$(prompt_passphrase)"
+
 log info "generating master key (this may take a minute)…"
-FPR="$(gen_master_key "$NAME" "$EMAIL")"
+FPR="$(gen_master_key "$NAME" "$EMAIL" "$PASSPHRASE")"
 [ -n "$FPR" ] || die "master key generation failed" 1
 log info "master fingerprint: $FPR"
 
 log info "adding E/S/A subkeys…"
-add_subkeys "$FPR"
-
-PASSPHRASE="$(prompt_passphrase)"
-export PASSPHRASE
-gpg_set_passphrase "$FPR" "$PASSPHRASE"
+add_subkeys "$FPR" "$PASSPHRASE"
 
 OUTDIR="$WORKDIR/out"
-export_all "$FPR" "$OUTDIR"
+export_all "$FPR" "$OUTDIR" "$PASSPHRASE"
 log info "exported: $(ls "$OUTDIR" | tr '\n' ' ')"
 
 if [ "$MODE" = "out" ]; then
