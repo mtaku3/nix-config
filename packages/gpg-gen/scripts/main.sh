@@ -27,6 +27,13 @@ parse_args "$@"
 prompt_if_empty NAME "Real name"
 prompt_if_empty EMAIL "Email"
 
+if [ "$MODE" = "agenix" ]; then
+  ensure_secrets_submodule
+  # Resolve recipients now so we fail fast if the flake isn't set up.
+  RECIPIENTS="$(resolve_recipients "$HOST" "$USER_")"
+  export RECIPIENTS
+fi
+
 # Isolated GNUPGHOME so the user's real keyring is untouched.
 WORKDIR="$(mktemp -d -t gpg-gen-XXXXXX)"
 export GNUPGHOME="$WORKDIR/gnupg"
@@ -68,8 +75,6 @@ if [ "$MODE" = "out" ]; then
   exit 0
 fi
 
-ensure_secrets_submodule
-RECIPIENTS="$(resolve_recipients "$HOST" "$USER_")"
 write_agenix_output "$EXPORT_DIR" "$HOST" "$USER_" "$RECIPIENTS"
 
 log info "KEY ID: $FPR"
