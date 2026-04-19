@@ -52,19 +52,17 @@ log info "master fingerprint: $FPR"
 log info "adding E/S/A subkeys…"
 add_subkeys "$FPR" "$PASSPHRASE"
 
-OUTDIR="$WORKDIR/out"
-export_all "$FPR" "$OUTDIR" "$PASSPHRASE"
+EXPORT_DIR="$WORKDIR/out"
+export_all "$FPR" "$EXPORT_DIR" "$PASSPHRASE"
 # shellcheck disable=SC2012
-log info "exported: $(ls "$OUTDIR" | tr '\n' ' ')"
+log info "exported: $(ls "$EXPORT_DIR" | tr '\n' ' ')"
 
 if [ "$MODE" = "out" ]; then
-  # OUT_DIR is set by parse_args (sourced from lib.sh); silence SC2153.
-  # shellcheck disable=SC2153
   mkdir -p "$OUT_DIR"
-  install -m 0600 "$OUTDIR/mastersub.key" "$OUT_DIR/mastersub.key"
-  install -m 0600 "$OUTDIR/sub.key"       "$OUT_DIR/sub.key"
-  install -m 0644 "$OUTDIR/public.asc"    "$OUT_DIR/public.asc"
-  install -m 0600 "$OUTDIR/revoke.asc"    "$OUT_DIR/revoke.asc"
+  install -m 0600 "$EXPORT_DIR/mastersub.key" "$OUT_DIR/mastersub.key"
+  install -m 0600 "$EXPORT_DIR/sub.key"       "$OUT_DIR/sub.key"
+  install -m 0644 "$EXPORT_DIR/public.asc"    "$OUT_DIR/public.asc"
+  install -m 0600 "$EXPORT_DIR/revoke.asc"    "$OUT_DIR/revoke.asc"
   log info "wrote all four files to $OUT_DIR"
   log info "KEY ID: $FPR"
   exit 0

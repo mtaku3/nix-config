@@ -91,7 +91,7 @@ gen_master_key() {
   local email="$2"
   local pw="$3"
   local params
-  params=$(mktemp)
+  params=$(mktemp -p "$GNUPGHOME")
   # Shred-then-remove even if gpg below fails.
   trap 'shred -u "$params" 2>/dev/null || rm -f "$params"' RETURN
   cat >"$params" <<EOF
