@@ -146,3 +146,31 @@ export_all() {
     --command-fd 0 --status-fd 2 \
     -a --gen-revoke "$fpr" > "$outdir/revoke.asc" 2>/dev/null
 }
+
+log() {
+  local level="$1"; shift
+  printf '[%s] %s\n' "$level" "$*" >&2
+}
+
+# prompt_passphrase — read a passphrase twice from /dev/tty, echo to stdout.
+# Exits non-zero if the two don't match.
+prompt_passphrase() {
+  local p1 p2
+  printf 'Passphrase: ' >/dev/tty
+  read -rs p1 </dev/tty; printf '\n' >/dev/tty
+  printf 'Confirm:    ' >/dev/tty
+  read -rs p2 </dev/tty; printf '\n' >/dev/tty
+  [ "$p1" = "$p2" ] || die "passphrases do not match" 1
+  [ -n "$p1" ] || die "empty passphrase" 1
+  printf '%s' "$p1"
+}
+
+# prompt_if_empty VAR PROMPT — if VAR is empty, read from /dev/tty into VAR.
+prompt_if_empty() {
+  local var="$1"
+  local prompt="$2"
+  if [ -z "${!var}" ]; then
+    printf '%s: ' "$prompt" >/dev/tty
+    read -r "$var" </dev/tty
+  fi
+}

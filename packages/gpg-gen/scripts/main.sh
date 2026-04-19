@@ -19,7 +19,55 @@ EOF
 }
 
 case "${1:-}" in
-  -h|--help|"") usage; exit 0 ;;
+  -h|--help) usage; exit 0 ;;
+  "")        usage; exit 2 ;;
 esac
 
-die "not implemented yet" 1
+parse_args "$@"
+prompt_if_empty NAME "Real name"
+prompt_if_empty EMAIL "Email"
+
+# Isolated GNUPGHOME so the user's real keyring is untouched.
+WORKDIR="$(mktemp -d -t gpg-gen-XXXXXX)"
+export GNUPGHOME="$WORKDIR/gnupg"
+mkdir -p "$GNUPGHOME"
+chmod 700 "$GNUPGHOME"
+
+cleanup() {
+  local rc="$?"
+  # shred secret-key exports if still present
+  find "$WORKDIR" -name '*.key' -type f -exec shred -u {} + 2>/dev/null || true
+  rm -rf "$WORKDIR"
+  exit "$rc"
+}
+trap cleanup EXIT INT TERM
+
+PASSPHRASE="$(prompt_passphrase)"
+
+log info "generating master key (this may take a minute)…"
+FPR="$(gen_master_key "$NAME" "$EMAIL" "$PASSPHRASE")"
+[ -n "$FPR" ] || die "master key generation failed" 1
+log info "master fingerprint: $FPR"
+
+log info "adding E/S/A subkeys…"
+add_subkeys "$FPR" "$PASSPHRASE"
+
+OUTDIR="$WORKDIR/out"
+export_all "$FPR" "$OUTDIR" "$PASSPHRASE"
+# shellcheck disable=SC2012
+log info "exported: $(ls "$OUTDIR" | tr '\n' ' ')"
+
+if [ "$MODE" = "out" ]; then
+  # OUT_DIR is set by parse_args (sourced from lib.sh); silence SC2153.
+  # shellcheck disable=SC2153
+  mkdir -p "$OUT_DIR"
+  install -m 0600 "$OUTDIR/mastersub.key" "$OUT_DIR/mastersub.key"
+  install -m 0600 "$OUTDIR/sub.key"       "$OUT_DIR/sub.key"
+  install -m 0644 "$OUTDIR/public.asc"    "$OUT_DIR/public.asc"
+  install -m 0600 "$OUTDIR/revoke.asc"    "$OUT_DIR/revoke.asc"
+  log info "wrote all four files to $OUT_DIR"
+  log info "KEY ID: $FPR"
+  exit 0
+fi
+
+die "agenix mode not yet implemented" 1
