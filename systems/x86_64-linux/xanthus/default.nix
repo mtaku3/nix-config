@@ -25,7 +25,13 @@ with lib.capybara; {
       };
     };
 
-    agenix = enabled;
+    agenix = {
+      enable = true;
+      hostPubkeys = [
+        "age1wlq6zv0jetvl2pq2qartxc5vwexj23yv2qmmps7cw32a52qy0qsssrwfqp"
+      ];
+    };
+
     impermanence = {
       enable = true;
       name = "/persist";
