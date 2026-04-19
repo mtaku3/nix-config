@@ -15,9 +15,21 @@ GPG keys for git signing are currently created by hand, following the method in
 - On target machines: `gpg --delete-secret-keys $KEYID` then `gpg --import sub.key`
 
 The existing helios host already references a signing key (`4DB490B409F22369`)
-produced this way. Secrets in this repo are handled by `agenix` via the existing
-`capybara.agenix` module, which auto-loads every `*.age` file under
-`secrets/<host>/{system,home/<user>}/` into `config.age.secrets.<relpath>`.
+produced this way.
+
+Secrets in this repo are handled by `agenix`:
+
+- `secrets/` is a git submodule pointing at a private repo
+  (`mtaku3/nix-config-secrets`) that stores the actual `.age` ciphertexts.
+- The `capybara.agenix` NixOS module walks `secrets/common/` and
+  `secrets/<host>/system/` and auto-loads every `*.age` into
+  `config.age.secrets.<relpath>` (common files keep their `common/` prefix).
+- The `capybara.agenix` home module walks
+  `secrets/<host>/home/<user>/` the same way.
+- Age recipients are declared in-flake via
+  `capybara.agenix.hostPubkeys` (system module) and
+  `capybara.agenix.userPubkeys` (home module) — there is no central
+  `secrets/secrets.nix` maintained by hand.
 
 ## Goal
 
@@ -79,13 +91,22 @@ a NixOS activation.
    ```
 7. Dispatch by mode:
    - **agenix mode:**
-     - Verify `secrets/secrets.nix` lists a recipient for `<host>@<user>` (see
-       §3). Abort with a helpful message if not.
+     - Extract the age recipient pubkeys for `<host>@<user>` from the flake
+       via `nix eval`:
+       - host pubkeys: `.#nixosConfigurations.<host>.config.capybara.agenix.hostPubkeys`
+       - user pubkeys: `.#homeConfigurations."<user>@<host>".config.capybara.agenix.userPubkeys`
+         (or equivalent Snowfall accessor — exact attrpath resolved at
+         implementation time).
+     - Abort with a clear error if either list is empty.
+     - Ensure the `secrets/` submodule is initialized; abort if not
+       (`git submodule status` check).
      - Ensure `secrets/<host>/home/<user>/gpg/` exists.
-     - Run `cd secrets && agenix -e <host>/home/<user>/gpg/sub.key.age` piping
-       `sub.key` content via `EDITOR=cp` trick, or equivalent — details at
-       implementation time; the interface is "the two encrypted files end up
-       at the right paths".
+     - Encrypt `sub.key` to **both** host and user recipients using `age`
+       directly (not `agenix -e`, to keep the CLI non-interactive):
+       `age -e -r <pk1> -r <pk2> … -o secrets/<host>/home/<user>/gpg/sub.key.age sub.key`.
+       Encrypting to both lets either the system activation (with the host
+       identity) or a `home-manager` activation (with the user identity)
+       decrypt; matches what `agenix` itself would emit.
      - Copy `public.asc` to `secrets/<host>/home/<user>/gpg/public.asc` as
        plain text (public, no encryption). Committed for reference / GitHub
        upload; the activation script does not consume it (the public half is
@@ -146,36 +167,41 @@ keyId         = mkOpt types.str "" "Long GPG key id / fingerprint to expect";
 two modules and hide where the key id is defined. Host config stays the single
 source of truth (`signingKey = cfg.keyId` is a one-liner if the user wants it).
 
-### 3. `secrets/secrets.nix` recipient registry
+### 3. Recipients (no new registry file)
 
-Currently absent (the `secrets/` dir is empty). Needs to be created with:
-
-- Each host's SSH host key as a recipient for `<host>/system/*.age` files.
-- Each user's SSH user key as a recipient for `<host>/home/<user>/*.age` files.
-
-The generator CLI reads this file before attempting `agenix -e` and aborts
-early with a clear diagnostic if the target host/user isn't listed.
-
-Adding recipients is a manual step done once per host, outside this tool.
+Recipients are already declared in the flake: each host sets
+`capybara.agenix.hostPubkeys` and each per-host home sets
+`capybara.agenix.userPubkeys`. The generator CLI consumes these via
+`nix eval` at runtime and passes them as `-r` flags to `age`. Adding a new
+host/user still means editing the relevant `.nix` files (a task outside this
+tool), but nothing additional needs to land in the `secrets/` submodule for
+the registry to work.
 
 ## Flow diagrams
 
 ### Bootstrap for a new NixOS host
 
-1. Operator adds host + user pubkeys to `secrets/secrets.nix`.
-2. `nix run .#gpg-gen -- --agenix --host helios --user mtaku3 \
+1. Operator ensures `capybara.agenix.hostPubkeys` and `userPubkeys` are
+   populated for the target host in the flake.
+2. Operator initializes the `secrets/` submodule if not already
+   (`git submodule update --init`).
+3. `nix run .#gpg-gen -- --agenix --host helios --user mtaku3 \
      --name "mtaku3" --email me@mtaku3.com`
-3. Enter passphrase when prompted.
-4. Tool produces:
-   - `secrets/helios/home/mtaku3/gpg/sub.key.age` (encrypted)
+4. Enter passphrase when prompted.
+5. Tool produces:
+   - `secrets/helios/home/mtaku3/gpg/sub.key.age` (encrypted to both host
+     and user recipients)
    - `secrets/helios/home/mtaku3/gpg/public.asc` (plain)
    - `/tmp/gpg-gen-XXXX/mastersub.key` + `revoke.asc` → operator moves these to
      a USB / encrypted volume; confirms; tool shreds the tempdir.
-5. Operator sets `signingKey = "<new KEYID>"` and adds
+6. Operator sets `signingKey = "<new KEYID>"` and adds
    `capybara.app.dev.gpg = { importSubkeys = true; keyId = "<FPR>"; }` in
    `homes/x86_64-linux/mtaku3@helios/default.nix`.
-6. `git add`, commit, `nixos-rebuild switch`.
-7. On next login the activation script imports `sub.key` into `~/.gnupg/`,
+7. Operator commits the ciphertext inside the `secrets/` submodule
+   (separate git history) AND commits the bump + Nix config changes in the
+   parent repo.
+8. `nixos-rebuild switch ?submodules=1`.
+9. On next login the activation script imports `sub.key` into `~/.gnupg/`,
    git signing works.
 
 ### Non-NixOS generation
@@ -189,12 +215,13 @@ Adding recipients is a manual step done once per host, outside this tool.
 ## Error handling
 
 - Missing/conflicting mode flags → usage error, exit 2.
-- `secrets/secrets.nix` missing a recipient for the requested target → abort
-  before generation; nothing written.
-- `agenix` CLI missing from PATH → abort with "run from the devshell or add
-  agenix to your system".
+- Target host/user has empty `hostPubkeys`/`userPubkeys` → abort before
+  generation; nothing written.
+- `secrets/` submodule uninitialized (in agenix mode) → abort with the exact
+  `git submodule update --init` command to run.
+- `gpg` or `age` missing from PATH → abort with "run from the devshell".
 - Generation failure mid-way → tempdir is removed via `trap`, no partial state
-  in the repo.
+  in the repo or submodule.
 - Activation-time import: if `sub.key` decryption fails (agenix not ready
   yet), the activation script logs a warning and exits 0 — doesn't block
   home-manager activation.
@@ -211,8 +238,9 @@ Adding recipients is a manual step done once per host, outside this tool.
 
 ## Open implementation details (deferred to plan)
 
-- Exact incantation to feed a file to `agenix -e` non-interactively (agenix
-  expects `$EDITOR`; standard trick is `EDITOR="cp <source>"` with care around
-  the target path argument it passes).
+- Exact `nix eval` attrpaths for `hostPubkeys`/`userPubkeys` under Snowfall
+  (`nixosConfigurations.<host>` vs. the home-manager standalone path).
 - Whether to include a `--dry-run` flag.
 - Exact copy for the "move to cold storage" prompt.
+- Whether to auto-commit inside the `secrets/` submodule after writing
+  ciphertexts, or leave the operator to do it manually.
