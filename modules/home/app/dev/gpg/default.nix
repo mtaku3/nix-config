@@ -10,8 +10,8 @@ with lib.capybara; let
   cfg = config.capybara.app.dev.gpg;
   subKeyPath =
     if cfg.importSubkeys
-    then config.age.secrets."gpg/sub.key".path or null
-    else null;
+    then config.age.secrets."gpg/sub.key".path or ""
+    else "";
 in {
   options.capybara.app.dev.gpg = {
     enable = mkBoolOpt false "Whether to enable the gpg";
@@ -41,7 +41,7 @@ in {
       ];
 
       home.activation.importGpgSubkeys = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        SUB_KEY_PATH=${subKeyPath}
+        SUB_KEY_PATH=${escapeShellArg subKeyPath}
         KEY_ID=${escapeShellArg cfg.keyId}
         if [ ! -r "$SUB_KEY_PATH" ]; then
           echo "gpg import: $SUB_KEY_PATH not readable yet, skipping" >&2
