@@ -79,7 +79,7 @@ in {
           done
         '';
       in {
-        pre-push = pre-push-script;
+        # pre-push = pre-push-script;
         post-checkout = post-checkout-script;
       };
     };
