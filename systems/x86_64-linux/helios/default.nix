@@ -64,8 +64,6 @@ with lib.capybara; {
     fsType = "fuse.sshfs";
     options = [
       "allow_other"
-      "uid=1000"
-      "gid=100"
       "_netdev"
       "noauto"
       "x-systemd.automount"
