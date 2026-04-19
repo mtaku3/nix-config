@@ -1,13 +1,15 @@
 # k8s-pki status — read-only PKI report.
 # Exit 0 clean, 3 if drift/missing/stale detected.
 
-# shellcheck source=lib.sh
+# shellcheck source=/dev/null
 source "$K8S_PKI_LIB"
 
+# shellcheck disable=SC2034  # VERBOSE reserved for future verbose output
 VERBOSE=0
 JSON=0
 
 while [ $# -gt 0 ]; do
+  # shellcheck disable=SC2034  # VERBOSE reserved for future verbose output
   case "$1" in
     -v|--verbose) VERBOSE=1 ;;
     --json)       JSON=1 ;;
@@ -41,23 +43,24 @@ ct_path_for() {
 # - per-user certs (ca.crt, cluster-admin.crt, cluster-admin.key)
 mapfile -t EXPECTED < <(
   jq -r '
+    . as $root |
     ["common/k8s-pki/ca.crt","common/k8s-pki/ca.key",
      "common/k8s-pki/etcd/ca.crt","common/k8s-pki/etcd/ca.key",
      "common/k8s-pki/front-proxy-ca.crt","common/k8s-pki/front-proxy-ca.key",
      "common/k8s-pki/sa.pub","common/k8s-pki/sa.key"] +
     (
-      [ .hosts | to_entries[] | . as $he |
+      [ $root.hosts | to_entries[] | . as $he |
         ($he.value.role) as $role |
-        .specs.leaves | to_entries[] |
+        $root.specs.leaves | to_entries[] |
         select(.value.scope == "all" or .value.scope == $role) |
-        "secrets/\($he.key)/system/homelab-k8s/\(.key).crt",
-        "secrets/\($he.key)/system/homelab-k8s/\(.key).key" ]
+        ("secrets/\($he.key)/system/homelab-k8s/\(.key).crt",
+         "secrets/\($he.key)/system/homelab-k8s/\(.key).key") ]
     ) +
     (
-      [ .users | to_entries[] |
-        "secrets/\(.value.host)/home/\(.value.name)/homelab-k8s/ca.crt",
-        "secrets/\(.value.host)/home/\(.value.name)/homelab-k8s/cluster-admin.crt",
-        "secrets/\(.value.host)/home/\(.value.name)/homelab-k8s/cluster-admin.key" ]
+      [ $root.users | to_entries[] | . as $ue |
+        ("secrets/\($ue.value.host)/home/\($ue.value.name)/homelab-k8s/ca.crt",
+         "secrets/\($ue.value.host)/home/\($ue.value.name)/homelab-k8s/cluster-admin.crt",
+         "secrets/\($ue.value.host)/home/\($ue.value.name)/homelab-k8s/cluster-admin.key") ]
     )
     | .[]
   ' "$K8S_PKI_DATA"
@@ -76,7 +79,7 @@ for rel in "${EXPECTED[@]}"; do
 
   if [ ! -f "$ct" ]; then
     status="MISSING"
-    detail="no file at ${ct#$REPO_ROOT/}"
+    detail="no file at ${ct#"$REPO_ROOT"/}"
     missing=$((missing + 1))
     rows+=("$(jq -cn --arg p "$rel" --arg s "$status" --arg d "$detail" '{path:$p,status:$s,detail:$d}')")
     continue

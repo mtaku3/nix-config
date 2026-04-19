@@ -1,7 +1,7 @@
 # k8s-pki rotate-ca — regenerate CAs + every leaf signed by them.
 # Destructive: deletes ciphertexts; cluster services will need restart + kubeconfig re-trust.
 
-# shellcheck source=lib.sh
+# shellcheck source=/dev/null
 source "$K8S_PKI_LIB"
 
 DRY_RUN=0

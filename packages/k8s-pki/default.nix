@@ -22,7 +22,7 @@
   cmdStatus = ./scripts/cmd-status.sh;
 
   mkCmd = name: script:
-    (pkgs.writeShellApplication {
+    pkgs.writeShellApplication {
       inherit name;
       runtimeInputs = with pkgs; [cfssl age openssl jq git coreutils gnused gawk];
       text = ''
@@ -31,13 +31,7 @@
         export K8S_PKI_BOOTSTRAP=${cmdBootstrap}
         ${builtins.readFile script}
       '';
-    })
-    .overrideAttrs (_: {
-      # Scripts sourced at runtime ($K8S_PKI_LIB) are outside shellcheck's
-      # static view; also pre-existing style warnings (SC2034/SC2295) would
-      # fail the default strict check. Pass with no-op.
-      checkPhase = "true";
-    });
+    };
 
   bootstrap = mkCmd "k8s-pki-bootstrap" cmdBootstrap;
   renew = mkCmd "k8s-pki-renew" cmdRenew;

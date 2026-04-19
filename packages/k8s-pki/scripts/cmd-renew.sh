@@ -1,6 +1,6 @@
 # k8s-pki renew — re-sign leaves only. CA files never read-modify-written.
 
-# shellcheck source=lib.sh
+# shellcheck source=/dev/null
 source "$K8S_PKI_LIB"
 
 FORCE=0 DRY_RUN=0

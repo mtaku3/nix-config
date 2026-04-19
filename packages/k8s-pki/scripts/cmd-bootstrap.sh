@@ -1,7 +1,7 @@
 # k8s-pki bootstrap — convergent PKI generator.
 # Generates missing files, re-encrypts on recipient drift, re-signs leaves within 30d of expiry.
 
-# shellcheck source=lib.sh
+# shellcheck source=/dev/null
 source "$K8S_PKI_LIB"
 
 FORCE=0
@@ -117,8 +117,6 @@ gen_or_converge_ca() {
   local ca="$1"
   local crt_key="common/k8s-pki/${ca}.crt"
   local key_key="common/k8s-pki/${ca}.key"
-  local ct_crt; ct_crt=$(ct_path_for "$crt_key")
-  local ct_key; ct_key=$(ct_path_for "$key_key")
 
   local a_crt; a_crt=$(decide_action "$crt_key")
   local a_key; a_key=$(decide_action "$key_key")
