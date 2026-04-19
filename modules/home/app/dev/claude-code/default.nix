@@ -21,9 +21,15 @@ in {
       pkgs.nodejs
       pkgs.python3
       pkgs.uv
+      pkgs.bubblewrap
+      pkgs.socat
     ];
 
-    home.sessionPath = ["$HOME/.local/bin"];
+    home.sessionPath = ["$HOME/.local/bin" "$HOME/.npm-global/bin"];
+
+    home.file.".npmrc".text = ''
+      prefix=${config.home.homeDirectory}/.npm-global
+    '';
 
     home.activation.installClaudeCode = let
       installer = pkgs.writeShellApplication {
@@ -47,6 +53,7 @@ in {
       ".local/share/uv"
       ".cache/uv"
       ".npm"
+      ".npm-global"
     ];
     capybara.impermanence.files = [
       ".claude.json"
