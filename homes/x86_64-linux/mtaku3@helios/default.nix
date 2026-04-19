@@ -32,6 +32,10 @@ with lib.capybara; {
         };
         devbox = enabled;
         termius = enabled;
+        kube-cli = {
+          enable = true;
+          masterAddress = "https://192.168.10.102:6443";
+        };
       };
     };
 
