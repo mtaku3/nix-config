@@ -33,6 +33,7 @@
         "kubernetes.default.svc"
         "kubernetes.default.svc.cluster.local"
         "127.0.0.1"
+        "10.0.0.1"
         "{host.advertiseIP}"
         "{host.masterAddress}"
       ];
