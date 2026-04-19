@@ -145,6 +145,7 @@ export_all() {
   printf 'y\n0\n\ny\n' | gpg --no-tty --pinentry-mode loopback --passphrase "$pw" \
     --command-fd 0 --status-fd 2 \
     -a --gen-revoke "$fpr" > "$outdir/revoke.asc" 2>/dev/null
+  [ -s "$outdir/revoke.asc" ] || die "revocation cert generation failed (empty revoke.asc)" 1
 }
 
 log() {
