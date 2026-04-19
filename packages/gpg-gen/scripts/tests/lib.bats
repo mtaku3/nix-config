@@ -93,3 +93,26 @@ EOF
   [ "$status" -ne 0 ]
   [[ "$output" == *"no age recipients"* ]]
 }
+
+@test "age_encrypt_to_recipients: round-trips via two recipients" {
+  local id1="$TMPDIR_TEST/id1" id2="$TMPDIR_TEST/id2"
+  nix shell nixpkgs#age -c age-keygen -o "$id1" 2>/dev/null
+  nix shell nixpkgs#age -c age-keygen -o "$id2" 2>/dev/null
+  local pk1 pk2
+  pk1=$(nix shell nixpkgs#age -c age-keygen -y "$id1" 2>/dev/null)
+  pk2=$(nix shell nixpkgs#age -c age-keygen -y "$id2" 2>/dev/null)
+
+  local out="$TMPDIR_TEST/ct.age"
+  printf 'secret payload' | age_encrypt_to_recipients "$out" "$(printf '%s\n%s\n' "$pk1" "$pk2")"
+  [ -s "$out" ]
+
+  # Decrypt with id1
+  run bash -c "nix shell nixpkgs#age -c age -d -i '$id1' '$out'"
+  [ "$status" -eq 0 ]
+  [ "$output" = "secret payload" ]
+
+  # Decrypt with id2
+  run bash -c "nix shell nixpkgs#age -c age -d -i '$id2' '$out'"
+  [ "$status" -eq 0 ]
+  [ "$output" = "secret payload" ]
+}

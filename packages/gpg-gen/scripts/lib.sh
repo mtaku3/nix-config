@@ -70,3 +70,16 @@ resolve_recipients() {
   fi
   printf '%s\n' "$combined"
 }
+
+# age_encrypt_to_recipients OUT RECIPIENTS — encrypt stdin → OUT, -r per recipient.
+age_encrypt_to_recipients() {
+  local out="$1"
+  local recipients="$2"
+  local args=()
+  while IFS= read -r pk; do
+    [ -z "$pk" ] && continue
+    args+=(-r "$pk")
+  done <<<"$recipients"
+  [ "${#args[@]}" -gt 0 ] || die "no recipients" 1
+  age -e "${args[@]}" -o "$out"
+}
