@@ -42,6 +42,54 @@ with lib.capybara; {
     };
   };
 
+  programs.nix-ld.libraries = with pkgs; [
+    glib
+    glibc
+    openssl
+    libffi
+    bzip2
+    xz
+    ncurses
+    readline
+    sqlite
+    expat
+    libxml2
+    libxslt
+    libuuid
+    libjpeg
+    libpng
+    libtiff
+    libwebp
+    freetype
+    fontconfig
+    cairo
+    pango
+    gdk-pixbuf
+    gtk3
+    dbus
+    mesa
+    libGL
+    libglvnd
+    xorg.libX11
+    xorg.libXext
+    xorg.libXrender
+    xorg.libXi
+    xorg.libXrandr
+    xorg.libXcursor
+    xorg.libXcomposite
+    xorg.libXdamage
+    xorg.libXfixes
+    xorg.libXtst
+    xorg.libxcb
+    xorg.libSM
+    xorg.libICE
+    nss
+    nspr
+    alsa-lib
+    cups
+    krb5
+  ];
+
   services.journald.storage = "persistent";
 
   nix.settings.trusted-users = ["mtaku3"];
