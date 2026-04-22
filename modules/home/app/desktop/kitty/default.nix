@@ -22,6 +22,8 @@ in {
         background_opacity 0.6
         shell ${config.capybara.shell.path}
         term xterm-256color
+
+        clipboard_control write-clipboard write-primary
       '';
     };
   };
