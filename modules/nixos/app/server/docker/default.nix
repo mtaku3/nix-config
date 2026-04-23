@@ -13,7 +13,17 @@ in {
   };
 
   config = mkIf cfg.enable {
-    virtualisation.docker = enabled;
+    boot.kernel.sysctl = {
+      "net.ipv4.ip_forward" = 1;
+      "net.ipv6.conf.all.forwarding" = 1;
+    };
+
+    virtualisation.docker = {
+      enable = true;
+      daemon.settings = {
+        dns = [ "1.1.1.1" "8.8.8.8" ];
+      };
+    };
 
     capybara.impermanence.directories = [
       "/var/lib/docker"
