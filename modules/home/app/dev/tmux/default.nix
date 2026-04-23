@@ -30,9 +30,7 @@ in {
         bind -r l select-pane -R
 
         set -g focus-events on
-        set -g mouse on
-        set -g set-clipboard on
-        set -g allow-passthrough on
+        set -g mouse off
 
         bind-key -T edit-mode-vi WheelUpPane send-keys -X scroll-up
         bind-key -T edit-mode-vi WheelDownPane send-keys -X scroll-down
