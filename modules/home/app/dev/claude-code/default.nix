@@ -21,9 +21,8 @@ in {
       pkgs.nodejs
       pkgs.python3
       pkgs.uv
-      pkgs.bubblewrap
       pkgs.socat
-    ];
+    ] ++ lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.bubblewrap;
 
     home.sessionPath = ["$HOME/.local/bin" "$HOME/.npm-global/bin"];
 
