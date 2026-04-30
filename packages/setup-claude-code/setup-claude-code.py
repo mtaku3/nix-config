@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -294,12 +295,79 @@ def reconcile_mcp(desired, existing, dry_run):
     return failures
 
 
+def _settings_path():
+    return Path(os.environ.get("HOME", "")) / ".claude" / "settings.json"
+
+
+def _claude_json_path():
+    return Path(os.environ.get("HOME", "")) / ".claude.json"
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    with open(args.config) as f:
-        cfg = json.load(f)
-    print(f"setup-claude-code: loaded config with keys {sorted(cfg.keys())}, args={args}")
-    return 0
+
+    if shutil.which("claude") is None:
+        print("setup-claude-code: claude-code is not installed; nothing to do.",
+              file=sys.stderr)
+        return 0
+
+    try:
+        with open(args.config) as f:
+            cfg = json.load(f)
+        selected = resolve_groups(cfg, args)
+    except UsageError as e:
+        print(f"setup-claude-code: {e}", file=sys.stderr)
+        return 2
+
+    settings_path = _settings_path()
+    try:
+        settings = load_settings(settings_path)
+    except SettingsError as e:
+        print(f"setup-claude-code: {e}", file=sys.stderr)
+        return 2
+
+    rc = 0
+
+    if not args.no_plugins:
+        desired = collect_desired_plugins(
+            cfg.get("plugins", {}),
+            groups_for_domain(selected, cfg.get("plugins", {})),
+        )
+        rc |= 1 if reconcile_plugins(desired, args.dry_run) else 0
+
+    if not args.no_permissions:
+        desired = collect_desired_permissions(
+            cfg.get("permissions", {}),
+            groups_for_domain(selected, cfg.get("permissions", {})),
+        )
+        new_settings = merge_permissions_into(settings, desired)
+        if new_settings != settings:
+            print("+ update permissions in settings.json", flush=True)
+            if not args.dry_run:
+                save_settings(settings_path, new_settings)
+                settings = new_settings
+
+    if args.sandbox:
+        new_settings = merge_sandbox_into(settings, cfg.get("sandbox", {}))
+        if new_settings != settings:
+            print("+ update sandbox in settings.json", flush=True)
+            if not args.dry_run:
+                save_settings(settings_path, new_settings)
+                settings = new_settings
+
+    if not args.no_mcp:
+        try:
+            desired = collect_desired_mcp(
+                cfg.get("mcp", {}),
+                groups_for_domain(selected, cfg.get("mcp", {})),
+            )
+        except UsageError as e:
+            print(f"setup-claude-code: {e}", file=sys.stderr)
+            return 2
+        existing = read_claude_json_mcp_servers(_claude_json_path())
+        rc |= 1 if reconcile_mcp(desired, existing, args.dry_run) else 0
+
+    return rc
 
 
 if __name__ == "__main__":
