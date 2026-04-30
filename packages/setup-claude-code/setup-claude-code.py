@@ -252,6 +252,48 @@ def reconcile_plugins(desired, dry_run):
     return failures
 
 
+def collect_desired_mcp(mcp_by_group, selected):
+    """Return merged {name: spec} across the selected groups; raise UsageError on collision."""
+    out = {}
+    for g in selected:
+        for name, spec in mcp_by_group.get(g, {}).items():
+            if name in out and out[name] != spec:
+                raise UsageError(
+                    f"mcp server name collision across groups: {name!r}"
+                )
+            out[name] = spec
+    return out
+
+
+def read_claude_json_mcp_servers(path):
+    """Best-effort read of mcpServers from ~/.claude.json. Missing/invalid -> {}."""
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        data = json.loads(p.read_text())
+    except json.JSONDecodeError:
+        return {}
+    return data.get("mcpServers", {}) or {}
+
+
+def reconcile_mcp(desired, existing, dry_run):
+    """Add missing MCP servers via `claude mcp add-json -s user`. Returns failure count."""
+    failures = 0
+    for name, spec in desired.items():
+        if name in existing:
+            continue
+        spec_json = json.dumps(spec)
+        print(f"+ claude mcp add-json {name} <json> -s user", flush=True)
+        if not dry_run:
+            try:
+                _run_claude(["mcp", "add-json", name, spec_json, "-s", "user"])
+            except subprocess.CalledProcessError as e:
+                print(f"  ! failed: {e}", file=sys.stderr)
+                failures += 1
+    return failures
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
     with open(args.config) as f:
