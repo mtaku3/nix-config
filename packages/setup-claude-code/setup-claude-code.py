@@ -33,6 +33,53 @@ def parse_args(argv):
     return p.parse_args(argv)
 
 
+class UsageError(Exception):
+    """Raised for bad CLI usage; main() converts to exit code 2."""
+
+
+def _all_known_groups(cfg):
+    known = set()
+    for domain in ("plugins", "permissions", "mcp"):
+        known.update(cfg.get(domain, {}).keys())
+    return known
+
+
+def resolve_groups(cfg, args):
+    known = _all_known_groups(cfg)
+    default_groups = list(cfg.get("defaultGroups", []))
+
+    unknown_defaults = [g for g in default_groups if g not in known]
+    if unknown_defaults:
+        raise UsageError(
+            f"defaultGroups references undefined group(s): {unknown_defaults}; "
+            f"known groups: {sorted(known)}"
+        )
+
+    if args.all_groups:
+        return set(known)
+
+    if args.only_group:
+        selected = set(args.only_group)
+    elif args.no_default_groups:
+        selected = set()
+    else:
+        selected = set(default_groups)
+
+    selected.update(args.group)
+    selected.difference_update(args.no_group)
+
+    unknown = [g for g in selected if g not in known]
+    if unknown:
+        raise UsageError(
+            f"unknown group(s): {sorted(unknown)}; known groups: {sorted(known)}"
+        )
+    return selected
+
+
+def groups_for_domain(selected, domain_groups):
+    return {g for g in selected if g in domain_groups}
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
     with open(args.config) as f:
