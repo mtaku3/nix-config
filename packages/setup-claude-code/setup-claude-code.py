@@ -113,6 +113,35 @@ def groups_for_domain(selected, domain_groups):
     return {g for g in selected if g in domain_groups}
 
 
+def _unique_in_order(seq):
+    seen = set()
+    out = []
+    for item in seq:
+        if item not in seen:
+            seen.add(item)
+            out.append(item)
+    return out
+
+
+def collect_desired_permissions(perms_by_group, selected):
+    out = {"allow": [], "deny": [], "ask": []}
+    for g in selected:
+        block = perms_by_group.get(g, {})
+        for k in ("allow", "deny", "ask"):
+            out[k].extend(block.get(k, []))
+    return {k: _unique_in_order(v) for k, v in out.items()}
+
+
+def merge_permissions_into(settings, desired):
+    out = dict(settings)
+    perms = dict(out.get("permissions", {}))
+    for k in ("allow", "deny", "ask"):
+        current = perms.get(k, [])
+        perms[k] = _unique_in_order(list(current) + list(desired.get(k, [])))
+    out["permissions"] = perms
+    return out
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
     with open(args.config) as f:
