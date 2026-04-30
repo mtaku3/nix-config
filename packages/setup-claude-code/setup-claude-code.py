@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -155,6 +156,86 @@ def merge_sandbox_into(settings, desired):
 
     out["sandbox"] = sb
     return out
+
+
+def _run_claude(args, capture=True, check=True):
+    """Run `claude <args...>`. Returns CompletedProcess. Raises on non-zero if check=True."""
+    return subprocess.run(
+        ["claude", *args],
+        capture_output=capture,
+        text=True,
+        check=check,
+    )
+
+
+def collect_desired_plugins(plugins_by_group, selected):
+    out = []
+    seen = set()
+    for g in selected:
+        for entry in plugins_by_group.get(g, []):
+            key = (entry["plugin"], entry["marketplace"])
+            if key not in seen:
+                seen.add(key)
+                out.append(key)
+    return out
+
+
+def resolve_marketplace_name(listing, source):
+    for m in listing:
+        # github: repo == "owner/name"; url/path: source-keyed
+        for key in ("repo", "url", "path", "directory", "git", "npm", "file"):
+            if m.get(key) == source:
+                return m["name"]
+    return None
+
+
+def _list_marketplaces():
+    cp = _run_claude(["plugin", "marketplace", "list", "--json"])
+    return json.loads(cp.stdout or "[]")
+
+
+def _list_installed_plugins():
+    cp = _run_claude(["plugin", "list", "--json"])
+    return {entry["id"] for entry in json.loads(cp.stdout or "[]")}
+
+
+def reconcile_plugins(desired, dry_run):
+    """desired: list of (plugin, marketplace_source). Returns failure count."""
+    failures = 0
+    listing = _list_marketplaces()
+
+    # Register missing marketplaces
+    for _, source in desired:
+        if resolve_marketplace_name(listing, source) is None:
+            print(f"+ claude plugin marketplace add {source}", flush=True)
+            if not dry_run:
+                try:
+                    _run_claude(["plugin", "marketplace", "add", source])
+                except subprocess.CalledProcessError as e:
+                    print(f"  ! failed: {e}", file=sys.stderr)
+                    failures += 1
+                    continue
+                listing = _list_marketplaces()
+
+    installed = _list_installed_plugins()
+    for plugin, source in desired:
+        name = resolve_marketplace_name(listing, source)
+        if name is None:
+            # marketplace add failed earlier or registry didn't surface it
+            print(f"  ! cannot resolve marketplace name for {source}", file=sys.stderr)
+            failures += 1
+            continue
+        plugin_id = f"{plugin}@{name}"
+        if plugin_id in installed:
+            continue
+        print(f"+ claude plugin install {plugin_id}", flush=True)
+        if not dry_run:
+            try:
+                _run_claude(["plugin", "install", plugin_id])
+            except subprocess.CalledProcessError as e:
+                print(f"  ! failed: {e}", file=sys.stderr)
+                failures += 1
+    return failures
 
 
 def main(argv=None):
