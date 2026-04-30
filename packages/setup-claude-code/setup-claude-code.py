@@ -142,6 +142,21 @@ def merge_permissions_into(settings, desired):
     return out
 
 
+def merge_sandbox_into(settings, desired):
+    out = dict(settings)
+    sb = dict(out.get("sandbox", {}))
+    sb["enabled"] = True
+
+    fs_in = dict(sb.get("filesystem", {}))
+    fs_desired = desired.get("filesystem", {}) or {}
+    for k in ("allowWrite", "denyWrite"):
+        fs_in[k] = _unique_in_order(list(fs_in.get(k, [])) + list(fs_desired.get(k, [])))
+    sb["filesystem"] = fs_in
+
+    out["sandbox"] = sb
+    return out
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
     with open(args.config) as f:
