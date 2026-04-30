@@ -169,6 +169,7 @@ def _run_claude(args, capture=True, check=True):
 
 
 def collect_desired_plugins(plugins_by_group, selected):
+    """Return deduped list of (plugin, marketplace) tuples across the selected groups."""
     out = []
     seen = set()
     for g in selected:
@@ -181,6 +182,7 @@ def collect_desired_plugins(plugins_by_group, selected):
 
 
 def resolve_marketplace_name(listing, source):
+    """Return the registered marketplace name for source, or None if not found."""
     for m in listing:
         # github: repo == "owner/name"; url/path: source-keyed
         for key in ("repo", "url", "path", "directory", "git", "npm", "file"):
@@ -190,11 +192,13 @@ def resolve_marketplace_name(listing, source):
 
 
 def _list_marketplaces():
+    """Return the current marketplace listing as a list of dicts."""
     cp = _run_claude(["plugin", "marketplace", "list", "--json"])
     return json.loads(cp.stdout or "[]")
 
 
 def _list_installed_plugins():
+    """Return the set of installed plugin IDs (e.g. 'name@marketplace')."""
     cp = _run_claude(["plugin", "list", "--json"])
     return {entry["id"] for entry in json.loads(cp.stdout or "[]")}
 
@@ -204,24 +208,34 @@ def reconcile_plugins(desired, dry_run):
     failures = 0
     listing = _list_marketplaces()
 
-    # Register missing marketplaces
+    pending_sources = set()  # marketplaces we couldn't (or didn't) actually register in this run
+
     for _, source in desired:
         if resolve_marketplace_name(listing, source) is None:
             print(f"+ claude plugin marketplace add {source}", flush=True)
-            if not dry_run:
-                try:
-                    _run_claude(["plugin", "marketplace", "add", source])
-                except subprocess.CalledProcessError as e:
-                    print(f"  ! failed: {e}", file=sys.stderr)
-                    failures += 1
-                    continue
-                listing = _list_marketplaces()
+            if dry_run:
+                pending_sources.add(source)
+                continue
+            try:
+                _run_claude(["plugin", "marketplace", "add", source])
+            except subprocess.CalledProcessError as e:
+                print(f"  ! failed: {e}", file=sys.stderr)
+                failures += 1
+                pending_sources.add(source)
+                continue
+            listing = _list_marketplaces()
 
     installed = _list_installed_plugins()
     for plugin, source in desired:
         name = resolve_marketplace_name(listing, source)
         if name is None:
-            # marketplace add failed earlier or registry didn't surface it
+            if source in pending_sources:
+                if dry_run:
+                    # Marketplace not yet registered; show install would follow.
+                    print(f"+ claude plugin install {plugin}@<from-{source}>", flush=True)
+                # Real-run: silently skip; the marketplace add failure already counted.
+                continue
+            # Genuinely surprising: marketplace listed but unmatchable.
             print(f"  ! cannot resolve marketplace name for {source}", file=sys.stderr)
             failures += 1
             continue

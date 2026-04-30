@@ -140,6 +140,22 @@ class ReconcilePluginsTest(unittest.TestCase):
         # Should NOT include plugin install
         self.assertNotIn(("plugin", "install", "superpowers@claude-plugins-official"), cmds)
 
+    @patch.object(load_module(), "_run_claude")
+    def test_dry_run_new_marketplace_no_failure(self, run):
+        run.side_effect = [
+            MagicMock(stdout="[]", returncode=0),   # marketplace list --json (empty)
+            MagicMock(stdout="[]", returncode=0),   # plugin list --json
+        ]
+        failures = self.scc.reconcile_plugins(
+            [("superpowers", "anthropics/claude-plugins-official")], dry_run=True
+        )
+        self.assertEqual(failures, 0)
+        cmds = [tuple(c.args[0]) for c in run.call_args_list]
+        self.assertEqual(cmds, [
+            ("plugin", "marketplace", "list", "--json"),
+            ("plugin", "list", "--json"),
+        ])
+
 
 if __name__ == "__main__":
     unittest.main()
