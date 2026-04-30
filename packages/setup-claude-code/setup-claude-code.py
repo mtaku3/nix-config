@@ -3,7 +3,10 @@
 
 import argparse
 import json
+import os
 import sys
+import tempfile
+from pathlib import Path
 
 
 def parse_args(argv):
@@ -31,6 +34,36 @@ def parse_args(argv):
                    help="Print planned actions; no writes, no claude mutations")
 
     return p.parse_args(argv)
+
+
+class SettingsError(Exception):
+    """Raised when ~/.claude/settings.json is unreadable; main() exits 2."""
+
+
+def load_settings(path):
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text())
+    except json.JSONDecodeError as e:
+        raise SettingsError(f"{p}: invalid JSON ({e})") from e
+
+
+def save_settings(path, data):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=".settings.", suffix=".json", dir=p.parent)
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        os.replace(tmp, p)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        finally:
+            raise
 
 
 class UsageError(Exception):
