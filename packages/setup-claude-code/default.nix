@@ -3,7 +3,7 @@
   ...
 }: let
   opts = {
-    defaultGroups = ["default"];
+    defaultGroups = ["default" "memory"];
 
     plugins = {
       default = [
@@ -12,12 +12,22 @@
           marketplace = "anthropics/claude-plugins-official";
         }
       ];
+      memory = [
+        {
+          plugin = "mem0";
+          marketplace = "mem0ai/mem0";
+        }
+      ];
     };
 
     permissions = {
       default = {
         allow = [];
-        deny = [];
+        deny = [
+          "Bash(git add -f *)"
+          "Bash(git push -f *)"
+          "Read(.env)"
+        ];
         ask = [];
       };
     };
@@ -31,6 +41,13 @@
 
     mcp = {
       default = {};
+      research = {
+        paper-search-mcp = {
+          type = "stdio";
+          command = "uvx";
+          args = ["--from" "paper-search-mcp" "python" "-m" "paper_search_mcp.server"];
+        };
+      };
     };
   };
 in
