@@ -11,6 +11,10 @@
           plugin = "superpowers";
           marketplace = "anthropics/claude-plugins-official";
         }
+        {
+          plugin = "caveman";
+          marketplace = "JuliusBrussee/caveman";
+        }
       ];
       memory = [
         {
