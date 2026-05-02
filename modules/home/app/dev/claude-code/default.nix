@@ -66,7 +66,6 @@ in {
     # on PATH so we can run preStart hooks (typically secret exports) first.
     home.packages = [
       claudeWrapper
-      pkgs.setup-claude-code
       pkgs.nodejs
       pkgs.python3
       pkgs.uv
