@@ -20,7 +20,11 @@ with lib.capybara; {
     };
 
     app.dev = {
-      docker = enabled;
+      docker = {
+        enable = true;
+        mode = "rootful";
+        users = ["mtaku3"];
+      };
       nix-ld.enable = true;
     };
 
