@@ -61,9 +61,10 @@ in {
   config = mkIf cfg.enable {
     # claude-code is installed via the native installer
     # (curl -fsSL https://claude.ai/install.sh | bash) so it can self-update.
-    # The installer drops a launcher at ~/.local/bin/claude and runtime
-    # files under ~/.claude/local/. The wrapper below shadows that launcher
-    # on PATH so we can run preStart hooks (typically secret exports) first.
+    # The installer drops versioned binaries under ~/.local/share/claude/versions/
+    # and a launcher symlink at ~/.local/bin/claude pointing at the active
+    # version. The wrapper below shadows that launcher on PATH so we can run
+    # preStart hooks (typically secret exports) first.
     home.packages = [
       claudeWrapper
       pkgs.nodejs
@@ -81,6 +82,7 @@ in {
     capybara.impermanence.directories = [
       ".claude"
       ".local/bin"
+      ".local/share/claude"
       ".local/share/uv"
       ".cache/uv"
       ".npm"
