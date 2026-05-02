@@ -12,3 +12,7 @@ node_modules
 
 # git worktrees (used by superpowers:using-git-worktrees)
 .worktrees
+
+# python
+__pycache__/
+*.py[cod]
