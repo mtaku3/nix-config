@@ -14,6 +14,10 @@
           marketplace = "anthropics/claude-plugins-official";
         }
         {
+          plugin = "andrej-karpathy-skills";
+          marketplace = "forrestchang/andrej-karpathy-skills";
+        }
+        {
           plugin = "caveman";
           marketplace = "JuliusBrussee/caveman";
           postInstall = ''
