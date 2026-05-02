@@ -5,6 +5,8 @@
   opts = {
     defaultGroups = ["default" "memory"];
 
+    postInstall = "";
+
     plugins = {
       default = [
         {
@@ -14,6 +16,12 @@
         {
           plugin = "caveman";
           marketplace = "JuliusBrussee/caveman";
+          postInstall = ''
+            mkdir -p "$HOME/.config/caveman"
+            cat > "$HOME/.config/caveman/config.json" <<'EOF'
+            { "defaultMode": "full" }
+            EOF
+          '';
         }
       ];
       memory = [
@@ -53,6 +61,7 @@
           type = "stdio";
           command = "uvx";
           args = ["--from" "paper-search-mcp" "python" "-m" "paper_search_mcp.server"];
+          postInstall = "";
         };
       };
     };

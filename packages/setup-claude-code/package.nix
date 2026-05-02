@@ -4,6 +4,7 @@
   runCommand,
   makeWrapper,
   defaultGroups,
+  postInstall,
   plugins,
   permissions,
   sandbox,
@@ -11,7 +12,7 @@
 }: let
   configFile =
     (formats.json {}).generate "setup-claude-code.json"
-    {inherit defaultGroups plugins permissions sandbox mcp;};
+    {inherit defaultGroups postInstall plugins permissions sandbox mcp;};
 in
   runCommand "setup-claude-code" {
     nativeBuildInputs = [makeWrapper];

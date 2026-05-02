@@ -174,7 +174,7 @@ def _run_claude(args, capture=True, check=True):
 
 
 def collect_desired_plugins(plugins_by_group, selected):
-    """Return deduped list of (plugin, marketplace) tuples across the selected groups."""
+    """Return deduped list of (plugin, marketplace, postinstall) tuples across the selected groups."""
     out = []
     seen = set()
     for g in selected:
@@ -182,8 +182,23 @@ def collect_desired_plugins(plugins_by_group, selected):
             key = (entry["plugin"], entry["marketplace"])
             if key not in seen:
                 seen.add(key)
-                out.append(key)
+                out.append((entry["plugin"], entry["marketplace"], entry.get("postInstall", "")))
     return out
+
+
+def _run_postinstall(label, script, dry_run):
+    """Run a bash postinstall snippet. Returns 1 on failure, else 0."""
+    if not script or not script.strip():
+        return 0
+    print(f"+ postinstall: {label}", flush=True)
+    if dry_run:
+        return 0
+    try:
+        subprocess.run(["bash", "-c", script], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"  ! postinstall failed for {label}: {e}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def resolve_marketplace_name(listing, source):
@@ -209,13 +224,13 @@ def _list_installed_plugins():
 
 
 def reconcile_plugins(desired, dry_run):
-    """desired: list of (plugin, marketplace_source). Returns failure count."""
+    """desired: list of (plugin, marketplace_source, postinstall). Returns failure count."""
     failures = 0
     listing = _list_marketplaces()
 
     pending_sources = set()  # marketplaces we couldn't (or didn't) actually register in this run
 
-    for _, source in desired:
+    for _, source, _post in desired:
         if resolve_marketplace_name(listing, source) is None:
             print(f"+ claude plugin marketplace add {source}", flush=True)
             if dry_run:
@@ -231,13 +246,15 @@ def reconcile_plugins(desired, dry_run):
             listing = _list_marketplaces()
 
     installed = _list_installed_plugins()
-    for plugin, source in desired:
+    for plugin, source, postinstall in desired:
         name = resolve_marketplace_name(listing, source)
         if name is None:
             if source in pending_sources:
                 if dry_run:
                     # Marketplace not yet registered; show install would follow.
                     print(f"+ claude plugin install {plugin}@<from-{source}>", flush=True)
+                    if postinstall and postinstall.strip():
+                        print(f"+ postinstall: plugin {plugin}", flush=True)
                 # Real-run: silently skip; the marketplace add failure already counted.
                 continue
             # Genuinely surprising: marketplace listed but unmatchable.
@@ -254,19 +271,27 @@ def reconcile_plugins(desired, dry_run):
             except subprocess.CalledProcessError as e:
                 print(f"  ! failed: {e}", file=sys.stderr)
                 failures += 1
+                continue
+        failures += _run_postinstall(f"plugin {plugin}", postinstall, dry_run)
     return failures
 
 
 def collect_desired_mcp(mcp_by_group, selected):
-    """Return merged {name: spec} across the selected groups; raise UsageError on collision."""
+    """Return merged {name: spec} across the selected groups; raise UsageError on collision.
+
+    spec may include a `postInstall` key (bash snippet) that is split out and
+    not forwarded to `claude mcp add-json`.
+    """
     out = {}
     for g in selected:
-        for name, spec in mcp_by_group.get(g, {}).items():
-            if name in out and out[name] != spec:
+        for name, raw_spec in mcp_by_group.get(g, {}).items():
+            spec = {k: v for k, v in raw_spec.items() if k != "postInstall"}
+            postinstall = raw_spec.get("postInstall", "")
+            if name in out and (out[name][0] != spec or out[name][1] != postinstall):
                 raise UsageError(
                     f"mcp server name collision across groups: {name!r}"
                 )
-            out[name] = spec
+            out[name] = (spec, postinstall)
     return out
 
 
@@ -285,7 +310,7 @@ def read_claude_json_mcp_servers(path):
 def reconcile_mcp(desired, existing, dry_run):
     """Add missing MCP servers via `claude mcp add-json -s user`. Returns failure count."""
     failures = 0
-    for name, spec in desired.items():
+    for name, (spec, postinstall) in desired.items():
         if name in existing:
             continue
         spec_json = json.dumps(spec)
@@ -296,6 +321,8 @@ def reconcile_mcp(desired, existing, dry_run):
             except subprocess.CalledProcessError as e:
                 print(f"  ! failed: {e}", file=sys.stderr)
                 failures += 1
+                continue
+        failures += _run_postinstall(f"mcp {name}", postinstall, dry_run)
     return failures
 
 
@@ -370,6 +397,8 @@ def main(argv=None):
             return 2
         existing = read_claude_json_mcp_servers(_claude_json_path())
         rc |= 1 if reconcile_mcp(desired, existing, args.dry_run) else 0
+
+    rc |= 1 if _run_postinstall("global", cfg.get("postInstall", ""), args.dry_run) else 0
 
     return rc
 

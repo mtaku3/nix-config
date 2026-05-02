@@ -33,7 +33,7 @@ class CollectDesiredPluginsTest(unittest.TestCase):
     def test_collect(self):
         out = self.scc.collect_desired_plugins(self.plugins, {"default"})
         self.assertEqual(out, [
-            ("superpowers", "anthropics/claude-plugins-official"),
+            ("superpowers", "anthropics/claude-plugins-official", ""),
         ])
 
     def test_collect_two_groups_dedupes(self):
@@ -42,7 +42,7 @@ class CollectDesiredPluginsTest(unittest.TestCase):
             "b": [{"plugin": "p", "marketplace": "m"}],
         }
         out = self.scc.collect_desired_plugins(plugins, {"a", "b"})
-        self.assertEqual(out, [("p", "m")])
+        self.assertEqual(out, [("p", "m", "")])
 
 
 class ResolveMarketplaceNameTest(unittest.TestCase):
@@ -90,7 +90,7 @@ class ReconcilePluginsTest(unittest.TestCase):
             MagicMock(stdout="", returncode=0),                                     # plugin install
         ]
         failures = self.scc.reconcile_plugins(
-            [("superpowers", "anthropics/claude-plugins-official")], dry_run=False
+            [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=False
         )
         self.assertEqual(failures, 0)
         cmds = [tuple(c.args[0]) for c in run.call_args_list]
@@ -114,7 +114,7 @@ class ReconcilePluginsTest(unittest.TestCase):
             ]), returncode=0),
         ]
         failures = self.scc.reconcile_plugins(
-            [("superpowers", "anthropics/claude-plugins-official")], dry_run=False
+            [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=False
         )
         self.assertEqual(failures, 0)
         cmds = [tuple(c.args[0]) for c in run.call_args_list]
@@ -133,7 +133,7 @@ class ReconcilePluginsTest(unittest.TestCase):
             MagicMock(stdout="[]", returncode=0),
         ]
         failures = self.scc.reconcile_plugins(
-            [("superpowers", "anthropics/claude-plugins-official")], dry_run=True
+            [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=True
         )
         self.assertEqual(failures, 0)
         cmds = [tuple(c.args[0]) for c in run.call_args_list]
@@ -147,7 +147,7 @@ class ReconcilePluginsTest(unittest.TestCase):
             MagicMock(stdout="[]", returncode=0),   # plugin list --json
         ]
         failures = self.scc.reconcile_plugins(
-            [("superpowers", "anthropics/claude-plugins-official")], dry_run=True
+            [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=True
         )
         self.assertEqual(failures, 0)
         cmds = [tuple(c.args[0]) for c in run.call_args_list]

@@ -29,7 +29,14 @@ class CollectDesiredMcpTest(unittest.TestCase):
             "research": {"b": {"command": "y"}},
         }
         out = self.scc.collect_desired_mcp(mcp, {"default", "research"})
-        self.assertEqual(out, {"a": {"command": "x"}, "b": {"command": "y"}})
+        self.assertEqual(out, {"a": ({"command": "x"}, ""), "b": ({"command": "y"}, "")})
+
+    def test_postinstall_split(self):
+        mcp = {
+            "default": {"a": {"command": "x", "postInstall": "echo hi"}},
+        }
+        out = self.scc.collect_desired_mcp(mcp, {"default"})
+        self.assertEqual(out, {"a": ({"command": "x"}, "echo hi")})
 
     def test_collision_raises(self):
         mcp = {
@@ -68,7 +75,7 @@ class ReconcileMcpTest(unittest.TestCase):
     @patch.object(load_module(), "_run_claude")
     def test_adds_missing(self, run):
         existing = {"already": {"command": "x"}}
-        desired = {"already": {"command": "x"}, "new": {"command": "y", "args": []}}
+        desired = {"already": ({"command": "x"}, ""), "new": ({"command": "y", "args": []}, "")}
         run.return_value = MagicMock(stdout="", returncode=0)
 
         failures = self.scc.reconcile_mcp(desired, existing, dry_run=False)
@@ -81,7 +88,7 @@ class ReconcileMcpTest(unittest.TestCase):
 
     @patch.object(load_module(), "_run_claude")
     def test_dry_run_no_calls(self, run):
-        failures = self.scc.reconcile_mcp({"new": {"command": "y"}}, {}, dry_run=True)
+        failures = self.scc.reconcile_mcp({"new": ({"command": "y"}, "")}, {}, dry_run=True)
         self.assertEqual(failures, 0)
         run.assert_not_called()
 
