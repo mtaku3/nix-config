@@ -25,6 +25,7 @@ with lib.capybara; {
           signByDefault = true;
         };
         gh = enabled;
+        glow = enabled;
         tmux = enabled;
         gpg = {
           enable = true;
