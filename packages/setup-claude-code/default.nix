@@ -41,6 +41,9 @@
         allowWrite = [];
         denyWrite = [];
       };
+      excludedCommands = [
+        "git commit *"
+      ];
     };
 
     mcp = {

@@ -155,6 +155,10 @@ def merge_sandbox_into(settings, desired):
         fs_in[k] = _unique_in_order(list(fs_in.get(k, [])) + list(fs_desired.get(k, [])))
     sb["filesystem"] = fs_in
 
+    sb["excludedCommands"] = _unique_in_order(
+        list(sb.get("excludedCommands", [])) + list(desired.get("excludedCommands", []))
+    )
+
     out["sandbox"] = sb
     return out
 

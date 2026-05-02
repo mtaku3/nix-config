@@ -40,6 +40,22 @@ class MergeSandboxTest(unittest.TestCase):
         out = self.scc.merge_sandbox_into(settings, self.desired)
         self.assertEqual(out["sandbox"]["network"]["allowedDomains"], ["x.com"])
 
+    def test_merges_excluded_commands(self):
+        desired = {
+            "filesystem": {"allowWrite": [], "denyWrite": []},
+            "excludedCommands": ["git commit *", "docker *"],
+        }
+        settings = {"sandbox": {"excludedCommands": ["docker *", "ssh *"]}}
+        out = self.scc.merge_sandbox_into(settings, desired)
+        self.assertEqual(
+            out["sandbox"]["excludedCommands"],
+            ["docker *", "ssh *", "git commit *"],
+        )
+
+    def test_excluded_commands_default_empty(self):
+        out = self.scc.merge_sandbox_into({}, self.desired)
+        self.assertEqual(out["sandbox"]["excludedCommands"], [])
+
 
 if __name__ == "__main__":
     unittest.main()
