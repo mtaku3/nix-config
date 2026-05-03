@@ -27,6 +27,10 @@
             EOF
           '';
         }
+        {
+          plugin = "claude-hud";
+          marketplace = "jarrodwatts/claude-hud";
+        }
       ];
       memory = [
         {
