@@ -15,6 +15,7 @@
     {inherit defaultGroups postInstall plugins permissions sandbox mcp;};
 in
   runCommand "setup-claude-code" {
+    pname = "setup-claude-code";
     nativeBuildInputs = [makeWrapper];
   } ''
     mkdir -p $out/bin
