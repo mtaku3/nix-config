@@ -1,4 +1,5 @@
 {
+  lib,
   python3,
   formats,
   runCommand,
@@ -17,6 +18,7 @@ in
   runCommand "setup-claude-code" {
     pname = "setup-claude-code";
     nativeBuildInputs = [makeWrapper];
+    meta.platforms = lib.platforms.unix;
   } ''
     mkdir -p $out/bin
     makeWrapper ${python3}/bin/python3 $out/bin/setup-claude-code \
