@@ -46,6 +46,7 @@
         deny = [
           "Bash(git add -f *)"
           "Bash(git push -f *)"
+          "Bash(git -c *)"
           "Read(.env)"
         ];
         ask = [];
