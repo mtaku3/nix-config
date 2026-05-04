@@ -26,6 +26,7 @@ class ParseArgsTest(unittest.TestCase):
         self.assertFalse(a.no_default_groups)
         self.assertFalse(a.sandbox)
         self.assertFalse(a.no_plugins)
+        self.assertFalse(a.enable_plugins)
         self.assertFalse(a.no_permissions)
         self.assertFalse(a.no_mcp)
         self.assertFalse(a.dry_run)

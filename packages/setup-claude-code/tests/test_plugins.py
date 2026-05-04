@@ -78,7 +78,7 @@ class ReconcilePluginsTest(unittest.TestCase):
 
     @patch.object(load_module(), "_run_claude")
     def test_installs_missing_after_registering_marketplace(self, run):
-        # marketplace list (empty), then add, then list again, then plugin list (empty), then install
+        # marketplace list (empty), then add, then list again, then plugin list (empty), then install, then enable
         run.side_effect = [
             MagicMock(stdout="[]", returncode=0),                                   # marketplace list --json (empty)
             MagicMock(stdout="", returncode=0),                                     # marketplace add
@@ -88,6 +88,7 @@ class ReconcilePluginsTest(unittest.TestCase):
             ]), returncode=0),
             MagicMock(stdout="[]", returncode=0),                                   # plugin list --json
             MagicMock(stdout="", returncode=0),                                     # plugin install
+            MagicMock(stdout="", returncode=0),                                     # plugin enable
         ]
         failures = self.scc.reconcile_plugins(
             [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=False
@@ -100,6 +101,52 @@ class ReconcilePluginsTest(unittest.TestCase):
             ("plugin", "marketplace", "list", "--json"),
             ("plugin", "list", "--json"),
             ("plugin", "install", "superpowers@claude-plugins-official"),
+            ("plugin", "enable", "superpowers@claude-plugins-official"),
+        ])
+
+    @patch.object(load_module(), "_run_claude")
+    def test_enable_existing_disabled_when_flag(self, run):
+        run.side_effect = [
+            MagicMock(stdout=json.dumps([
+                {"name": "claude-plugins-official", "source": "github",
+                 "repo": "anthropics/claude-plugins-official"}
+            ]), returncode=0),
+            MagicMock(stdout=json.dumps([
+                {"id": "superpowers@claude-plugins-official", "enabled": False}
+            ]), returncode=0),
+            MagicMock(stdout="", returncode=0),
+        ]
+        failures = self.scc.reconcile_plugins(
+            [("superpowers", "anthropics/claude-plugins-official", "")],
+            dry_run=False, enable_existing=True,
+        )
+        self.assertEqual(failures, 0)
+        cmds = [tuple(c.args[0]) for c in run.call_args_list]
+        self.assertEqual(cmds, [
+            ("plugin", "marketplace", "list", "--json"),
+            ("plugin", "list", "--json"),
+            ("plugin", "enable", "superpowers@claude-plugins-official"),
+        ])
+
+    @patch.object(load_module(), "_run_claude")
+    def test_existing_disabled_left_alone_without_flag(self, run):
+        run.side_effect = [
+            MagicMock(stdout=json.dumps([
+                {"name": "claude-plugins-official", "source": "github",
+                 "repo": "anthropics/claude-plugins-official"}
+            ]), returncode=0),
+            MagicMock(stdout=json.dumps([
+                {"id": "superpowers@claude-plugins-official", "enabled": False}
+            ]), returncode=0),
+        ]
+        failures = self.scc.reconcile_plugins(
+            [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=False
+        )
+        self.assertEqual(failures, 0)
+        cmds = [tuple(c.args[0]) for c in run.call_args_list]
+        self.assertEqual(cmds, [
+            ("plugin", "marketplace", "list", "--json"),
+            ("plugin", "list", "--json"),
         ])
 
     @patch.object(load_module(), "_run_claude")

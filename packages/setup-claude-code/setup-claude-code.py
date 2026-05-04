@@ -29,6 +29,9 @@ def parse_args(argv):
     p.add_argument("--sandbox", action="store_true",
                    help="Opt-in: write sandbox.* to settings.json")
     p.add_argument("--no-plugins", action="store_true")
+    p.add_argument("--enable-plugins", action="store_true",
+                   help="Also enable pre-existing plugins that are currently "
+                        "disabled (newly installed plugins are always enabled)")
     p.add_argument("--no-permissions", action="store_true")
     p.add_argument("--no-mcp", action="store_true")
 
@@ -218,13 +221,20 @@ def _list_marketplaces():
 
 
 def _list_installed_plugins():
-    """Return the set of installed plugin IDs (e.g. 'name@marketplace')."""
+    """Return {plugin_id: enabled_bool} for installed plugins (id = 'name@marketplace')."""
     cp = _run_claude(["plugin", "list", "--json"])
-    return {entry["id"] for entry in json.loads(cp.stdout or "[]")}
+    return {
+        entry["id"]: bool(entry.get("enabled", True))
+        for entry in json.loads(cp.stdout or "[]")
+    }
 
 
-def reconcile_plugins(desired, dry_run):
-    """desired: list of (plugin, marketplace_source, postinstall). Returns failure count."""
+def reconcile_plugins(desired, dry_run, enable_existing=False):
+    """desired: list of (plugin, marketplace_source, postinstall). Returns failure count.
+
+    Newly installed plugins are always enabled. Pre-existing plugins that are
+    currently disabled are only re-enabled when enable_existing is True.
+    """
     failures = 0
     listing = _list_marketplaces()
 
@@ -263,6 +273,14 @@ def reconcile_plugins(desired, dry_run):
             continue
         plugin_id = f"{plugin}@{name}"
         if plugin_id in installed:
+            if enable_existing and not installed[plugin_id]:
+                print(f"+ claude plugin enable {plugin_id}", flush=True)
+                if not dry_run:
+                    try:
+                        _run_claude(["plugin", "enable", plugin_id])
+                    except subprocess.CalledProcessError as e:
+                        print(f"  ! failed: {e}", file=sys.stderr)
+                        failures += 1
             continue
         print(f"+ claude plugin install {plugin_id}", flush=True)
         if not dry_run:
@@ -272,6 +290,15 @@ def reconcile_plugins(desired, dry_run):
                 print(f"  ! failed: {e}", file=sys.stderr)
                 failures += 1
                 continue
+            print(f"+ claude plugin enable {plugin_id}", flush=True)
+            try:
+                _run_claude(["plugin", "enable", plugin_id])
+            except subprocess.CalledProcessError as e:
+                print(f"  ! failed: {e}", file=sys.stderr)
+                failures += 1
+                continue
+        else:
+            print(f"+ claude plugin enable {plugin_id}", flush=True)
         failures += _run_postinstall(f"plugin {plugin}", postinstall, dry_run)
     return failures
 
@@ -364,7 +391,7 @@ def main(argv=None):
             cfg.get("plugins", {}),
             groups_for_domain(selected, cfg.get("plugins", {})),
         )
-        rc |= 1 if reconcile_plugins(desired, args.dry_run) else 0
+        rc |= 1 if reconcile_plugins(desired, args.dry_run, args.enable_plugins) else 0
 
     if not args.no_permissions:
         desired = collect_desired_permissions(
