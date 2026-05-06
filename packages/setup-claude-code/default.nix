@@ -38,6 +38,12 @@
           marketplace = "mem0ai/mem0";
         }
       ];
+      webdev = [
+        {
+          plugin = "ui-ux-pro-max";
+          marketplace = "nextlevelbuilder/ui-ux-pro-max-skill";
+        }
+      ];
     };
 
     permissions = {
