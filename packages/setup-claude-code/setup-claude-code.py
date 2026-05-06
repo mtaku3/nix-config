@@ -290,15 +290,6 @@ def reconcile_plugins(desired, dry_run, enable_existing=False):
                 print(f"  ! failed: {e}", file=sys.stderr)
                 failures += 1
                 continue
-            print(f"+ claude plugin enable {plugin_id}", flush=True)
-            try:
-                _run_claude(["plugin", "enable", plugin_id])
-            except subprocess.CalledProcessError as e:
-                print(f"  ! failed: {e}", file=sys.stderr)
-                failures += 1
-                continue
-        else:
-            print(f"+ claude plugin enable {plugin_id}", flush=True)
         failures += _run_postinstall(f"plugin {plugin}", postinstall, dry_run)
     return failures
 

@@ -78,7 +78,7 @@ class ReconcilePluginsTest(unittest.TestCase):
 
     @patch.object(load_module(), "_run_claude")
     def test_installs_missing_after_registering_marketplace(self, run):
-        # marketplace list (empty), then add, then list again, then plugin list (empty), then install, then enable
+        # marketplace list (empty), then add, then list again, then plugin list (empty), then install
         run.side_effect = [
             MagicMock(stdout="[]", returncode=0),                                   # marketplace list --json (empty)
             MagicMock(stdout="", returncode=0),                                     # marketplace add
@@ -88,7 +88,6 @@ class ReconcilePluginsTest(unittest.TestCase):
             ]), returncode=0),
             MagicMock(stdout="[]", returncode=0),                                   # plugin list --json
             MagicMock(stdout="", returncode=0),                                     # plugin install
-            MagicMock(stdout="", returncode=0),                                     # plugin enable
         ]
         failures = self.scc.reconcile_plugins(
             [("superpowers", "anthropics/claude-plugins-official", "")], dry_run=False
@@ -101,7 +100,6 @@ class ReconcilePluginsTest(unittest.TestCase):
             ("plugin", "marketplace", "list", "--json"),
             ("plugin", "list", "--json"),
             ("plugin", "install", "superpowers@claude-plugins-official"),
-            ("plugin", "enable", "superpowers@claude-plugins-official"),
         ])
 
     @patch.object(load_module(), "_run_claude")
