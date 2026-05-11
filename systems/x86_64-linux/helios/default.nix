@@ -98,6 +98,8 @@ with lib.capybara; {
 
   nix.settings.trusted-users = ["mtaku3"];
 
+  home-manager.backupFileExtension = "bak";
+
   users.users.root.packages = with pkgs; [git vim curl wget];
 
   # sshfs mount for miubiq lab filesystem (fs.miubiq.cs.titech.ac.jp:/records)

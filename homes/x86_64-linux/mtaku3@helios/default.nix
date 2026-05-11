@@ -19,7 +19,8 @@ with lib.capybara; {
         claude-code = {
           enable = true;
           preStart = ''
-            export ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
+            ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
+            export ESA_ACCESS_TOKEN
           '';
         };
         zsh = {
