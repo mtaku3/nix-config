@@ -1,4 +1,8 @@
-{lib, ...}:
+{
+  lib,
+  config,
+  ...
+}:
 with lib;
 with lib.capybara; {
   capybara = {
@@ -12,7 +16,12 @@ with lib.capybara; {
 
     app = {
       dev = {
-        claude-code = enabled;
+        claude-code = {
+          enable = true;
+          preStart = ''
+            export ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
+          '';
+        };
         zsh = {
           enable = true;
         };

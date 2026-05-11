@@ -79,6 +79,14 @@
           postInstall = "";
         };
       };
+      miubiq = {
+        esa-mcp-server = {
+          type = "stdio";
+          command = "npx";
+          args = ["-y" "@esaio/esa-mcp-server"];
+          postInstall = "";
+        };
+      };
     };
   };
 in
