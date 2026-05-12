@@ -34,8 +34,8 @@
       ];
       memory = [
         {
-          plugin = "mem0";
-          marketplace = "mem0ai/mem0";
+          plugin = "agentmemory";
+          marketplace = "rohitg00/agentmemory";
         }
       ];
       webdev = [

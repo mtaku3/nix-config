@@ -18,6 +18,7 @@ with lib.capybara; {
       dev = {
         claude-code = {
           enable = true;
+          agentmemory.enable = true;
           preStart = ''
             ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
             export ESA_ACCESS_TOKEN
