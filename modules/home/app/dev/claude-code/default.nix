@@ -105,7 +105,7 @@ in {
           ExecStart = "${pkgs.nodejs}/bin/npx -y @agentmemory/agentmemory";
           Restart = "on-failure";
           RestartSec = 5;
-          Environment = ["PATH=${lib.makeBinPath [pkgs.nodejs]}"];
+          Environment = ["PATH=${lib.makeBinPath [pkgs.nodejs pkgs.bash pkgs.coreutils]}"];
         };
         Install.WantedBy = ["default.target"];
       };
