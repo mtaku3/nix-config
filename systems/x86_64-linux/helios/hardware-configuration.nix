@@ -47,7 +47,7 @@
       address = "192.168.10.1";
       interface = "ens18";
     };
-    nameservers = ["192.168.10.1"];
+    nameservers = ["1.1.1.1" "1.0.0.1"];
     enableIPv6 = false;
   };
 
