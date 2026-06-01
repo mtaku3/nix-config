@@ -32,6 +32,12 @@
           marketplace = "jarrodwatts/claude-hud";
         }
       ];
+      memory = [
+        {
+          plugin = "mem0";
+          marketplace = "mem0ai/mem0";
+        }
+      ];
       webdev = [
         {
           plugin = "ui-ux-pro-max";
@@ -55,7 +61,7 @@
 
     sandbox = {
       filesystem = {
-        allowWrite = [];
+        allowWrite = ["~/.mem0/**"];
         denyWrite = [];
       };
       excludedCommands = [

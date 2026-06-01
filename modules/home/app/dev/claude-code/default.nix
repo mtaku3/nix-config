@@ -81,6 +81,7 @@ in {
 
     capybara.impermanence.directories = [
       ".claude"
+      ".mem0"
       ".config/caveman"
       ".local/bin"
       ".local/share/claude"
