@@ -3,7 +3,7 @@
   ...
 }: let
   opts = {
-    defaultGroups = ["default" "memory"];
+    defaultGroups = ["default"];
 
     postInstall = "";
 
@@ -30,12 +30,6 @@
         {
           plugin = "claude-hud";
           marketplace = "jarrodwatts/claude-hud";
-        }
-      ];
-      memory = [
-        {
-          plugin = "agentmemory";
-          marketplace = "rohitg00/agentmemory";
         }
       ];
       webdev = [

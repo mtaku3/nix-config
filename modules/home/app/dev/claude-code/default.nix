@@ -42,8 +42,6 @@ in {
   options.capybara.app.dev.claude-code = {
     enable = mkBoolOpt false "Whether to enable the claude-code";
 
-    agentmemory.enable = mkBoolOpt false "Run agentmemory server as a systemd user service (Linux only)";
-
     preStart = mkOption {
       type = types.lines;
       default = "";
@@ -90,25 +88,9 @@ in {
       ".cache/uv"
       ".npm"
       ".npm-global"
-    ] ++ lib.optional cfg.agentmemory.enable ".agentmemory";
+    ];
     capybara.impermanence.files = [
       ".claude.json"
     ];
-
-    systemd.user.services = mkIf (cfg.agentmemory.enable && pkgs.stdenv.hostPlatform.isLinux) {
-      agentmemory = {
-        Unit = {
-          Description = "AgentMemory server";
-          After = ["network.target"];
-        };
-        Service = {
-          ExecStart = "${pkgs.nodejs}/bin/npx -y @agentmemory/agentmemory";
-          Restart = "on-failure";
-          RestartSec = 5;
-          Environment = ["PATH=${lib.makeBinPath [pkgs.nodejs pkgs.bash pkgs.coreutils]}"];
-        };
-        Install.WantedBy = ["default.target"];
-      };
-    };
   };
 }
