@@ -55,9 +55,14 @@ in {
 
       virtualisation.containerd.settings.plugins."io.containerd.grpc.v1.cri".containerd.snapshotter = "overlayfs";
 
-      # Set etcd log level to warn
+      # etcd tuning. extraConf keys are passed verbatim as ETCD_<key> env vars,
+      # so they must be UPPERCASE_UNDERSCORE — etcd ignores dashed/lowercase ones.
       services.etcd.extraConf = {
-        "log-level" = "warn";
+        "LOG_LEVEL" = "warn";
+        # Slow storage can't fsync within the 100ms default heartbeat; raise to 300ms.
+        "HEARTBEAT_INTERVAL" = "300";
+        # election-timeout must be >= 5x heartbeat (10x recommended). 300ms * 10.
+        "ELECTION_TIMEOUT" = "3000";
       };
 
       # Set flannel log verbosity to warning level (Go log levels: 0=panic, 1=error, 2=warning)
