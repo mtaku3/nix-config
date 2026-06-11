@@ -68,6 +68,7 @@ in {
     home.packages = [
       claudeWrapper
       pkgs.nodejs
+      pkgs.bun
       pkgs.python3
       pkgs.uv
       pkgs.socat

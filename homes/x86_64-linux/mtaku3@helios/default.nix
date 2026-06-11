@@ -21,6 +21,8 @@ with lib.capybara; {
           preStart = ''
             ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
             export ESA_ACCESS_TOKEN
+            MEM0_API_KEY=$(cat ${config.age.secrets."cc-secrets/mem0-api-key".path})
+            export MEM0_API_KEY
           '';
         };
         zsh = {
