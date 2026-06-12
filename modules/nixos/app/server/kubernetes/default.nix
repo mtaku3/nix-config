@@ -63,6 +63,52 @@ in {
         "HEARTBEAT_INTERVAL" = "300";
         # election-timeout must be >= 5x heartbeat (10x recommended). 300ms * 10.
         "ELECTION_TIMEOUT" = "3000";
+
+        # Keep the backend db small: drop revisions older than 1h. Smaller db means
+        # fewer/smaller pages touched per write, so fewer and cheaper fsyncs.
+        "AUTO_COMPACTION_MODE" = "periodic";
+        "AUTO_COMPACTION_RETENTION" = "1h";
+
+        # WAL fsync (one per Raft commit) is the unbatchable durability floor. The
+        # boltdb backend commit, however, IS batchable: widening the window lets many
+        # ops share a single backend fsync. Costs up to 100ms extra backend-commit
+        # latency, but the WAL still guarantees durability, so no data risk.
+        "BACKEND_BATCH_INTERVAL" = "100ms";
+        "BACKEND_BATCH_LIMIT" = "10000";
+      };
+
+      # Periodic etcd defrag. Compaction frees revisions logically but leaves the
+      # boltdb file fragmented; defrag rewrites it compactly, reclaiming disk and
+      # shrinking the page set future writes must fsync. Briefly blocks etcd
+      # (~seconds on a small db) — runs off-peak.
+      systemd.services.etcd-defrag = {
+        description = "Defragment the etcd backend database";
+        after = ["etcd.service"];
+        requires = ["etcd.service"];
+        serviceConfig = {
+          Type = "oneshot";
+          Environment = ["ETCDCTL_API=3"];
+          ExecStart = let
+            etcdctl = "${config.services.etcd.package}/bin/etcdctl";
+            caFile = config.age.secrets."common/k8s-pki/etcd/ca.crt".path;
+            certFile = config.age.secrets."homelab-k8s/etcd/healthcheck-client.crt".path;
+            keyFile = config.age.secrets."homelab-k8s/etcd/healthcheck-client.key".path;
+          in pkgs.writeShellScript "etcd-defrag" ''
+            ${etcdctl} --endpoints=https://127.0.0.1:2379 \
+              --cacert=${caFile} --cert=${certFile} --key=${keyFile} \
+              defrag --command-timeout=60s
+          '';
+        };
+      };
+
+      systemd.timers.etcd-defrag = {
+        description = "Weekly etcd defrag";
+        wantedBy = ["timers.target"];
+        timerConfig = {
+          OnCalendar = "Sun 04:00";
+          Persistent = true;
+          RandomizedDelaySec = "5m";
+        };
       };
 
       # Set flannel log verbosity to warning level (Go log levels: 0=panic, 1=error, 2=warning)

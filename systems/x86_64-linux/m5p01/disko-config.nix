@@ -58,7 +58,16 @@
           };
           "safe/persist" = {
             type = "zfs_fs";
-            options.mountpoint = "legacy";
+            options = {
+              mountpoint = "legacy";
+              # etcd lives here (/persist/var/lib/etcd via impermanence) and is the
+              # fsync-sensitive workload. atime=off kills access-time write churn;
+              # recordsize=16k cuts copy-on-write read-modify-write amplification on
+              # etcd's small boltdb pages. NOTE: disko only applies these at initial
+              # provisioning. On a live pool set them by hand with `zfs set` (runbook).
+              atime = "off";
+              recordsize = "16k";
+            };
             mountpoint = "/persist";
           };
         };
