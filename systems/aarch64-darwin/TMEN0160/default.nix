@@ -15,7 +15,7 @@ with lib.capybara; {
         "ukelele"
       ];
     };
-    system.primaryUser = "usr0200797";
+    system.primaryUser = "takumi.matsushita";
 
     capybara = {
       app.dev.docker = enabled;
