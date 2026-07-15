@@ -72,7 +72,7 @@ in {
       pkgs.python3
       pkgs.uv
       pkgs.socat
-    ] ++ lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.bubblewrap;
+    ];
 
     home.sessionPath = ["$HOME/.npm-global/bin"];
 

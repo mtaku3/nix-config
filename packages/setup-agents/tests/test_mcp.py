@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-SCRIPT = Path(__file__).resolve().parents[1] / "setup-claude-code.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "setup-agents.py"
 
 _CACHED_MOD = None
 

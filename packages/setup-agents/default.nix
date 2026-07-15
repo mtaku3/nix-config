@@ -59,16 +59,6 @@
       };
     };
 
-    sandbox = {
-      filesystem = {
-        allowWrite = ["~/.mem0/**"];
-        denyWrite = [];
-      };
-      excludedCommands = [
-        "git commit *"
-      ];
-    };
-
     mcp = {
       default = {};
       research = {

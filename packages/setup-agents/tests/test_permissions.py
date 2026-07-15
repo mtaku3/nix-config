@@ -2,7 +2,7 @@ import importlib.util
 import unittest
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "setup-claude-code.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "setup-agents.py"
 
 
 def load_module():

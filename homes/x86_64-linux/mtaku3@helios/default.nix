@@ -25,6 +25,10 @@ with lib.capybara; {
             export MEM0_API_KEY
           '';
         };
+        codex = {
+          enable = true;
+          # preStart left empty; codex authenticates via `codex login`.
+        };
         zsh = {
           enable = true;
         };

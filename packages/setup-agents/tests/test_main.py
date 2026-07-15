@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-SCRIPT = Path(__file__).resolve().parents[1] / "setup-claude-code.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "setup-agents.py"
 
 _CACHED_MOD = None
 
@@ -29,7 +29,6 @@ CFG = {
     "defaultGroups": ["default"],
     "plugins":     {"default": []},
     "permissions": {"default": {"allow": [], "deny": [], "ask": []}},
-    "sandbox":     {"filesystem": {"allowWrite": [], "denyWrite": []}},
     "mcp":         {"default": {}},
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""setup-claude-code: reconcile Claude Code config to a Nix-declared baseline."""
+"""setup-agents: reconcile Claude Code and Codex config to a Nix-declared baseline."""
 
 import argparse
 import json
@@ -11,9 +11,17 @@ import tempfile
 from pathlib import Path
 
 
+AGENTS = ("claude", "codex")
+
+
 def parse_args(argv):
-    p = argparse.ArgumentParser(prog="setup-claude-code")
+    p = argparse.ArgumentParser(prog="setup-agents")
     p.add_argument("--config", required=True, help="Path to baked config JSON")
+
+    p.add_argument("--agent", action="append", default=[], choices=AGENTS,
+                   metavar="NAME",
+                   help="Target agent (repeatable). Default: all of "
+                        f"{', '.join(AGENTS)}")
 
     p.add_argument("--group", action="append", default=[], metavar="NAME",
                    help="Include group (repeatable)")
@@ -26,8 +34,6 @@ def parse_args(argv):
     p.add_argument("--no-default-groups", action="store_true",
                    help="Drop the default groups")
 
-    p.add_argument("--sandbox", action="store_true",
-                   help="Opt-in: write sandbox.* to settings.json")
     p.add_argument("--no-plugins", action="store_true")
     p.add_argument("--enable-plugins", action="store_true",
                    help="Also enable pre-existing plugins that are currently "
@@ -147,29 +153,20 @@ def merge_permissions_into(settings, desired):
     return out
 
 
-def merge_sandbox_into(settings, desired):
-    out = dict(settings)
-    sb = dict(out.get("sandbox", {}))
-    sb["enabled"] = True
-
-    fs_in = dict(sb.get("filesystem", {}))
-    fs_desired = desired.get("filesystem", {}) or {}
-    for k in ("allowWrite", "denyWrite"):
-        fs_in[k] = _unique_in_order(list(fs_in.get(k, [])) + list(fs_desired.get(k, [])))
-    sb["filesystem"] = fs_in
-
-    sb["excludedCommands"] = _unique_in_order(
-        list(sb.get("excludedCommands", [])) + list(desired.get("excludedCommands", []))
-    )
-
-    out["sandbox"] = sb
-    return out
-
-
 def _run_claude(args, capture=True, check=True):
     """Run `claude <args...>`. Returns CompletedProcess. Raises on non-zero if check=True."""
     return subprocess.run(
         ["claude", *args],
+        capture_output=capture,
+        text=True,
+        check=check,
+    )
+
+
+def _run_codex(args, capture=True, check=True):
+    """Run `codex <args...>`. Returns CompletedProcess. Raises on non-zero if check=True."""
+    return subprocess.run(
+        ["codex", *args],
         capture_output=capture,
         text=True,
         check=check,
@@ -344,6 +341,65 @@ def reconcile_mcp(desired, existing, dry_run):
     return failures
 
 
+def list_codex_mcp_servers():
+    """Return the set of MCP server names Codex already has configured.
+
+    `codex mcp list --json` prints a JSON array of {"name", "transport", ...}
+    objects; empty state prints "[]".
+    """
+    cp = _run_codex(["mcp", "list", "--json"])
+    return {entry["name"] for entry in json.loads(cp.stdout or "[]")}
+
+
+def codex_add_args(name, spec):
+    """Build the `codex mcp add ...` argv for one MCP spec, or None if unsupported.
+
+    stdio spec (command present): mcp add <name> [--env K=V ...] -- <cmd> [args...]
+    http spec  (url present):     mcp add <name> --url <url>
+    """
+    if spec.get("url"):
+        return ["mcp", "add", name, "--url", spec["url"]]
+
+    command = spec.get("command")
+    stype = spec.get("type", "stdio")
+    if not command or stype not in (None, "stdio"):
+        return None
+
+    args = ["mcp", "add", name]
+    for k, v in (spec.get("env") or {}).items():
+        args += ["--env", f"{k}={v}"]
+    args += ["--", command, *spec.get("args", [])]
+    return args
+
+
+def reconcile_codex_mcp(desired, dry_run):
+    """Add missing MCP servers via `codex mcp add`. Returns failure count.
+
+    desired: {name: (spec, postinstall)}. Additive and idempotent — servers
+    already present (by name) are skipped; nothing is removed.
+    """
+    failures = 0
+    existing = list_codex_mcp_servers()
+    for name, (spec, postinstall) in desired.items():
+        if name in existing:
+            continue
+        add = codex_add_args(name, spec)
+        if add is None:
+            print(f"  ! skipping codex mcp {name!r}: unsupported spec "
+                  f"(no command/url)", file=sys.stderr)
+            continue
+        print(f"+ codex {' '.join(add)}", flush=True)
+        if not dry_run:
+            try:
+                _run_codex(add)
+            except subprocess.CalledProcessError as e:
+                print(f"  ! failed: {e}", file=sys.stderr)
+                failures += 1
+                continue
+        failures += _run_postinstall(f"codex mcp {name}", postinstall, dry_run)
+    return failures
+
+
 def _settings_path():
     return Path(os.environ.get("HOME", "")) / ".claude" / "settings.json"
 
@@ -352,12 +408,22 @@ def _claude_json_path():
     return Path(os.environ.get("HOME", "")) / ".claude.json"
 
 
+def _desired_mcp(cfg, selected):
+    return collect_desired_mcp(
+        cfg.get("mcp", {}),
+        groups_for_domain(selected, cfg.get("mcp", {})),
+    )
+
+
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
 
-    if shutil.which("claude") is None:
-        print("setup-claude-code: claude-code is not installed; nothing to do.",
-              file=sys.stderr)
+    targets = set(args.agent) or set(AGENTS)
+    installed = {a for a in targets if shutil.which(a) is not None}
+    if not installed:
+        names = ", ".join(sorted(targets))
+        print(f"setup-agents: none of the targeted agents are installed "
+              f"({names}); nothing to do.", file=sys.stderr)
         return 0
 
     try:
@@ -365,56 +431,54 @@ def main(argv=None):
             cfg = json.load(f)
         selected = resolve_groups(cfg, args)
     except UsageError as e:
-        print(f"setup-claude-code: {e}", file=sys.stderr)
-        return 2
-
-    settings_path = _settings_path()
-    try:
-        settings = load_settings(settings_path)
-    except SettingsError as e:
-        print(f"setup-claude-code: {e}", file=sys.stderr)
+        print(f"setup-agents: {e}", file=sys.stderr)
         return 2
 
     rc = 0
 
-    if not args.no_plugins:
-        desired = collect_desired_plugins(
-            cfg.get("plugins", {}),
-            groups_for_domain(selected, cfg.get("plugins", {})),
-        )
-        rc |= 1 if reconcile_plugins(desired, args.dry_run, args.enable_plugins) else 0
-
-    if not args.no_permissions:
-        desired = collect_desired_permissions(
-            cfg.get("permissions", {}),
-            groups_for_domain(selected, cfg.get("permissions", {})),
-        )
-        new_settings = merge_permissions_into(settings, desired)
-        if new_settings != settings:
-            print("+ update permissions in settings.json", flush=True)
-            if not args.dry_run:
-                save_settings(settings_path, new_settings)
-                settings = new_settings
-
-    if args.sandbox:
-        new_settings = merge_sandbox_into(settings, cfg.get("sandbox", {}))
-        if new_settings != settings:
-            print("+ update sandbox in settings.json", flush=True)
-            if not args.dry_run:
-                save_settings(settings_path, new_settings)
-                settings = new_settings
-
-    if not args.no_mcp:
+    if "claude" in installed:
+        settings_path = _settings_path()
         try:
-            desired = collect_desired_mcp(
-                cfg.get("mcp", {}),
-                groups_for_domain(selected, cfg.get("mcp", {})),
-            )
-        except UsageError as e:
-            print(f"setup-claude-code: {e}", file=sys.stderr)
+            settings = load_settings(settings_path)
+        except SettingsError as e:
+            print(f"setup-agents: {e}", file=sys.stderr)
             return 2
-        existing = read_claude_json_mcp_servers(_claude_json_path())
-        rc |= 1 if reconcile_mcp(desired, existing, args.dry_run) else 0
+
+        if not args.no_plugins:
+            desired = collect_desired_plugins(
+                cfg.get("plugins", {}),
+                groups_for_domain(selected, cfg.get("plugins", {})),
+            )
+            rc |= 1 if reconcile_plugins(desired, args.dry_run, args.enable_plugins) else 0
+
+        if not args.no_permissions:
+            desired = collect_desired_permissions(
+                cfg.get("permissions", {}),
+                groups_for_domain(selected, cfg.get("permissions", {})),
+            )
+            new_settings = merge_permissions_into(settings, desired)
+            if new_settings != settings:
+                print("+ update permissions in settings.json", flush=True)
+                if not args.dry_run:
+                    save_settings(settings_path, new_settings)
+                    settings = new_settings
+
+        if not args.no_mcp:
+            try:
+                desired = _desired_mcp(cfg, selected)
+            except UsageError as e:
+                print(f"setup-agents: {e}", file=sys.stderr)
+                return 2
+            existing = read_claude_json_mcp_servers(_claude_json_path())
+            rc |= 1 if reconcile_mcp(desired, existing, args.dry_run) else 0
+
+    if "codex" in installed and not args.no_mcp:
+        try:
+            desired = _desired_mcp(cfg, selected)
+        except UsageError as e:
+            print(f"setup-agents: {e}", file=sys.stderr)
+            return 2
+        rc |= 1 if reconcile_codex_mcp(desired, args.dry_run) else 0
 
     rc |= 1 if _run_postinstall("global", cfg.get("postInstall", ""), args.dry_run) else 0
 
