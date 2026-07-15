@@ -72,6 +72,7 @@ in {
       pkgs.python3
       pkgs.uv
       pkgs.socat
+      pkgs.sqlite
     ];
 
     home.sessionPath = ["$HOME/.npm-global/bin"];
