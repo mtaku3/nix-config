@@ -4,6 +4,8 @@
 
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
