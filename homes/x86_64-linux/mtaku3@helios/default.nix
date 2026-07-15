@@ -27,6 +27,7 @@ with lib.capybara; {
         };
         codex = {
           enable = true;
+          agmsgMonitor = true;
           # preStart left empty; codex authenticates via `codex login`.
         };
         zsh = {
