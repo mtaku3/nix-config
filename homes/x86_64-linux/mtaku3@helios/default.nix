@@ -73,6 +73,7 @@ with lib.capybara; {
         ".ssh"
         "Workspaces"
         ".vscode-server"
+        "tmp"
       ];
       files = [
         ".local/state/nvim/trust"
