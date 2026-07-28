@@ -77,9 +77,13 @@ in {
 
     home.sessionPath = ["$HOME/.npm-global/bin"];
 
-    home.file.".npmrc".text = ''
-      prefix=${config.home.homeDirectory}/.npm-global
-    '';
+    # NixOS only: nvm (used on the Darwin host) refuses to run when npm's
+    # `prefix` is set, so the global prefix is not managed there.
+    home.file = optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+      ".npmrc".text = ''
+        prefix=${config.home.homeDirectory}/.npm-global
+      '';
+    };
 
     capybara.impermanence.directories = [
       ".claude"
