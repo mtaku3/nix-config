@@ -1,8 +1,6 @@
 {
   lib,
   config,
-  inputs,
-  pkgs,
   ...
 }:
 with lib;
@@ -45,6 +43,7 @@ with lib.capybara; {
         };
         gh = enabled;
         glow = enabled;
+        herdr = enabled;
         tmux = enabled;
         gpg = {
           enable = true;
@@ -88,8 +87,6 @@ with lib.capybara; {
       ];
     };
   };
-
-  home.packages = [inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr];
 
   home.stateVersion = "25.05";
 }

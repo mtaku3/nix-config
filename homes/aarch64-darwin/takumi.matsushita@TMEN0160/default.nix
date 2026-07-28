@@ -21,6 +21,7 @@ with lib.capybara; {
         tmux = enabled;
         devbox = enabled;
         claude-code = enabled;
+        herdr = enabled;
       };
     };
   };
