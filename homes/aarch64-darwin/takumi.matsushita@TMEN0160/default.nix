@@ -25,5 +25,11 @@ with lib.capybara; {
     };
   };
 
+  # Load Homebrew-installed nvm (macOS-only path, hence host-scoped).
+  programs.zsh.initContent = mkAfter ''
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+  '';
+
   home.stateVersion = "24.11";
 }
