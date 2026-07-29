@@ -44,6 +44,7 @@ with lib.capybara; {
         gh = enabled;
         glow = enabled;
         herdr = enabled;
+        hunk = enabled;
         tmux = enabled;
         gpg = {
           enable = true;
