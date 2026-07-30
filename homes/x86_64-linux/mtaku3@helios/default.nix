@@ -52,6 +52,7 @@ with lib.capybara; {
           ];
         };
         gh = enabled;
+        bitbucket-cli = enabled;
         glow = enabled;
         herdr = enabled;
         hunk = enabled;
