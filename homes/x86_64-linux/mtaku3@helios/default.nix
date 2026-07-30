@@ -85,6 +85,7 @@ with lib.capybara; {
         "Workspaces"
         ".vscode-server"
         "tmp"
+        ".gradle"
       ];
       files = [
         ".local/state/nvim/trust"
