@@ -14,6 +14,7 @@ in {
     email = mkOpt types.str null "Email to configure git with";
     signingKey = mkOpt types.str "" "GPG key to sign commits with";
     signByDefault = mkBoolOpt true "Whether to sign commits by default";
+    includes = mkOpt (types.listOf (types.attrsOf types.anything)) [] "Git configuration includes";
   };
 
   imports = [./git-town.nix];
@@ -37,6 +38,7 @@ in {
         pull = {rebase = true;};
         push = {autoSetupRemote = true;};
       };
+      inherit (cfg) includes;
       hooks = let
         pre-push-script = pkgs.writeShellScript "pre-push-script" ''
           # NOTE: https://gist.github.com/mosra/19abea23cdf6b82ce891c9410612e7e1

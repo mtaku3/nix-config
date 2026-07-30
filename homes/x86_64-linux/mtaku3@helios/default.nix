@@ -40,6 +40,16 @@ with lib.capybara; {
           email = "me@mtaku3.com";
           signingKey = "C29192ED1ABAAF1073F3B4DB6EBE5C8A537E7406";
           signByDefault = true;
+          includes = [
+            {
+              condition = "gitdir:~/Workspaces/miubiq/";
+              contents.user = {
+                email = "matsushita@miubiq.cs.titech.ac.jp";
+                name = "Takumi Matsushita";
+              };
+              contents.commit.gpgSign = false;
+            }
+          ];
         };
         gh = enabled;
         glow = enabled;
