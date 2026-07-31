@@ -106,7 +106,10 @@ in {
     ];
 
     capybara.impermanence.directories = [
-      ".codex"
+      {
+        directory = ".codex";
+        method = "symlink";
+      }
     ];
   };
 }
