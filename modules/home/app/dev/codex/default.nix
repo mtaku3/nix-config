@@ -62,6 +62,12 @@ in {
   options.capybara.app.dev.codex = {
     enable = mkBoolOpt false "Whether to enable codex";
 
+    agentsFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to the user-level instructions installed as ~/.codex/AGENTS.md.";
+    };
+
     agmsgMonitor = mkBoolOpt false ''
       Route the codex wrapper through the agmsg monitor shim at
       ~/.agents/skills/agmsg/scripts/drivers/types/codex/codex-shim.sh.
@@ -104,6 +110,13 @@ in {
     home.packages = [
       codexWrapper
     ];
+
+    home.activation = optionalAttrs (cfg.agentsFile != null) {
+      installCodexAgents = config.lib.dag.entryAfter ["linkGeneration"] ''
+        run ${pkgs.coreutils}/bin/mkdir -p "$HOME/.codex"
+        run ${pkgs.coreutils}/bin/ln -sfn ${escapeShellArg (toString cfg.agentsFile)} "$HOME/.codex/AGENTS.md"
+      '';
+    };
 
     capybara.impermanence.directories = [
       {

@@ -18,6 +18,7 @@ with lib.capybara; {
       dev = {
         claude-code = {
           enable = true;
+          agentsFile = ./agents/AGENTS.md;
           preStart = ''
             ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})
             export ESA_ACCESS_TOKEN
@@ -27,6 +28,7 @@ with lib.capybara; {
         };
         codex = {
           enable = true;
+          agentsFile = ./agents/AGENTS.md;
           agmsgMonitor = true;
           preStart = ''
             ESA_ACCESS_TOKEN=$(cat ${config.age.secrets."cc-secrets/esa-access-token".path})

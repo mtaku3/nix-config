@@ -42,6 +42,15 @@ in {
   options.capybara.app.dev.claude-code = {
     enable = mkBoolOpt false "Whether to enable the claude-code";
 
+    agentsFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Path to the user-level instructions installed as
+        ~/.claude/CLAUDE.md.
+      '';
+    };
+
     preStart = mkOption {
       type = types.lines;
       default = "";
@@ -79,11 +88,18 @@ in {
 
     # NixOS only: nvm (used on the Darwin host) refuses to run when npm's
     # `prefix` is set, so the global prefix is not managed there.
-    home.file = optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-      ".npmrc".text = ''
-        prefix=${config.home.homeDirectory}/.npm-global
-      '';
-    };
+    home.file =
+      optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+        ".npmrc".text = ''
+          prefix=${config.home.homeDirectory}/.npm-global
+        '';
+      }
+      // optionalAttrs (cfg.agentsFile != null) {
+        ".claude/CLAUDE.md" = {
+          source = cfg.agentsFile;
+          force = true;
+        };
+      };
 
     capybara.impermanence.directories = [
       ".claude"
