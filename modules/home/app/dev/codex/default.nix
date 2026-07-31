@@ -107,9 +107,9 @@ in {
     # hooks (typically secret exports) first. Node and friends are provided by
     # the claude-code module, which is enabled alongside codex on every host
     # that uses it.
-    home.packages = [
-      codexWrapper
-    ];
+    home.packages =
+      [codexWrapper]
+      ++ optional pkgs.stdenv.hostPlatform.isLinux pkgs.bubblewrap;
 
     home.activation = optionalAttrs (cfg.agentsFile != null) {
       installCodexAgents = config.lib.dag.entryAfter ["linkGeneration"] ''
