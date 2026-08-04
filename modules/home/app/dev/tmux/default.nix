@@ -31,6 +31,7 @@ in {
 
         set -g focus-events on
         set -g mouse off
+        set -s set-clipboard on
 
         bind-key -T edit-mode-vi WheelUpPane send-keys -X scroll-up
         bind-key -T edit-mode-vi WheelDownPane send-keys -X scroll-down

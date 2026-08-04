@@ -19,6 +19,7 @@
     globals = {
       mapleader = " ";
       maplocalleader = " ";
+      clipboard = "osc52";
     };
 
     opts = {
