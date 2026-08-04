@@ -123,10 +123,6 @@ in {
         directory = ".codex";
         method = "symlink";
       }
-      {
-        directory = ".hindsight";
-        method = "symlink";
-      }
     ];
   };
 }

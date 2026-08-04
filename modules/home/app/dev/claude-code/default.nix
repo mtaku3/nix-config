@@ -102,9 +102,15 @@ in {
       };
 
     capybara.impermanence.directories = [
-      ".claude"
+      {
+        directory = ".claude";
+        method = "symlink";
+      }
       ".agents"
-      ".mem0"
+      {
+        directory = ".mem0";
+        method = "symlink";
+      }
       ".config/caveman"
       ".local/bin"
       ".local/share/claude"
@@ -112,10 +118,6 @@ in {
       ".cache/uv"
       ".npm"
       ".npm-global"
-      {
-        directory = ".hindsight";
-        method = "symlink";
-      }
     ];
     capybara.impermanence.files = [
       ".claude.json"
