@@ -112,6 +112,10 @@ in {
       ".cache/uv"
       ".npm"
       ".npm-global"
+      {
+        directory = ".hindsight";
+        method = "symlink";
+      }
     ];
     capybara.impermanence.files = [
       ".claude.json"
