@@ -102,15 +102,9 @@ in {
       };
 
     capybara.impermanence.directories = [
-      {
-        directory = ".claude";
-        method = "symlink";
-      }
+      ".claude"
       ".agents"
-      {
-        directory = ".mem0";
-        method = "symlink";
-      }
+      ".mem0"
       ".config/caveman"
       ".local/bin"
       ".local/share/claude"
