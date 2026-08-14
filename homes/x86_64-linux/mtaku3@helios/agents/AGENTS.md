@@ -1,3 +1,4 @@
-# Instructions
+# 指示
 
-- Never force-push.
+- チャットでは日本語を使用し、それ以外では指示されない限り英語を使用すること。
+- force-push は絶対にしないこと。
