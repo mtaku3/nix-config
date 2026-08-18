@@ -40,6 +40,15 @@ buildNpmPackage rec {
     stdenv.cc.cc.lib
   ];
 
+  # node-pty is not hoisted to the root node_modules (package-lock.json pins it
+  # under packages/server), but upstream's trace script globs the root path, so
+  # the prebuilt pty.node never lands in $out and the terminal worker dies with
+  # "Failed to load native module: pty.node".
+  postPatch = ''
+    substituteInPlace scripts/trace-daemon.mjs \
+      --replace-fail "node_modules/node-pty/prebuilds/" "packages/server/node_modules/node-pty/prebuilds/"
+  '';
+
   buildPhase = ''
     runHook preBuild
 
