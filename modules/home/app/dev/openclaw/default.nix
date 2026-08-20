@@ -61,21 +61,10 @@ in {
       # The gateway refuses a non-loopback bind without an auth path. We delegate
       # that to tinyauth in front of the IngressRoute, which hands the verified
       # Google identity down as Remote-Email.
-      # nix-openclaw reads a value that is an existing path at run time, so the
-      # secret stays out of the store. This is the local-direct fallback upstream
-      # prescribes for trusted-proxy deployments: the reverse proxy authenticates
-      # browsers, and same-host callers that never pass through it -- the CLI, for
-      # approving a pending device -- authenticate with this instead.
+      # nix-openclaw's documented secret path: materialise outside the store,
+      # hand OpenClaw the path, and let the gateway wrapper read it at run time.
+      # This reaches the gateway only -- the CLI is covered by the wrapper below.
       environment.OPENCLAW_GATEWAY_PASSWORD = config.age.secrets."openclaw/gateway-password".path;
-
-      # A SecretRef needs its provider declared first; without this the gateway
-      # refuses to boot with SecretProviderResolutionError. The env var itself is
-      # populated from the agenix file by the wrapper above, so the value never
-      # reaches the store or the config file.
-      config.secrets.providers.env = {
-        source = "env";
-        allowlist = ["OPENCLAW_GATEWAY_PASSWORD"];
-      };
 
       config.gateway = {
         mode = "local";
@@ -96,7 +85,7 @@ in {
           # gets approved. Browsers still authenticate via tinyauth.
           password = {
             source = "env";
-            provider = "env";
+            provider = "default";
             id = "OPENCLAW_GATEWAY_PASSWORD";
           };
           trustedProxy = {
@@ -107,6 +96,32 @@ in {
         };
       };
     };
+
+    # The gateway wrapper reads the agenix file at ExecStart. agenix.service is a
+    # oneshot with no Before=, so without this they race, and a miss is silent:
+    # the wrapper falls back to exporting the path string as the password.
+    systemd.user.services.openclaw-gateway.Unit = {
+      After = ["agenix.service"];
+      Wants = ["agenix.service"];
+    };
+
+    # programs.openclaw.environment only reaches the gateway, so the CLI would
+    # need --password on every call. Shadow it the way this repo already wraps
+    # claude and codex: read the secret, export it, hand off. hiPrio because the
+    # name collides with the openclaw package nix-openclaw puts in home.packages.
+    home.packages = [
+      (hiPrio (pkgs.writeShellApplication {
+        name = "openclaw";
+        text = ''
+          if [[ -r ${config.age.secrets."openclaw/gateway-password".path} ]]; then
+            OPENCLAW_GATEWAY_PASSWORD=$(cat ${config.age.secrets."openclaw/gateway-password".path})
+            export OPENCLAW_GATEWAY_PASSWORD
+          fi
+          exec ${getExe pkgs.openclaw} "$@"
+        '';
+        meta.mainProgram = "openclaw";
+      }))
+    ];
 
     capybara.impermanence.directories = [
       ".openclaw"
