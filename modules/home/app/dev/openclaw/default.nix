@@ -13,10 +13,17 @@ with lib.capybara; let
   # The gateway refuses to start on a non-loopback bind unless it has a way to
   # authenticate. We delegate that to tinyauth, which sits in front of the
   # IngressRoute and hands the verified Google identity down as Remote-Email.
-  # `bind = "custom"` also binds 127.0.0.1 on the same port, so the local CLI
-  # (openclaw doctor / devices / models) keeps working on the host.
+  #
+  # `bind = "custom"` listens on bindHost only -- despite what the docs claim, it
+  # does not also bind 127.0.0.1. The local CLI is fine either way: it reads the
+  # same config and dials bindHost, which the host can reach on its own address.
   settings = {
     gateway = {
+      # Required at startup even though the schema marks it optional: the gateway
+      # refuses to start on a config without it ("existing config is missing
+      # gateway.mode. Treat this as suspicious or clobbered config."). "local"
+      # runs the channels and agent runtime on this host, which is what we want.
+      mode = "local";
       bind = "custom";
       customBindHost = cfg.bindHost;
       port = cfg.port;
@@ -99,6 +106,15 @@ in {
           ExecStart = "${getExe package} gateway";
           Restart = "on-failure";
           RestartSec = 5;
+
+          # A systemd --user service inherits almost nothing: without this the
+          # daemon runs with PATH=/…/systemd/bin alone, so every subprocess it
+          # spawns (claude, git, the shell) fails to resolve, and
+          # `openclaw gateway status` flags the missing PATH. Kept deliberately
+          # short -- openclaw wants a minimal PATH, not the login shell's.
+          Environment = [
+            "PATH=${config.home.profileDirectory}/bin:${config.home.homeDirectory}/.local/bin:/run/current-system/sw/bin"
+          ];
         }
         // optionalAttrs (cfg.environmentFile != null) {
           EnvironmentFile = toString cfg.environmentFile;
