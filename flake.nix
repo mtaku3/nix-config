@@ -53,6 +53,13 @@
     lib.mkFlake {
       channels-config = {
         allowUnfree = true;
+
+        # openclaw carries meta.knownVulnerabilities: it feeds untrusted content to
+        # an LLM that has full access to the host. Accepted deliberately for helios,
+        # where the gateway binds only the LAN address, the firewall admits just the
+        # cluster node, and tinyauth fronts every request. A predicate rather than
+        # permittedInsecurePackages so version bumps do not need a second edit.
+        allowInsecurePredicate = pkg: inputs.nixpkgs.lib.getName pkg == "openclaw";
       };
 
       outputs-builder = channels: {
