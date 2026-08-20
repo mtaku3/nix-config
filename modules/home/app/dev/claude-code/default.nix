@@ -42,6 +42,18 @@ in {
   options.capybara.app.dev.claude-code = {
     enable = mkBoolOpt false "Whether to enable the claude-code";
 
+    package = mkOption {
+      type = types.package;
+      readOnly = true;
+      default = claudeWrapper;
+      description = ''
+        The wrapper installed on PATH as `claude`. Exposed so other modules can
+        put it on a service's PATH -- notably the OpenClaw gateway, which has to
+        resolve `claude` to reuse the host's Claude CLI login. It execs the
+        installer-managed binary at ~/.local/bin/claude after running preStart.
+      '';
+    };
+
     agentsFile = mkOption {
       type = types.nullOr types.path;
       default = null;
