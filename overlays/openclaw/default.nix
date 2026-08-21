@@ -14,5 +14,5 @@
     inherit (prev) config;
   };
 in {
-  inherit (openclawPkgs) openclaw openclawPackages;
+  inherit (openclawPkgs) openclaw openclawPackages openclawRuntimePlugins;
 }

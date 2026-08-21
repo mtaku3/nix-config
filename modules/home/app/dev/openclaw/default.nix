@@ -25,11 +25,31 @@ in {
     baseUrl = mkOpt str "https://openclaw.mtaku3.com" "Public origin the Control UI is served from";
 
     port = mkOpt port 18789 "Gateway port";
+
+    defaultModel = mkOpt str "openai/gpt-5.6-sol" ''
+      Model openclaw runs by default. `claude-cli/*` goes through the host's
+      Claude Code login and draws on the Max subscription; `openai/*` goes
+      through the Codex harness and draws on the ChatGPT account. Aliases are
+      passed to the backend verbatim, so `opus` resolves to whatever the latest
+      Opus is -- openclaw's own catalog lags and does not list it.
+    '';
+
+    fallbackModels = mkOpt (listOf str) ["claude-cli/opus"] "Ordered fallbacks when the default is unavailable";
+
+    thinkingDefault = mkOpt (enum ["off" "minimal" "low" "medium" "high" "xhigh" "adaptive" "max" "ultra"]) "xhigh" ''
+      Global reasoning effort. openclaw resolves it per backend: the claude-cli
+      backend receives it as `--effort`, and GPT/Codex models map it onto their
+      own reasoning effort. Overridable per message with /think, per session,
+      and per agent.
+    '';
   };
 
   config = mkIf cfg.enable {
     programs.openclaw = {
       enable = true;
+
+      # Channel plugins are immutable in Nix mode and must be packaged here.
+      runtimePlugins = ["discord"];
 
       # nix-openclaw's documented secret path: materialise outside the store,
       # hand OpenClaw the path, and let the gateway wrapper read it at run time.
@@ -44,6 +64,9 @@ in {
       runtimePackages =
         (with pkgs; [
           bashInteractive
+          # The claude wrapper's preStart reads agenix secrets with cat, and the
+          # gateway PATH is otherwise just the toolchain nix-openclaw prepends.
+          coreutils
           git
         ])
         # openclaw can reuse the host's Claude CLI login, but only if it resolves
@@ -51,6 +74,32 @@ in {
         # gateway's PATH like any other package; at run time it execs the
         # installer-managed binary in ~/.local/bin.
         ++ optional claudeCode.enable claudeCode.package;
+
+      config.agents.defaults = {
+        model = {
+          primary = cfg.defaultModel;
+          fallbacks = cfg.fallbackModels;
+        };
+        thinkingDefault = cfg.thinkingDefault;
+      };
+
+      # Discord is restricted to mtaku3's private guild and user ID. The bot
+      # token stays outside Nix/store-backed config in ~/.openclaw/.env.
+      config.channels.discord = {
+        enabled = true;
+        token = {
+          source = "env";
+          provider = "default";
+          id = "DISCORD_BOT_TOKEN";
+        };
+        applicationId = "1514659310792081548";
+        dmPolicy = "pairing";
+        groupPolicy = "allowlist";
+        guilds."842211856226975764" = {
+          requireMention = false;
+          users = ["568049499461648394"];
+        };
+      };
 
       config.gateway = {
         mode = "local";
