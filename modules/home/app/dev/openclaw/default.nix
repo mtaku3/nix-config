@@ -77,6 +77,20 @@ in {
             provider = "default";
             id = "OPENCLAW_GATEWAY_TOKEN";
           };
+
+          # Throttles failed auth. Note the bucket is per client IP and every
+          # internet client looks identical from here: the real address is lost
+          # at the NodePort, so openclaw sees the k8s node (192.168.10.102) or
+          # the cni gateway (10.1.0.1). That makes this one global bucket, which
+          # an attacker can keep tripped to lock the operator out -- hence a
+          # short lockout. Guessing a 512-bit token is out of reach at any rate,
+          # so this is really about log noise and wasted work, not key strength.
+          # exemptLoopback stays at its default so the local CLI is unaffected.
+          rateLimit = {
+            maxAttempts = 20;
+            windowMs = 60000;
+            lockoutMs = 60000;
+          };
         };
       };
     };
