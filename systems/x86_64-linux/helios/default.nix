@@ -96,23 +96,6 @@ with lib.capybara; {
 
   services.journald.storage = "persistent";
 
-  # openclaw's gateway runs as a systemd --user unit, which would not start until
-  # mtaku3 logs in. It has to be up whenever helios is.
-  users.users.mtaku3.linger = true;
-
-  # The gateway binds 192.168.10.101:18789 so Traefik on m5p01 can reach it. Open
-  # it to the LAN rather than to the cluster node alone: the actual auth boundary
-  # is openclaw's gateway.trustedProxies, which still admits only m5p01, so LAN
-  # hosts get rejected at the gateway while staying able to probe the port.
-  # helios uses the iptables firewall backend (no networking.nftables), hence the
-  # raw rules rather than extraInputRules.
-  networking.firewall.extraCommands = ''
-    iptables -I nixos-fw 1 -p tcp -s 192.168.10.0/24 --dport 18789 -j nixos-fw-accept
-  '';
-  networking.firewall.extraStopCommands = ''
-    iptables -D nixos-fw -p tcp -s 192.168.10.0/24 --dport 18789 -j nixos-fw-accept || true
-  '';
-
   nix.settings.trusted-users = ["mtaku3"];
 
   home-manager.backupFileExtension = "bak";

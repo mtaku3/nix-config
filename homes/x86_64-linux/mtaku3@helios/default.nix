@@ -38,7 +38,7 @@ with lib.capybara; {
           '';
         };
         paseo = enabled;
-        openclaw = enabled;
+        openclaw = disabled;
         zsh = {
           enable = true;
         };
