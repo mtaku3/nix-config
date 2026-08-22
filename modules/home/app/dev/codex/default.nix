@@ -123,6 +123,7 @@ in {
         directory = ".codex";
         method = "symlink";
       }
+      ".hindsight"
     ];
   };
 }

@@ -116,6 +116,7 @@ in {
     capybara.impermanence.directories = [
       ".claude"
       ".agents"
+      ".hindsight"
       ".mem0"
       ".config/caveman"
       ".local/bin"
