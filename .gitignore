@@ -16,3 +16,10 @@ node_modules
 # python
 __pycache__/
 *.py[cod]
+
+# local agent state
+/.codex/
+/data/
+
+# Nix build result
+/result
