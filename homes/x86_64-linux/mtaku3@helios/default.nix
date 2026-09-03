@@ -93,6 +93,7 @@ with lib.capybara; {
         ".ssh"
         "Workspaces"
         ".vscode-server"
+        ".cache"
         "tmp"
         ".gradle"
       ];

@@ -72,6 +72,7 @@ with lib.capybara; {
         "Videos"
         ".gnupg"
         ".ssh"
+        ".cache/uv"
         "Workspaces"
       ];
       files = [

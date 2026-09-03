@@ -122,7 +122,6 @@ in {
       ".local/bin"
       ".local/share/claude"
       ".local/share/uv"
-      ".cache/uv"
       ".npm"
       ".npm-global"
     ];
