@@ -12,17 +12,17 @@
 }:
 buildNpmPackage rec {
   pname = "paseo";
-  version = "0.3.1";
+  version = "0.7.2";
 
   src = fetchFromGitHub {
     owner = "getpaseo";
     repo = "paseo";
     rev = "v${version}";
-    hash = "sha256-m97Pf857LNv871b95cJ2y34OFxoES8JsWsp0wD3Em4I=";
+    hash = "sha256-JUVjE32qS29ZNh1tSOLy9YtyPD3+qjhz+W30lWtVqaw=";
   };
 
   nodejs = nodejs_22;
-  npmDepsHash = "sha256-oXz8hMk+5DlTYK8OndUAjB+RJMDbPqobVGXLFeoH++o=";
+  npmDepsHash = "sha256-0hOGev0HglOQmofzPQMfiWh1opg6cpiEgsfK22AKcGk=";
   npmRebuildFlags = ["--ignore-scripts"];
   dontNpmBuild = true;
 
