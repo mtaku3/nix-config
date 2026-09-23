@@ -12,17 +12,17 @@
 }:
 buildNpmPackage rec {
   pname = "paseo";
-  version = "0.7.2";
+  version = "0.9.1";
 
   src = fetchFromGitHub {
     owner = "getpaseo";
     repo = "paseo";
     rev = "v${version}";
-    hash = "sha256-JUVjE32qS29ZNh1tSOLy9YtyPD3+qjhz+W30lWtVqaw=";
+    hash = "sha256-5pjFV28DmKsptnAajWEWeOAvkur3QkJAHSJZyfiqRh4=";
   };
 
   nodejs = nodejs_22;
-  npmDepsHash = "sha256-0hOGev0HglOQmofzPQMfiWh1opg6cpiEgsfK22AKcGk=";
+  npmDepsHash = "sha256-9UWtpZrCdyYyGq3HGNgSpU1+2Imu3oYqtSumq2DtANc=";
   npmRebuildFlags = ["--ignore-scripts"];
   dontNpmBuild = true;
 
@@ -88,7 +88,7 @@ buildNpmPackage rec {
   meta = {
     description = "Self-hosted daemon for AI coding agents";
     homepage = "https://github.com/getpaseo/paseo";
-    license = lib.licenses.agpl3Plus;
+    license = lib.licenses.asl20;
     mainProgram = "paseo";
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
