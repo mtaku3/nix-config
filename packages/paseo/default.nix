@@ -73,6 +73,16 @@ buildNpmPackage rec {
 
     cp package.json "$out/lib/paseo/"
     cp -r packages/server/dist/server/web-ui "$out/lib/paseo/packages/server/dist/server/"
+    # The CLI uses require.resolve("@getpaseo/server") to locate the daemon
+    # runner. This entry point is not imported, so nodeFileTrace omits it.
+    cp packages/server/dist/server/server/exports.js "$out/lib/paseo/packages/server/dist/server/server/"
+
+    node -e '
+      const { createRequire } = require("node:module");
+      const path = require("node:path");
+      const cliRequire = createRequire(path.join(process.argv[1], "packages/cli/dist/commands/daemon/local-daemon.js"));
+      cliRequire.resolve("@getpaseo/server");
+    ' "$out/lib/paseo"
 
     mkdir -p "$out/bin"
     makeWrapper ${nodejs_22}/bin/node "$out/bin/paseo-server" \
