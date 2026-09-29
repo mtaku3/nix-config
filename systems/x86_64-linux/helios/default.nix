@@ -96,6 +96,57 @@ with lib.capybara; {
 
   services.journald.storage = "persistent";
 
+  # The OpenScience runtime is a systemd --user unit, which would not start
+  # until mtaku3 logs in. It has to be up whenever helios is.
+  users.users.mtaku3.linger = true;
+
+  # Republishes the OpenScience runtime to Traefik on m5p01. The runtime binds
+  # 127.0.0.1 only and 403s any Host that is not loopback, so nginx rewrites
+  # Host, and adds the runtime's bearer token so it never has to sit in the
+  # public homelab-manifest repo. Its streams are SSE and WebSockets, hence no
+  # buffering and long timeouts.
+  services.nginx = {
+    enable = true;
+    virtualHosts.openscience = {
+      listen = [
+        {
+          addr = "192.168.10.101";
+          port = 4097;
+        }
+      ];
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:4096";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header Host localhost:4096;
+          include ${config.age.secrets."openscience/nginx-auth.conf".path};
+          proxy_buffering off;
+          proxy_read_timeout 1h;
+          proxy_send_timeout 1h;
+          client_max_body_size 64m;
+        '';
+      };
+    };
+  };
+  age.secrets."openscience/nginx-auth.conf" = {
+    mode = "400";
+    owner = config.services.nginx.user;
+    group = config.services.nginx.group;
+  };
+
+  # nginx injects the bearer, so whoever reaches 4097 is authenticated to an
+  # agent running as mtaku3. Admit m5p01 alone. Pod egress is SNATed to the
+  # node address, so this cannot tell Traefik from any other pod on m5p01:
+  # the token keeps other helios users off the loopback port, not those pods.
+  # helios uses the iptables firewall backend (no networking.nftables), hence
+  # the raw rules rather than extraInputRules.
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw 1 -p tcp -s 192.168.10.102 --dport 4097 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -p tcp -s 192.168.10.102 --dport 4097 -j nixos-fw-accept || true
+  '';
+
   nix.settings.trusted-users = ["mtaku3"];
 
   home-manager.backupFileExtension = "bak";
