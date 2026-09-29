@@ -51,6 +51,7 @@ in {
 
     runtimePackages = mkOpt (listOf package) (with pkgs; [
       bashInteractive
+      bubblewrap
       coreutils
       git
       ripgrep
@@ -69,6 +70,7 @@ in {
             CLIPROXY_API_KEY=$(sed -n 's/^CLIPROXY_API_KEY=//p' ${envPath})
             export CLIPROXY_API_KEY
           fi
+          export PATH=${pkgs.bubblewrap}/bin:$PATH
           export OPENSCIENCE_CONFIG=${configFile}
           export OPENSCIENCE_DATA_DIR=${dataDir}
           export OPENSCIENCE_DISABLE_AUTOUPDATE=1
