@@ -9,6 +9,7 @@ with lib.capybara; let
   cfg = config.capybara.app.dev.openscience;
   envPath = config.age.secrets."openscience/env".path;
   workDir = "${config.home.homeDirectory}/${cfg.workDir}";
+  dataDir = "${config.home.homeDirectory}/.openscience";
 
   configFile = pkgs.writeText "openscience.json" (builtins.toJSON {
     "$schema" = "https://openscience.sh/config.json";
@@ -69,6 +70,7 @@ in {
             export CLIPROXY_API_KEY
           fi
           export OPENSCIENCE_CONFIG=${configFile}
+          export OPENSCIENCE_DATA_DIR=${dataDir}
           export OPENSCIENCE_DISABLE_AUTOUPDATE=1
           exec ${getExe cfg.package} "$@"
         '';
@@ -88,6 +90,7 @@ in {
         Environment = [
           "PATH=${runtimePath}"
           "OPENSCIENCE_CONFIG=${configFile}"
+          "OPENSCIENCE_DATA_DIR=${dataDir}"
           "OPENSCIENCE_DISABLE_AUTOUPDATE=1"
         ];
         Restart = "on-failure";
@@ -99,7 +102,10 @@ in {
     systemd.user.tmpfiles.rules = ["d ${workDir} 0755 - - -"];
 
     capybara.impermanence.directories = [
-      ".openscience"
+      {
+        directory = ".openscience";
+        method = "symlink";
+      }
       ".config/openscience"
       ".local/share/openscience"
       ".local/state/openscience"
