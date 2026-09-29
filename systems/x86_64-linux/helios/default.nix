@@ -155,6 +155,7 @@ with lib.capybara; {
   };
   systemd.tmpfiles.rules = [
     "d /var/lib/sshfs 0700 root root -"
+    "L+ /usr/bin/which - - - - ${pkgs.which}/bin/which"
   ];
   fileSystems."/mnt/miubiq-fs" = {
     device = "matsushita@fs.miubiq.cs.titech.ac.jp:/records";
