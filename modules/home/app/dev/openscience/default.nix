@@ -14,10 +14,13 @@ with lib.capybara; let
     "$schema" = "https://openscience.sh/config.json";
     autoupdate = false;
     model = cfg.model;
-    provider.anthropic.options = {
-      baseURL = cfg.cliproxyBaseUrl;
-      apiKey = "{env:CLIPROXY_API_KEY}";
-    };
+    small_model = cfg.smallModel;
+    provider = genAttrs ["anthropic" "openai"] (_: {
+      options = {
+        baseURL = cfg.cliproxyBaseUrl;
+        apiKey = "{env:CLIPROXY_API_KEY}";
+      };
+    });
   });
 
   runtimePath = concatStringsSep ":" [
@@ -39,9 +42,11 @@ in {
 
     workDir = mkOpt str "Workspaces/openscience" "Project folder the runtime opens, relative to home";
 
-    cliproxyBaseUrl = mkOpt str "https://cliproxy.mtaku3.com/v1" "CLIProxyAPI endpoint used as the anthropic provider";
+    cliproxyBaseUrl = mkOpt str "https://cliproxy.mtaku3.com/v1" "CLIProxyAPI endpoint used as the anthropic and openai providers";
 
     model = mkOpt str "anthropic/claude-opus-5-5" "Default model, as provider/model";
+
+    smallModel = mkOpt str "anthropic/claude-haiku-4-5-20251001" "Model for titles and other small tasks, as provider/model";
 
     runtimePackages = mkOpt (listOf package) (with pkgs; [
       bashInteractive
