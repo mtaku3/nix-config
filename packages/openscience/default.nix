@@ -19,9 +19,6 @@ stdenvNoCC.mkDerivation rec {
 
   nativeBuildInputs = [patchelf];
 
-  # A `bun build --compile` binary: the JS bundle is appended to the ELF, so
-  # stripping would cut it off. It links nothing beyond glibc, which makes
-  # pointing the interpreter at the store's loader all the patching it needs.
   dontStrip = true;
   dontPatchELF = true;
 
@@ -35,7 +32,6 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   doInstallCheck = true;
-  # Even --version creates its data root under $HOME first.
   installCheckPhase = ''
     export HOME="$(mktemp -d)"
     [ "$("$out/bin/openscience" --version)" = "${version}" ]
