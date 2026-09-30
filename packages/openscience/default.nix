@@ -9,12 +9,12 @@
 stdenvNoCC.mkDerivation rec {
   pname = "openscience";
   upstreamVersion = "2.0.145";
-  rev = "233a769d";
+  rev = "aec11212";
   version = "${upstreamVersion}-${rev}";
 
   src = fetchurl {
     url = "https://github.com/mtaku3/openscience/releases/download/v${upstreamVersion}-${rev}/openscience-linux-x64.tar.gz";
-    hash = "sha256-V6DUkhuzBb1FMAUSctI7aUbSdVGzFm8fhu3lTQVY1Mw=";
+    hash = "sha256-NOti+gazd8zRBziVX0i5zSzEP7hTySp9Xq6LPw5NFIs=";
   };
 
   sourceRoot = ".";
