@@ -16,12 +16,21 @@ with lib.capybara; let
     autoupdate = false;
     model = cfg.model;
     small_model = cfg.smallModel;
-    provider = genAttrs ["anthropic" "openai"] (_: {
-      options = {
-        baseURL = cfg.cliproxyBaseUrl;
-        apiKey = "{env:CLIPROXY_API_KEY}";
+    provider =
+      recursiveUpdate
+      (genAttrs ["anthropic" "openai"] (_: {
+        options = {
+          baseURL = cfg.cliproxyBaseUrl;
+          apiKey = "{env:CLIPROXY_API_KEY}";
+        };
+      }))
+      {
+        anthropic.models = mapAttrs (_: id: {inherit id;}) {
+          "claude-haiku-4-5" = "claude-haiku-4-5-20251001";
+          "claude-opus-4-5" = "claude-opus-4-5-20251101";
+          "claude-sonnet-4-5" = "claude-sonnet-4-5-20250929";
+        };
       };
-    });
   });
 
   runtimePath = concatStringsSep ":" [
