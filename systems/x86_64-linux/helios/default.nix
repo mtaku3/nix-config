@@ -120,6 +120,27 @@ with lib.capybara; {
         '';
       };
     };
+    virtualHosts.openchamber = {
+      listen = [
+        {
+          addr = "192.168.10.101";
+          port = 3001;
+        }
+      ];
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:3000";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header Host $host;
+          proxy_buffering off;
+          proxy_request_buffering off;
+          proxy_read_timeout 1h;
+          proxy_send_timeout 1h;
+          client_max_body_size 64m;
+          gzip off;
+        '';
+      };
+    };
   };
   age.secrets."openscience/nginx-auth.conf" = {
     mode = "400";
@@ -129,9 +150,11 @@ with lib.capybara; {
 
   networking.firewall.extraCommands = ''
     iptables -I nixos-fw 1 -p tcp -s 192.168.10.102 --dport 4097 -j nixos-fw-accept
+    iptables -I nixos-fw 1 -p tcp -s 192.168.10.102 --dport 3001 -j nixos-fw-accept
   '';
   networking.firewall.extraStopCommands = ''
     iptables -D nixos-fw -p tcp -s 192.168.10.102 --dport 4097 -j nixos-fw-accept || true
+    iptables -D nixos-fw -p tcp -s 192.168.10.102 --dport 3001 -j nixos-fw-accept || true
   '';
 
   nix.settings.trusted-users = ["mtaku3"];

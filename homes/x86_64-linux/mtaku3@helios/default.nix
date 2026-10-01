@@ -39,11 +39,11 @@ with lib.capybara; {
         };
         paseo = enabled;
         openscience = enabled;
-        amp = {
+        openchamber = {
           enable = true;
-          runner = {
+          server = {
             enable = true;
-            id = "helios";
+            relayUrl = "wss://relay.openchamber.mtaku3.com/ws";
           };
         };
         openclaw = disabled;
