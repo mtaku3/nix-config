@@ -39,6 +39,13 @@ with lib.capybara; {
         };
         paseo = enabled;
         openscience = enabled;
+        amp = {
+          enable = true;
+          runner = {
+            enable = true;
+            id = "helios";
+          };
+        };
         openclaw = disabled;
         zsh = {
           enable = true;
