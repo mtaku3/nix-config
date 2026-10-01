@@ -132,5 +132,17 @@ in {
       persistentStoragePath = cfg.name;
       inherit (cfg) directories files allowOther removePrefixDirectory;
     };
+
+    # impermanence only creates the parent of a symlinked directory's target,
+    # so a directory that doesn't exist in persistent storage yet would be
+    # linked as a dangling symlink.
+    home.activation.createPersistentSymlinkTargets = let
+      targets =
+        map (d: "${cfg.name}/${d.directory}")
+        (filter (d: isAttrs d && d.method == "symlink") cfg.directories);
+    in
+      mkIf (targets != []) (config.lib.dag.entryAfter ["writeBoundary"] ''
+        run mkdir -p ${escapeShellArgs targets}
+      '');
   };
 }
