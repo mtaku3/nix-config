@@ -49,13 +49,7 @@ in {
 
       workDir = mkOpt str "Workspaces" "Directory the runner starts in, relative to home; new directories created from ampcode.com land here";
 
-      extraArgs = mkOpt (listOf str) [
-        "--dir"
-        home
-        "--discover-dirs=${home}"
-        "--discover-depth"
-        "3"
-      ] "Extra arguments passed to amp --no-tui; by default it serves home and every git checkout under it";
+      extraArgs = mkOpt (listOf str) ["--discover-dirs"] "Extra arguments passed to amp --no-tui; by default it serves every git checkout up to two levels under workDir";
     };
   };
 
