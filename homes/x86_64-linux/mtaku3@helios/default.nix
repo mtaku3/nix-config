@@ -88,29 +88,6 @@ with lib.capybara; {
       };
     };
 
-    impermanence = {
-      enable = true;
-      name = "/persist/home/mtaku3";
-      directories = [
-        "Downloads"
-        "Music"
-        "Pictures"
-        "Documents"
-        "Videos"
-        ".gnupg"
-        ".ssh"
-        "Workspaces"
-        ".vscode-server"
-        ".cache"
-        "tmp"
-        ".gradle"
-      ];
-      files = [
-        ".local/state/nvim/trust"
-      ];
-      allowOther = true;
-    };
-
     agenix = {
       enable = true;
       userPubkeys = [

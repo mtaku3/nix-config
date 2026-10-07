@@ -61,6 +61,20 @@
             options.mountpoint = "legacy";
             mountpoint = "/persist";
           };
+          # Home is persisted as a whole instead of through home-manager
+          # impermanence. NOTE: disko only creates this at initial provisioning;
+          # on a live pool create it by hand with the same options.
+          "safe/home" = {
+            type = "zfs_fs";
+            options = {
+              mountpoint = "legacy";
+              compression = "zstd";
+              atime = "off";
+              xattr = "sa";
+              acltype = "posixacl";
+            };
+            mountpoint = "/home";
+          };
         };
       };
     };
