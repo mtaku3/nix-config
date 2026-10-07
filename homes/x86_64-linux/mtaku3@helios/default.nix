@@ -46,6 +46,10 @@ with lib.capybara; {
             relayUrl = "wss://relay.openchamber.mtaku3.com/ws";
           };
         };
+        t3code = {
+          enable = true;
+          channel = "nightly";
+        };
         openclaw = disabled;
         zsh = {
           enable = true;
