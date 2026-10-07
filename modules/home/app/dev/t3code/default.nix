@@ -43,12 +43,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # The server looks cloudflared up on the login shell's PATH for T3 Connect
-    # instead of downloading its own copy.
-    home.packages = [
-      t3Wrapper
-      pkgs.cloudflared
-    ];
+    # cloudflared for T3 Connect is left to T3 Code as well: `t3 connect link`
+    # installs its pinned version into ~/.t3/tools, while one found on the
+    # shell's PATH is not seen by the service, which runs with systemd's PATH.
+    home.packages = [t3Wrapper];
 
     capybara.impermanence.directories = [
       {
