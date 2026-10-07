@@ -24,6 +24,7 @@ with lib.capybara; let
     runtimeInputs = with pkgs; [coreutils curl findutils gnugrep gnused gnutar gzip];
     text = ''
       export T3CODE_HOME=${t3Home}
+      export T3CODE_TELEMETRY_ENABLED=false
 
       if [[ ! -x ${binDir}/t3 ]]; then
         echo "t3: installing T3 Code (${cfg.channel}) into ${t3Home}" >&2
@@ -47,6 +48,13 @@ in {
     # installs its pinned version into ~/.t3/tools, while one found on the
     # shell's PATH is not seen by the service, which runs with systemd's PATH.
     home.packages = [t3Wrapper];
+
+    # The unit is written by `t3 service install` with a fixed environment, so
+    # the service gets its settings from a drop-in, which survives rewrites.
+    xdg.configFile."systemd/user/t3code.service.d/telemetry.conf".text = ''
+      [Service]
+      Environment=T3CODE_TELEMETRY_ENABLED=false
+    '';
 
     capybara.impermanence.directories = [
       {
