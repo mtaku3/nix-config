@@ -37,15 +37,9 @@ with lib.capybara; {
             export MEM0_API_KEY
           '';
         };
-        paseo = enabled;
-        openscience = enabled;
-        openchamber = {
-          enable = true;
-          server = {
-            enable = true;
-            relayUrl = "wss://relay.openchamber.mtaku3.com/ws";
-          };
-        };
+        paseo = disabled;
+        openscience = disabled;
+        openchamber = disabled;
         t3code = {
           enable = true;
           channel = "nightly";
