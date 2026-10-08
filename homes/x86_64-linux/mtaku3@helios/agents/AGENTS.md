@@ -2,6 +2,7 @@
 
 - チャットでは日本語を使用し、それ以外では指示されない限り英語を使用すること。
 - force-push は絶対にしないこと。
+- Gmail / Calendar / Drive は gog CLI で扱うこと。読み取りは `gog-ro`、書き込みのときだけ `gog` を使う。アカウントは `-a personal`（個人）と `-a lab`（研究室）。
 
 <!-- context7 -->
 Use the `ctx7` CLI to fetch current documentation whenever the user asks about a library, framework, SDK, API, CLI tool, or cloud service — even well-known ones like React, Next.js, Prisma, Express, Tailwind, Django, or Spring Boot. This includes API syntax, configuration, version migration, library-specific debugging, setup instructions, and CLI tool usage. Use even when you think you know the answer — your training data may not reflect recent changes. Prefer this over web search for library docs.

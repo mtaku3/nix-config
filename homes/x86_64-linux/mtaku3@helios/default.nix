@@ -68,6 +68,11 @@ with lib.capybara; {
         };
         gh = enabled;
         bitbucket-cli = enabled;
+        gogcli = {
+          enable = true;
+          keyringPasswordFile = config.age.secrets."gogcli/keyring-password".path;
+          credentialsSecret = "gogcli/credentials.json";
+        };
         glow = enabled;
         herdr = enabled;
         hunk = enabled;
