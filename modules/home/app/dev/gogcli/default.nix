@@ -28,12 +28,6 @@ with lib.capybara; let
       wrapProgram $out/bin/gog \
         ${optionalString isLinux "--set-default GOG_KEYRING_BACKEND file"} \
         ${optionalString (cfg.keyringPasswordFile != null) "--run ${escapeShellArg readPassword}"}
-
-      # gog-ro can only read: gog rejects every mutating API request and the
-      # commands that change local auth or config state.
-      makeWrapper $out/bin/gog $out/bin/gog-ro \
-        --set GOG_READONLY 1 \
-        --set GOG_DISABLE_COMMANDS auth,config
     '';
     inherit (pkgs.capybara.gogcli) meta;
   };
