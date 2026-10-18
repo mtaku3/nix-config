@@ -29,19 +29,6 @@ with lib.capybara; {
       };
     };
 
-    impermanence = {
-      enable = true;
-      name = "/persist/home/mtaku3";
-      directories = [
-        "Downloads"
-        ".gnupg"
-      ];
-      files = [
-        ".local/state/nvim/trust"
-      ];
-      allowOther = true;
-    };
-
     agenix = {
       enable = true;
       userPubkeys = [
