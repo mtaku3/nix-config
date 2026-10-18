@@ -119,9 +119,15 @@ with lib.capybara; {
   };
   systemd.tmpfiles.rules = [
     "d /var/lib/sshfs 0700 root root -"
-    "L+ /usr/bin/which - - - - ${pkgs.which}/bin/which"
-    "L+ /usr/bin/true - - - - ${pkgs.coreutils}/bin/true"
   ];
+  services.envfs = {
+    enable = true;
+    extraFallbackPathCommands = ''
+      ln -s ${pkgs.bash}/bin/bash $out/bash
+      ln -s ${pkgs.which}/bin/which $out/which
+      ln -s ${pkgs.coreutils}/bin/true $out/true
+    '';
+  };
   fileSystems."/mnt/miubiq-fs" = {
     device = "matsushita@fs.miubiq.cs.titech.ac.jp:/records";
     fsType = "fuse.sshfs";
