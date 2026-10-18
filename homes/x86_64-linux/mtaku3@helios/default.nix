@@ -26,6 +26,10 @@ with lib.capybara; {
             export MEM0_API_KEY
           '';
         };
+        claude-swap = {
+          enable = true;
+          autoSwitch = true;
+        };
         codex = {
           enable = true;
           agentsFile = ./agents/AGENTS.md;
