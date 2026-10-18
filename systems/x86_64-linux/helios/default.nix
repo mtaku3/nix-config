@@ -148,6 +148,26 @@ with lib.capybara; {
       "sftp_server=/usr/lib/openssh/sftp-server\\040-u0"
     ];
   };
+  fileSystems."/mnt/miubiq-exp-data" = {
+    device = "matsushita@fs.miubiq.cs.titech.ac.jp:/mnt/exp-nfs-data";
+    fsType = "fuse.sshfs";
+    options = [
+      "allow_other"
+      "_netdev"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=30"
+      "reconnect"
+      "ServerAliveInterval=15"
+      "ServerAliveCountMax=3"
+      "port=24322"
+      "IdentityFile=${config.age.secrets."sshfs/id_rsa_miubiq_fs".path}"
+      "UserKnownHostsFile=/var/lib/sshfs/known_hosts"
+      "StrictHostKeyChecking=accept-new"
+      "sftp_server=/usr/lib/openssh/sftp-server\\040-u0"
+    ];
+  };
   fileSystems."/mnt/t4" = {
     device = "un02216@login.t4.gsic.titech.ac.jp:/gs/bs/tga-miubiq_data_common/matsushita-pilot-fs";
     fsType = "fuse.sshfs";
