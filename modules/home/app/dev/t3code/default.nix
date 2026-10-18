@@ -10,6 +10,21 @@ with lib.capybara; let
   t3Home = "${config.home.homeDirectory}/.t3";
   binDir = "${t3Home}/bin";
 
+  # T3's browser is a chrome-headless-shell that T3 Code downloads into
+  # ~/.t3/tools, so it loads its libraries through nix-ld too. The libraries
+  # the system gives nix-ld lack a few it needs, which T3 Code is pointed at
+  # here instead; `t3 browser setup` would install them with a distro package
+  # manager. Chrome's sandbox needs nothing more, as NixOS allows unprivileged
+  # user namespaces.
+  nixLdLibraryPath = concatStringsSep ":" [
+    "/run/current-system/sw/share/nix-ld/lib"
+    (makeLibraryPath (with pkgs; [
+      at-spi2-core # libatk-1.0, libatk-bridge-2.0, libatspi
+      libgbm
+      libxkbcommon
+    ]))
+  ];
+
   # T3 Code is installed with its own installer rather than pinned in the Nix
   # store, so that `t3 update` and the remote updates offered by the apps keep
   # it current. Its executable is a dynamically linked Node SEA, so it relies
@@ -25,6 +40,7 @@ with lib.capybara; let
     text = ''
       export T3CODE_HOME=${t3Home}
       export T3CODE_TELEMETRY_ENABLED=false
+      export NIX_LD_LIBRARY_PATH=${nixLdLibraryPath}
 
       if [[ ! -x ${binDir}/t3 ]]; then
         echo "t3: installing T3 Code (${cfg.channel}) into ${t3Home}" >&2
@@ -54,6 +70,10 @@ in {
     xdg.configFile."systemd/user/t3code.service.d/telemetry.conf".text = ''
       [Service]
       Environment=T3CODE_TELEMETRY_ENABLED=false
+    '';
+    xdg.configFile."systemd/user/t3code.service.d/browser.conf".text = ''
+      [Service]
+      Environment=NIX_LD_LIBRARY_PATH=${nixLdLibraryPath}
     '';
 
     capybara.impermanence.directories = [
