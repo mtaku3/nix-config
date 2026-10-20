@@ -23,7 +23,6 @@ with lib.capybara; {
 
       pangolin = {
         enable = true;
-        enterprise = true;
         baseDomain = "mtaku3.com";
         acmeEmail = "certificates@mtaku3.com";
         # Raw TCP resources Warpgate chains into (one per SSH target).
