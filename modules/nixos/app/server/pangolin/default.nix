@@ -140,6 +140,7 @@ with lib.capybara; let
 in {
   options.capybara.app.server.pangolin = with types; {
     enable = mkBoolOpt false "Whether to enable Pangolin (with Gerbil and Traefik) in Docker";
+    enterprise = mkBoolOpt false "Whether to run the Enterprise Edition image (license key is activated in the dashboard)";
     baseDomain = mkOpt str "" "Base domain; the dashboard is served at pangolin.<baseDomain>";
     acmeEmail = mkOpt str "" "Let's Encrypt account email";
     tcpPorts = mkOpt (listOf port) [] "Internal TCP entrypoints for raw resources (not published)";
@@ -165,7 +166,7 @@ in {
       backend = "docker";
       containers = {
         pangolin = {
-          image = "docker.io/fosrl/pangolin:${cfg.versions.pangolin}";
+          image = "docker.io/fosrl/pangolin:${optionalString cfg.enterprise "ee-"}${cfg.versions.pangolin}";
           volumes = [
             "${cfg.dataDir}/config:/app/config"
             "${pangolinConfig}:/app/config/config.yml:ro"
