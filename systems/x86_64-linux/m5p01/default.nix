@@ -48,6 +48,11 @@ with lib.capybara; {
 
   nix.settings.trusted-users = ["mtaku3"];
 
+  # Warpgate on edge1 logs in as mtaku3 on behalf of SSO-authenticated users.
+  users.users.mtaku3.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBznGw/YMlO4fQVApPr86pcaednatPJ+r+eDT4JRC6Ho warpgate@edge1"
+  ];
+
   users.users.root.packages = with pkgs; [git vim curl wget];
 
   system.stateVersion = "25.05";
