@@ -205,7 +205,7 @@ in {
           volumes = [
             "${traefikConfig}:/etc/traefik/traefik_config.yml:ro"
             "${dynamicConfig}:/etc/traefik/dynamic_config.yml:ro"
-            "${cfg.dataDir}/letsencrypt:/letsencrypt"
+            "${cfg.dataDir}/config/letsencrypt:/letsencrypt"
           ];
           # CF_DNS_API_TOKEN=...
           environmentFiles = [config.age.secrets."pangolin/traefik.env".path];
@@ -239,7 +239,7 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0700 root root -"
       "d ${cfg.dataDir}/config 0700 root root -"
-      "d ${cfg.dataDir}/letsencrypt 0700 root root -"
+      "d ${cfg.dataDir}/config/letsencrypt 0700 root root -"
     ];
 
     networking.firewall = {
