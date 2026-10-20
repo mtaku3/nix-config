@@ -32,6 +32,7 @@ with lib.capybara; {
       warpgate = {
         enable = true;
         externalHost = "warpgate.mtaku3.com";
+        google.clientId = "810915113976-7rt2jve5vpn2d6vhd5v7d0ij9adm52bg.apps.googleusercontent.com";
       };
     };
 
