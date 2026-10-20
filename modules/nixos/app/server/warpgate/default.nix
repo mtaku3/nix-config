@@ -40,6 +40,8 @@ with lib.capybara; let
     ssh = {
       enable = true;
       listen = "[::]:2222";
+      # Port users dial; Warpgate shows it in connection instructions.
+      external_port = cfg.sshPort;
       host_key_verification = "prompt";
       inactivity_timeout = "5m";
     };
@@ -47,7 +49,9 @@ with lib.capybara; let
       tls
       // {
         listen = "[::]:8888";
-        # Pangolin's Traefik terminates TLS in front of the web UI.
+        # Pangolin's Traefik terminates TLS in front of the web UI, so public
+        # URLs (incl. the SSO redirect URI) must say 443, not the listen port.
+        external_port = 443;
         trust_x_forwarded_headers = true;
         session_max_age = "30m";
         cookie_max_age = "1day";
