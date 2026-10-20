@@ -18,7 +18,7 @@ in {
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
     sshPort = mkOpt port 22 "Host port published for Warpgate SSH";
     network = mkOpt str config.capybara.app.server.pangolin.network "Docker network to join (Pangolin reaches the UI as warpgate:8888)";
-    version = mkOpt str "v0.30.0" "Warpgate image tag";
+    version = mkOpt str "0.30.0" "Warpgate image tag";
   };
 
   config = mkIf cfg.enable {

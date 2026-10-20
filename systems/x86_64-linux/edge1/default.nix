@@ -56,6 +56,9 @@ with lib.capybara; {
 
   nix.settings.trusted-users = ["mtaku3"];
 
+  # Inspect the edge containers and their logs without sudo.
+  users.users.mtaku3.extraGroups = ["docker" "systemd-journal"];
+
   users.users.root.packages = with pkgs; [git vim curl wget];
 
   system.stateVersion = "25.05";
