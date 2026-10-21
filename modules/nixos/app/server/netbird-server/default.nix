@@ -138,6 +138,7 @@ in {
       enable = mkBoolOpt false "Whether to run the NetBird reverse proxy (needs the netbird/proxy.env token)";
       domain = mkOpt str cfg.baseDomain "Base domain of the proxy cluster; services are published as subdomains of it";
       wireguardPort = mkOpt port 51820 "UDP port of the proxy's embedded WireGuard peer";
+      private = mkBoolOpt true "Whether NetBird peers can reach NetBird-only services through the tunnel (adds per-account tunnel listeners; public services are unaffected)";
       tcpPorts = mkOpt (listOf port) [] "Public ports for TCP-mode services";
       udpPorts = mkOpt (listOf port) [] "Public ports for UDP-mode services";
     };
@@ -283,6 +284,9 @@ in {
               NB_PROXY_DOMAIN = cfg.proxy.domain;
               NB_PROXY_ADDRESS = ":8443";
               NB_PROXY_WG_PORT = toString cfg.proxy.wireguardPort;
+              NB_PROXY_PRIVATE = boolToString cfg.proxy.private;
+              # The bare base domain may be served elsewhere (it is for mtaku3.com).
+              NB_PROXY_REQUIRE_SUBDOMAIN = "true";
               NB_PROXY_CERTIFICATE_DIRECTORY = "/certs";
               NB_PROXY_ACME_CERTIFICATES = "true";
               NB_PROXY_ACME_CHALLENGE_TYPE = "tls-alpn-01";

@@ -31,6 +31,7 @@ with lib.capybara; {
         acmeEmail = "certificates@mtaku3.com";
         # Served by the edge Traefik itself rather than the NetBird proxy.
         httpRoutes."warpgate.mtaku3.com" = "https://warpgate:8888";
+        proxy.enable = true;
       };
 
       warpgate = {
