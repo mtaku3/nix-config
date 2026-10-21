@@ -56,9 +56,6 @@ with lib.capybara; {
   # (pushed to them as a match domain pointing at CoreDNS).
   services.kubernetes.addons.dns.aliasDomain = "k8s.mtaku3.com";
 
-  # The host was renamed from m5p01, but the Kubernetes node keeps its name:
-  # LINSTOR satellites and every volume are bound to it.
-  services.kubernetes.kubelet.hostname = "m5p01";
   # etcd's member was bootstrapped under the node's old address; keep the
   # name so the existing data directory still matches.
   services.etcd = {
