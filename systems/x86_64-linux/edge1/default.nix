@@ -20,6 +20,11 @@ with lib.capybara; {
       };
       fail2ban = enabled;
       docker = enabled;
+      # Peer for Warpgate's SSH targets; MGMT is reached through its routers.
+      netbird = {
+        enable = true;
+        routing = "client";
+      };
 
       netbird-server = {
         enable = true;
