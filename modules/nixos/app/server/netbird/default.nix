@@ -14,6 +14,7 @@ in {
     managementUrl = mkOpt str "https://netbird.mtaku3.com" "Management server the client registers with";
     autoLogin = mkOpt bool (config.age.secrets ? ${setupKey}) "Whether to log in with the ${setupKey} agenix secret when the client needs login (on by default once the host has one)";
     routing = mkOpt (enum ["none" "client" "server" "both"]) "none" "Kernel settings for NetBird routing (see services.netbird.useRoutingFeatures)";
+    users = mkOpt (listOf str) ["mtaku3"] "Users allowed to drive the daemon (netbird-wt0 status/up) without sudo";
   };
 
   config = mkIf cfg.enable {
@@ -82,6 +83,11 @@ in {
       echo "NetBird neither connected nor asked for login in time" >&2
       exit 1
     '');
+
+    # The hardened daemon's socket is group-owned by its service user.
+    users.users = genAttrs cfg.users (_: {
+      extraGroups = [config.services.netbird.clients.wt0.user.group];
+    });
 
     capybara.impermanence.directories = [
       "/var/lib/netbird-wt0"

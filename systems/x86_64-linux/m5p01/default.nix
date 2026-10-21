@@ -11,6 +11,8 @@ with lib.capybara; {
 
   capybara = {
     suites.homelab = enabled;
+    # NetBird pushes per-domain DNS to resolved; resolvconf mode fails under the hardened daemon.
+    system.network.resolved = true;
 
     app.server = {
       kubernetes = {

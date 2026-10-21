@@ -46,6 +46,13 @@ in {
 
         kubelet.verbosity = 1; # Warn level
 
+        # With systemd-resolved, /etc/resolv.conf points at the 127.0.0.53
+        # stub, which pods (and CoreDNS's `forward . /etc/resolv.conf`) can't
+        # reach from their own network namespace. Hand them the upstreams.
+        kubelet.extraConfig = mkIf config.services.resolved.enable {
+          resolvConf = "/run/systemd/resolve/resolv.conf";
+        };
+
         proxy.verbosity = 1; # Warn level
 
         addons.dns = enabled;

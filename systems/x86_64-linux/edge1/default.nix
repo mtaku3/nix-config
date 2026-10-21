@@ -11,6 +11,8 @@ with lib.capybara; {
 
   capybara = {
     suites.common = enabled;
+    # NetBird pushes per-domain DNS to resolved; resolvconf mode fails under the hardened daemon.
+    system.network.resolved = true;
 
     app.server = {
       # Host sshd moves off 22: the public :22 belongs to Warpgate.
