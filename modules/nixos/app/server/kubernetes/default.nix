@@ -29,6 +29,10 @@ in {
 
   config = mkIf cfg.enable (mkMerge [
     {
+      environment.etc."kubernetes/resolv.conf" = mkIf config.services.resolved.enable {
+        text = concatMapStrings (ns: "nameserver ${ns}\n") config.networking.nameservers;
+      };
+
       services.kubernetes = {
         masterAddress = cfg.masterAddress;
         apiserverAddress = api;
@@ -48,9 +52,13 @@ in {
 
         # With systemd-resolved, /etc/resolv.conf points at the 127.0.0.53
         # stub, which pods (and CoreDNS's `forward . /etc/resolv.conf`) can't
-        # reach from their own network namespace. Hand them the upstreams.
+        # reach from their own network namespace. resolved's upstream file is
+        # no good either: it carries link search domains (NetBird's
+        # peers.mtaku3.com), which pods with ndots:5 try first, and the public
+        # *.mtaku3.com wildcard then answers e.g. api.github.com.peers.mtaku3.com.
+        # Hand pods the plain upstream servers only.
         kubelet.extraConfig = mkIf config.services.resolved.enable {
-          resolvConf = "/run/systemd/resolve/resolv.conf";
+          resolvConf = "/etc/kubernetes/resolv.conf";
         };
 
         proxy.verbosity = 1; # Warn level
