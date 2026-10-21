@@ -1,6 +1,6 @@
 # Static definition of the homelab Kubernetes PKI.
 # Pure data: consumed by packages/k8s-pki (generator) and modules/nixos/app/server/kubernetes/mypki.nix.
-# String tokens {host.name}, {host.advertiseIP}, {host.masterAddress} are substituted at generation time.
+# String tokens {host.name}, {host.nodeName}, {host.advertiseIP}, {host.masterAddress} are substituted at generation time.
 {
   cas = {
     "ca" = {
@@ -112,16 +112,16 @@
     };
     "kubelet" = {
       signer = "ca";
-      CN = "system:node:{host.name}";
+      CN = "system:node:{host.nodeName}";
       O = "system:nodes";
-      hosts = ["{host.name}" "{host.advertiseIP}"];
+      hosts = ["{host.nodeName}" "{host.name}" "{host.advertiseIP}"];
       profile = "server";
       expiry = "8760h";
       scope = "all";
     };
     "kubelet-client" = {
       signer = "ca";
-      CN = "system:node:{host.name}";
+      CN = "system:node:{host.nodeName}";
       O = "system:nodes";
       profile = "client";
       expiry = "8760h";

@@ -90,7 +90,7 @@ with lib.capybara; {
         termius = enabled;
         kube-cli = {
           enable = true;
-          masterAddress = "https://192.168.10.102:6443";
+          masterAddress = "https://192.168.11.102:6443";
         };
       };
     };

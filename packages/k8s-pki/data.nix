@@ -22,6 +22,8 @@
     in {
       inherit name;
       inherit (k) role advertiseIP masterAddress;
+      # Kubernetes node name; differs from the host name after a rename.
+      nodeName = v.config.services.kubernetes.kubelet.hostname;
       hostPubkeys = v.config.capybara.agenix.hostPubkeys;
     })
     k8sHosts;

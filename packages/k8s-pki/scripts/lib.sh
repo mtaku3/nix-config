@@ -117,11 +117,13 @@ jq_data() {
 # tmpl_host HOST_JSON — substitute {host.*} tokens in stdin using HOST_JSON
 tmpl_host() {
   local host_json="$1"
-  local name ip master
+  local name node ip master
   name=$(printf '%s' "$host_json" | jq -r '.name')
+  node=$(printf '%s' "$host_json" | jq -r '.nodeName // .name')
   ip=$(printf '%s' "$host_json" | jq -r '.advertiseIP')
   master=$(printf '%s' "$host_json" | jq -r '.masterAddress')
   sed -e "s/{host.name}/$name/g" \
+      -e "s/{host.nodeName}/$node/g" \
       -e "s/{host.advertiseIP}/$ip/g" \
       -e "s/{host.masterAddress}/$master/g"
 }

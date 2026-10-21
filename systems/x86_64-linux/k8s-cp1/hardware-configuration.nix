@@ -43,13 +43,13 @@
     interfaces.ens18 = {
       ipv4.addresses = [
         {
-          address = "192.168.10.102";
+          address = "192.168.11.102";
           prefixLength = 24;
         }
       ];
     };
     defaultGateway = {
-      address = "192.168.10.1";
+      address = "192.168.11.1";
       interface = "ens18";
     };
     nameservers = ["1.1.1.1" "1.0.0.1"];
