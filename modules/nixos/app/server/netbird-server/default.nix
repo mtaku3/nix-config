@@ -195,6 +195,11 @@ in {
         };
 
         docker-netbird-server.restartTriggers = [serverConfig];
+        # The state dir is an impermanence bind mount that Docker may have
+        # created as root before tmpfiles ran; the proxy runs as uid 1000.
+        docker-netbird-proxy.preStart = mkIf cfg.proxy.enable ''
+          install -d -m 0750 -o ${toString proxyUid} -g ${toString proxyUid} ${cfg.dataDir}/proxy-certs
+        '';
         docker-netbird-traefik.restartTriggers = [traefikDynamic];
       }
       (genAttrs (map (n: "docker-${n}") (["netbird-server" "netbird-dashboard" "netbird-traefik"] ++ optional cfg.proxy.enable "netbird-proxy")) (_: {
