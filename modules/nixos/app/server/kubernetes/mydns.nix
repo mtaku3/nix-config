@@ -38,6 +38,17 @@ in {
       type = lib.types.str;
     };
 
+    aliasDomain = lib.mkOption {
+      description = ''
+        Extra domain answered as an alias of the service domain:
+        `<svc>.<ns>.<aliasDomain>` resolves like `<svc>.<ns>.svc.<clusterDomain>`.
+        For clients outside the cluster, which avoid `.local` names.
+      '';
+      default = null;
+      example = "k8s.example.com";
+      type = lib.types.nullOr lib.types.str;
+    };
+
     replicas = lib.mkOption {
       description = "Number of DNS pod replicas to deploy in the cluster.";
       default = 2;
@@ -86,6 +97,15 @@ in {
             fallthrough in-addr.arpa ip6.arpa
           }
           prometheus :${toString ports.metrics}
+          ${lib.optionalString (cfg.aliasDomain != null) (let
+          alias = lib.escapeRegex cfg.aliasDomain;
+          svc = lib.escapeRegex "svc.${cfg.clusterDomain}";
+        in ''
+          rewrite continue {
+            name regex (.+)\.${alias}\.$ {1}.svc.${cfg.clusterDomain}.
+            answer name (.+)\.${svc}\.$ {1}.${cfg.aliasDomain}.
+          }
+        '')}
           rewrite stop type AAAA A
           forward . /etc/resolv.conf
           cache 30

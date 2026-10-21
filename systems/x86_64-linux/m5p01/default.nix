@@ -57,5 +57,9 @@ with lib.capybara; {
 
   users.users.root.packages = with pkgs; [git vim curl wget];
 
+  # NetBird peers resolve cluster Services as <svc>.<ns>.k8s.mtaku3.com
+  # (pushed to them as a match domain pointing at CoreDNS).
+  services.kubernetes.addons.dns.aliasDomain = "k8s.mtaku3.com";
+
   system.stateVersion = "25.05";
 }
