@@ -56,6 +56,25 @@ in {
       };
     };
 
+    # The upstream login script waits for `status` to match 'Connected', which
+    # "Management: Disconnected" also matches, so it checks for NeedsLogin
+    # before the daemon's first login attempt and never logs in.
+    systemd.services.netbird-wt0-login.script = mkIf cfg.autoLogin (mkForce ''
+      netbird=${getExe config.services.netbird.clients.wt0.wrapper}
+      for _ in $(seq 120); do
+        status=$("$netbird" status 2>&1 || :)
+        if grep -q 'NeedsLogin' <<<"$status"; then
+          exec "$netbird" up --setup-key-file="$NB_SETUP_KEY_FILE"
+        fi
+        if grep -q 'Management: Connected' <<<"$status"; then
+          exit 0
+        fi
+        sleep 1
+      done
+      echo "NetBird neither connected nor asked for login in time" >&2
+      exit 1
+    '');
+
     capybara.impermanence.directories = [
       "/var/lib/netbird-wt0"
     ];
