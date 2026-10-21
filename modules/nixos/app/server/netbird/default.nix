@@ -18,8 +18,19 @@ in {
 
   config = mkIf cfg.enable {
     services.netbird = {
-      # Track the self-hosted server more closely than the stable channel does.
-      package = pkgs.unstable.netbird;
+      # Match the self-hosted server version; nixpkgs lags behind it.
+      package = pkgs.unstable.netbird.overrideAttrs (finalAttrs: _: {
+        version = "0.81.3";
+        src = pkgs.fetchFromGitHub {
+          owner = "netbirdio";
+          repo = "netbird";
+          tag = "v${finalAttrs.version}";
+          hash = "sha256-MGlUFuF11CQClB5kmJ4TTLpO3rwuCeNmjgKfOUxVvE8=";
+        };
+        vendorHash = "sha256-e6gG99OhfYcygQIqKyC9M4TajbH/6+L/IoMa3lzoq5k=";
+        # Only the UI build uses the frontend dependencies.
+        pnpmDeps = null;
+      });
       useRoutingFeatures = cfg.routing;
 
       clients.wt0 = {
