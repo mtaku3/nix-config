@@ -21,12 +21,12 @@ with lib.capybara; {
       fail2ban = enabled;
       docker = enabled;
 
-      pangolin = {
+      netbird-server = {
         enable = true;
         baseDomain = "mtaku3.com";
         acmeEmail = "certificates@mtaku3.com";
-        # Raw TCP resources Warpgate chains into (one per SSH target).
-        tcpPorts = [2201 2202 2203 2204];
+        # Served by the edge Traefik itself rather than the NetBird proxy.
+        httpRoutes."warpgate.mtaku3.com" = "https://warpgate:8888";
       };
 
       warpgate = {

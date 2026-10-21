@@ -49,7 +49,7 @@ with lib.capybara; let
       tls
       // {
         listen = "[::]:8888";
-        # Pangolin's Traefik terminates TLS in front of the web UI, so public
+        # The edge Traefik terminates TLS in front of the web UI, so public
         # URLs (incl. the SSO redirect URI) must say 443, not the listen port.
         external_port = 443;
         trust_x_forwarded_headers = true;
@@ -70,7 +70,7 @@ in {
     enable = mkBoolOpt false "Whether to enable Warpgate (SSH bastion) in Docker";
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
     sshPort = mkOpt port 22 "Host port published for Warpgate SSH";
-    network = mkOpt str config.capybara.app.server.pangolin.network "Docker network to join (Pangolin reaches the UI as warpgate:8888)";
+    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join (Traefik reaches the UI as warpgate:8888)";
     version = mkOpt str "0.30.0" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
