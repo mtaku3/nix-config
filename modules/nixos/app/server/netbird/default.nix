@@ -48,6 +48,14 @@ in {
 
         # Picked up by `netbird up`, including the login unit below.
         environment.NB_MANAGEMENT_URL = cfg.managementUrl;
+        # The daemon itself reads the URL from config.json, which may still
+        # point at NetBird Cloud from an earlier login; pin it so the peer
+        # moves over (and logs in again with the setup key).
+        config.ManagementURL = {
+          Scheme = "https";
+          Host = "${removePrefix "https://" cfg.managementUrl}:443";
+          Path = "";
+        };
 
         login = mkIf cfg.autoLogin {
           enable = true;
