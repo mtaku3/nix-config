@@ -31,7 +31,7 @@ with lib.capybara; {
         acmeEmail = "certificates@mtaku3.com";
         proxy = {
           enable = true;
-          # Warpgate SSH, published as a NetBird L4 service (warpgate:2222).
+          # Warpgate SSH, published as a NetBird L4 service (edge1 peer :2022).
           tcpPorts = [22];
           crowdsec = true;
         };
@@ -42,6 +42,7 @@ with lib.capybara; {
         externalHost = "warpgate.mtaku3.com";
         # SSH and the web UI are published through the NetBird reverse proxy.
         publishSsh = false;
+        meshSshPort = 2022;
         google.clientId = "810915113976-7rt2jve5vpn2d6vhd5v7d0ij9adm52bg.apps.googleusercontent.com";
       };
     };

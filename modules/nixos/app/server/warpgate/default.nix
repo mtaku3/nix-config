@@ -71,7 +71,9 @@ in {
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
     sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
     publishSsh = mkBoolOpt true "Whether to publish SSH on the host; off when a reverse proxy on the Docker network fronts it";
-    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join (proxies reach Warpgate as warpgate:8888 and warpgate:2222)";
+    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join";
+    address = mkOpt str "172.30.0.20" "Static Warpgate address on the Docker network (the NetBird proxy targets it by IP)";
+    meshSshPort = mkOpt (nullOr port) null "Host port, open only on the NetBird interface, forwarded to Warpgate SSH (the NetBird proxy's L4 relay can only dial mesh peers)";
     version = mkOpt str "0.30.0" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
@@ -137,6 +139,7 @@ in {
         volumes = ["${volume}:/data"];
         ports = optional cfg.publishSsh "${toString cfg.sshPort}:2222";
         networks = [cfg.network];
+        extraOptions = ["--ip=${cfg.address}"];
       };
     };
 
@@ -147,5 +150,19 @@ in {
     };
 
     networking.firewall.allowedTCPPorts = optional cfg.publishSsh cfg.sshPort;
+
+    # A Docker-published port would skip the host firewall, so a socket on the
+    # host relays to the container instead and is reachable only via NetBird.
+    systemd.sockets.warpgate-mesh-ssh = mkIf (cfg.meshSshPort != null) {
+      wantedBy = ["sockets.target"];
+      listenStreams = [(toString cfg.meshSshPort)];
+    };
+    systemd.services.warpgate-mesh-ssh = mkIf (cfg.meshSshPort != null) {
+      requires = ["docker-warpgate.service"];
+      after = ["docker-warpgate.service"];
+      serviceConfig.ExecStart = "${config.systemd.package}/lib/systemd/systemd-socket-proxyd ${cfg.address}:2222";
+    };
+    networking.firewall.interfaces.${config.services.netbird.clients.wt0.interface}.allowedTCPPorts =
+      optional (cfg.meshSshPort != null) cfg.meshSshPort;
   };
 }
