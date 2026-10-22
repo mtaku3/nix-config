@@ -43,6 +43,10 @@ with lib.capybara; let
       # Port users dial; Warpgate shows it in connection instructions.
       external_port = cfg.sshPort;
       host_key_verification = "prompt";
+      # Behind the mesh relay every client would otherwise be the relay's
+      # address, and one brute-forcing bot gets that address (everyone) blocked.
+      # The NetBird proxy sends the real client in a PROXY header.
+      proxy_protocol = cfg.meshSshPort != null;
       inactivity_timeout = "5m";
     };
     http =
@@ -83,6 +87,11 @@ in {
       {
         assertion = cfg.externalHost != "";
         message = "capybara.app.server.warpgate.externalHost must be set";
+      }
+      {
+        # A directly published port carries no PROXY header.
+        assertion = !(cfg.publishSsh && cfg.meshSshPort != null);
+        message = "capybara.app.server.warpgate: publishSsh and meshSshPort are mutually exclusive";
       }
     ];
 
