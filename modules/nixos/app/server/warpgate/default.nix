@@ -39,20 +39,20 @@ with lib.capybara; let
     };
     ssh = {
       enable = true;
-      listen = "[::]:2222";
+      listen = "[::]:${toString cfg.sshListenPort}";
       # Port users dial; Warpgate shows it in connection instructions.
       external_port = cfg.sshPort;
       host_key_verification = "prompt";
-      # Behind the mesh relay every client would otherwise be the relay's
-      # address, and one brute-forcing bot gets that address (everyone) blocked.
-      # The NetBird proxy sends the real client in a PROXY header.
-      proxy_protocol = cfg.meshSshPort != null;
+      # Every connection comes from the NetBird proxy; without the client
+      # address in its PROXY header, one brute-forcing bot would get the
+      # proxy's address (everyone) blocked.
+      proxy_protocol = true;
       inactivity_timeout = "5m";
     };
     http =
       tls
       // {
-        listen = "[::]:8888";
+        listen = "[::]:${toString cfg.httpListenPort}";
         # The NetBird reverse proxy terminates TLS in front of the web UI, so public
         # URLs (incl. the SSO redirect URI) must say 443, not the listen port.
         external_port = 443;
@@ -74,10 +74,9 @@ in {
     enable = mkBoolOpt false "Whether to enable Warpgate (SSH bastion) in Docker";
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
     sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
-    publishSsh = mkBoolOpt true "Whether to publish SSH on the host; off when a reverse proxy on the Docker network fronts it";
-    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join";
-    address = mkOpt str "172.30.0.20" "Static Warpgate address on the Docker network (the NetBird proxy targets it by IP)";
-    meshSshPort = mkOpt (nullOr port) null "Host port, open only on the NetBird interface, forwarded to Warpgate SSH (the NetBird proxy's L4 relay can only dial mesh peers)";
+    sshListenPort = mkOpt port 2022 "Host port Warpgate SSH listens on (the host's sshd has 22/2222)";
+    httpListenPort = mkOpt port 8888 "Host port the Warpgate web UI listens on";
+    interface = mkOpt str config.services.netbird.clients.wt0.interface "Only interface the listen ports are open on; the NetBird proxy reaches them through the edge peer";
     version = mkOpt str "0.30.0" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
@@ -87,11 +86,6 @@ in {
       {
         assertion = cfg.externalHost != "";
         message = "capybara.app.server.warpgate.externalHost must be set";
-      }
-      {
-        # A directly published port carries no PROXY header.
-        assertion = !(cfg.publishSsh && cfg.meshSshPort != null);
-        message = "capybara.app.server.warpgate: publishSsh and meshSshPort are mutually exclusive";
       }
     ];
 
@@ -115,8 +109,8 @@ in {
           ${image} unattended-setup \
             --if-config-exists skip \
             --data-path /data \
-            --http-port 8888 \
-            --ssh-port 2222 \
+            --http-port ${toString cfg.httpListenPort} \
+            --ssh-port ${toString cfg.sshListenPort} \
             --external-host ${cfg.externalHost}
       '';
     };
@@ -146,32 +140,21 @@ in {
       containers.warpgate = {
         inherit image;
         volumes = ["${volume}:/data"];
-        ports = optional cfg.publishSsh "${toString cfg.sshPort}:2222";
-        networks = [cfg.network];
-        extraOptions = ["--ip=${cfg.address}"];
+        # The NetBird proxy only reaches backends through mesh peers, so
+        # Warpgate listens on the edge peer itself. Host networking (unlike
+        # published ports) leaves access to the host firewall.
+        extraOptions = ["--network=host"];
       };
     };
 
     systemd.services.docker-warpgate = {
-      requires = ["docker-network-${cfg.network}.service"];
-      after = ["docker-network-${cfg.network}.service" "warpgate-config.service"];
+      after = ["warpgate-config.service"];
       restartTriggers = [warpgateConfig];
     };
 
-    networking.firewall.allowedTCPPorts = optional cfg.publishSsh cfg.sshPort;
-
-    # A Docker-published port would skip the host firewall, so a socket on the
-    # host relays to the container instead and is reachable only via NetBird.
-    systemd.sockets.warpgate-mesh-ssh = mkIf (cfg.meshSshPort != null) {
-      wantedBy = ["sockets.target"];
-      listenStreams = [(toString cfg.meshSshPort)];
-    };
-    systemd.services.warpgate-mesh-ssh = mkIf (cfg.meshSshPort != null) {
-      requires = ["docker-warpgate.service"];
-      after = ["docker-warpgate.service"];
-      serviceConfig.ExecStart = "${config.systemd.package}/lib/systemd/systemd-socket-proxyd ${cfg.address}:2222";
-    };
-    networking.firewall.interfaces.${config.services.netbird.clients.wt0.interface}.allowedTCPPorts =
-      optional (cfg.meshSshPort != null) cfg.meshSshPort;
+    networking.firewall.interfaces.${cfg.interface}.allowedTCPPorts = [
+      cfg.sshListenPort
+      cfg.httpListenPort
+    ];
   };
 }
