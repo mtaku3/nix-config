@@ -29,14 +29,19 @@ with lib.capybara; {
         enable = true;
         baseDomain = "mtaku3.com";
         acmeEmail = "certificates@mtaku3.com";
-        # Served by the edge Traefik itself rather than the NetBird proxy.
-        httpRoutes."warpgate.mtaku3.com" = "https://warpgate:8888";
-        proxy.enable = true;
+        proxy = {
+          enable = true;
+          # Warpgate SSH, published as a NetBird L4 service (warpgate:2222).
+          tcpPorts = [22];
+          crowdsec = true;
+        };
       };
 
       warpgate = {
         enable = true;
         externalHost = "warpgate.mtaku3.com";
+        # SSH and the web UI are published through the NetBird reverse proxy.
+        publishSsh = false;
         google.clientId = "810915113976-7rt2jve5vpn2d6vhd5v7d0ij9adm52bg.apps.googleusercontent.com";
       };
     };

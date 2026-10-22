@@ -49,7 +49,7 @@ with lib.capybara; let
       tls
       // {
         listen = "[::]:8888";
-        # The edge Traefik terminates TLS in front of the web UI, so public
+        # The NetBird reverse proxy terminates TLS in front of the web UI, so public
         # URLs (incl. the SSO redirect URI) must say 443, not the listen port.
         external_port = 443;
         trust_x_forwarded_headers = true;
@@ -69,8 +69,9 @@ in {
   options.capybara.app.server.warpgate = with types; {
     enable = mkBoolOpt false "Whether to enable Warpgate (SSH bastion) in Docker";
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
-    sshPort = mkOpt port 22 "Host port published for Warpgate SSH";
-    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join (Traefik reaches the UI as warpgate:8888)";
+    sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
+    publishSsh = mkBoolOpt true "Whether to publish SSH on the host; off when a reverse proxy on the Docker network fronts it";
+    network = mkOpt str config.capybara.app.server.netbird-server.network "Docker network to join (proxies reach Warpgate as warpgate:8888 and warpgate:2222)";
     version = mkOpt str "0.30.0" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
@@ -134,7 +135,7 @@ in {
       containers.warpgate = {
         inherit image;
         volumes = ["${volume}:/data"];
-        ports = ["${toString cfg.sshPort}:2222"];
+        ports = optional cfg.publishSsh "${toString cfg.sshPort}:2222";
         networks = [cfg.network];
       };
     };
@@ -145,6 +146,6 @@ in {
       restartTriggers = [warpgateConfig];
     };
 
-    networking.firewall.allowedTCPPorts = [cfg.sshPort];
+    networking.firewall.allowedTCPPorts = optional cfg.publishSsh cfg.sshPort;
   };
 }

@@ -138,6 +138,9 @@ in {
       enable = mkBoolOpt false "Whether to run the NetBird reverse proxy (needs the netbird/proxy.env token)";
       domain = mkOpt str cfg.baseDomain "Base domain of the proxy cluster; services are published as subdomains of it";
       wireguardPort = mkOpt port 51820 "UDP port of the proxy's embedded WireGuard peer";
+      # Community blocklists from a local CrowdSec LAPI; enforced per service
+      # (Access Control → CrowdSec IP Reputation).
+      crowdsec = mkBoolOpt false "Whether to run a CrowdSec LAPI the proxy checks client IPs against";
       private = mkBoolOpt true "Whether NetBird peers can reach NetBird-only services through the tunnel (adds per-account tunnel listeners; public services are unaffected)";
       tcpPorts = mkOpt (listOf port) [] "Public ports for TCP-mode services";
       udpPorts = mkOpt (listOf port) [] "Public ports for UDP-mode services";
@@ -147,6 +150,7 @@ in {
       netbird = mkOpt str "0.81.3" "netbird-server and reverse-proxy image tag";
       dashboard = mkOpt str "v2.95.0" "Dashboard image tag";
       traefik = mkOpt str "v3.7.16" "Traefik image tag";
+      crowdsec = mkOpt str "v1.8.1" "CrowdSec image tag";
     };
   };
 
@@ -202,7 +206,9 @@ in {
         '';
         docker-netbird-traefik.restartTriggers = [traefikDynamic];
       }
-      (genAttrs (map (n: "docker-${n}") (["netbird-server" "netbird-dashboard" "netbird-traefik"] ++ optional cfg.proxy.enable "netbird-proxy")) (_: {
+      (genAttrs (map (n: "docker-${n}") (["netbird-server" "netbird-dashboard" "netbird-traefik"]
+        ++ optional cfg.proxy.enable "netbird-proxy"
+        ++ optional (cfg.proxy.enable && cfg.proxy.crowdsec) "netbird-crowdsec")) (_: {
         requires = ["docker-network-${cfg.network}.service"];
         after = ["docker-network-${cfg.network}.service"];
       }))
@@ -281,26 +287,33 @@ in {
         // optionalAttrs cfg.proxy.enable {
           netbird-proxy = {
             image = "docker.io/netbirdio/reverse-proxy:${cfg.versions.netbird}";
-            environment = {
-              NB_PROXY_DEBUG_LOGS = "false";
-              # Internal network, so the proxy never depends on the public route.
-              NB_PROXY_MANAGEMENT_ADDRESS = "http://netbird-server:80";
-              NB_PROXY_ALLOW_INSECURE = "true";
-              NB_PROXY_DOMAIN = cfg.proxy.domain;
-              NB_PROXY_ADDRESS = ":8443";
-              NB_PROXY_WG_PORT = toString cfg.proxy.wireguardPort;
-              NB_PROXY_PRIVATE = boolToString cfg.proxy.private;
-              # The bare base domain may be served elsewhere (it is for mtaku3.com).
-              NB_PROXY_REQUIRE_SUBDOMAIN = "true";
-              NB_PROXY_CERTIFICATE_DIRECTORY = "/certs";
-              NB_PROXY_ACME_CERTIFICATES = "true";
-              NB_PROXY_ACME_CHALLENGE_TYPE = "tls-alpn-01";
-              NB_PROXY_FORWARDED_PROTO = "https";
-              NB_PROXY_PROXY_PROTOCOL = "true";
-              NB_PROXY_TRUSTED_PROXIES = cfg.traefikAddress;
-            };
+            environment =
+              {
+                NB_PROXY_DEBUG_LOGS = "false";
+                # Internal network, so the proxy never depends on the public route.
+                NB_PROXY_MANAGEMENT_ADDRESS = "http://netbird-server:80";
+                NB_PROXY_ALLOW_INSECURE = "true";
+                NB_PROXY_DOMAIN = cfg.proxy.domain;
+                NB_PROXY_ADDRESS = ":8443";
+                NB_PROXY_WG_PORT = toString cfg.proxy.wireguardPort;
+                NB_PROXY_PRIVATE = boolToString cfg.proxy.private;
+                # The bare base domain may be served elsewhere (it is for mtaku3.com).
+                NB_PROXY_REQUIRE_SUBDOMAIN = "true";
+                NB_PROXY_CERTIFICATE_DIRECTORY = "/certs";
+                NB_PROXY_ACME_CERTIFICATES = "true";
+                NB_PROXY_ACME_CHALLENGE_TYPE = "tls-alpn-01";
+                NB_PROXY_FORWARDED_PROTO = "https";
+                NB_PROXY_PROXY_PROTOCOL = "true";
+                NB_PROXY_TRUSTED_PROXIES = cfg.traefikAddress;
+              }
+              // optionalAttrs cfg.proxy.crowdsec {
+                NB_PROXY_CROWDSEC_API_URL = "http://netbird-crowdsec:8080";
+              };
             # NB_PROXY_TOKEN=nbx_...
-            environmentFiles = [config.age.secrets."netbird/proxy.env".path];
+            environmentFiles =
+              [config.age.secrets."netbird/proxy.env".path]
+              # NB_PROXY_CROWDSEC_API_KEY=...
+              ++ optional cfg.proxy.crowdsec config.age.secrets."netbird/proxy-crowdsec.env".path;
             volumes = [
               "${cfg.dataDir}/proxy-certs:/certs"
             ];
@@ -309,7 +322,22 @@ in {
               ++ l4Ports "tcp" cfg.proxy.tcpPorts
               ++ l4Ports "udp" cfg.proxy.udpPorts;
             networks = [cfg.network];
-            dependsOn = ["netbird-server"];
+            dependsOn = ["netbird-server"] ++ optional cfg.proxy.crowdsec "netbird-crowdsec";
+          };
+        }
+        // optionalAttrs (cfg.proxy.enable && cfg.proxy.crowdsec) {
+          # LAPI only: no local log acquisition, it serves the community
+          # blocklists it syncs from CrowdSec's central API.
+          netbird-crowdsec = {
+            image = "docker.io/crowdsecurity/crowdsec:${cfg.versions.crowdsec}";
+            environment.COLLECTIONS = "crowdsecurity/linux";
+            # BOUNCER_KEY_netbird_proxy=... registers the proxy's bouncer.
+            environmentFiles = [config.age.secrets."netbird/crowdsec.env".path];
+            volumes = [
+              "${cfg.dataDir}/crowdsec/config:/etc/crowdsec"
+              "${cfg.dataDir}/crowdsec/data:/var/lib/crowdsec/data"
+            ];
+            networks = [cfg.network];
           };
         };
     };
