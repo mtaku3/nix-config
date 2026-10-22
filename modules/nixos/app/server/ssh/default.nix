@@ -23,6 +23,9 @@ in {
         UseDns = true;
         X11Forwarding = false;
         PermitRootLogin = "no";
+        # sshd's own per-source penalties would likewise refuse Warpgate's
+        # peer (and so every user) after a few failed logins; see fail2ban.
+        PerSourcePenaltyExemptList = concatStringsSep "," config.capybara.app.server.netbird.peerRanges;
       };
     };
 

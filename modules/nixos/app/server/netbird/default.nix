@@ -15,6 +15,7 @@ in {
     autoLogin = mkOpt bool (config.age.secrets ? ${setupKey}) "Whether to log in with the ${setupKey} agenix secret when the client needs login (on by default once the host has one)";
     routing = mkOpt (enum ["none" "client" "server" "both"]) "none" "Kernel settings for NetBird routing (see services.netbird.useRoutingFeatures)";
     users = mkOpt (listOf str) ["mtaku3"] "Users allowed to drive the daemon (netbird-wt0 status/up) without sudo";
+    peerRanges = mkOpt (listOf str) ["100.81.0.0/16" "fde1:e458:1274:8ce7::/64"] "Address ranges the management server assigns to peers";
   };
 
   config = mkIf cfg.enable {
