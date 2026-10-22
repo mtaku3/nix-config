@@ -22,7 +22,7 @@ with lib.capybara; {
       };
       fail2ban = enabled;
       docker = enabled;
-      # Peer for Warpgate's SSH targets, reached by their NetBird IPs.
+      # edge1's own peer, so Warpgate (a peer of its own) can SSH into edge1.
       netbird = enabled;
 
       netbird-server = {
@@ -31,7 +31,7 @@ with lib.capybara; {
         acmeEmail = "certificates@mtaku3.com";
         proxy = {
           enable = true;
-          # Warpgate SSH, published as a NetBird L4 service (edge1 peer :2022).
+          # Warpgate SSH, published as a NetBird L4 service (warpgate peer :2222).
           tcpPorts = [22];
           crowdsec = true;
         };

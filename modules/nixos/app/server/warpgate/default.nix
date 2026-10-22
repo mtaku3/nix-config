@@ -15,6 +15,8 @@ with lib.capybara; let
   volume = "warpgate-data";
   volumePath = "/var/lib/docker/volumes/${volume}/_data";
   secretPlaceholder = "@GOOGLE_CLIENT_SECRET@";
+  peer = "warpgate-netbird";
+  nbServer = config.capybara.app.server.netbird-server;
 
   tls = {
     certificate = "/data/tls.certificate.pem";
@@ -39,7 +41,7 @@ with lib.capybara; let
     };
     ssh = {
       enable = true;
-      listen = "[::]:${toString cfg.sshListenPort}";
+      listen = "[::]:2222";
       # Port users dial; Warpgate shows it in connection instructions.
       external_port = cfg.sshPort;
       host_key_verification = "prompt";
@@ -52,7 +54,7 @@ with lib.capybara; let
     http =
       tls
       // {
-        listen = "[::]:${toString cfg.httpListenPort}";
+        listen = "[::]:8888";
         # The NetBird reverse proxy terminates TLS in front of the web UI, so public
         # URLs (incl. the SSO redirect URI) must say 443, not the listen port.
         external_port = 443;
@@ -74,9 +76,7 @@ in {
     enable = mkBoolOpt false "Whether to enable Warpgate (SSH bastion) in Docker";
     externalHost = mkOpt str "" "Public hostname of the Warpgate web UI";
     sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
-    sshListenPort = mkOpt port 2022 "Host port Warpgate SSH listens on (the host's sshd has 22/2222)";
-    httpListenPort = mkOpt port 8888 "Host port the Warpgate web UI listens on";
-    interface = mkOpt str config.services.netbird.clients.wt0.interface "Only interface the listen ports are open on; the NetBird proxy reaches them through the edge peer";
+    network = mkOpt str nbServer.network "Docker network the NetBird peer joins to reach the management server";
     version = mkOpt str "0.30.0" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
@@ -109,8 +109,8 @@ in {
           ${image} unattended-setup \
             --if-config-exists skip \
             --data-path /data \
-            --http-port ${toString cfg.httpListenPort} \
-            --ssh-port ${toString cfg.sshListenPort} \
+            --http-port 8888 \
+            --ssh-port 2222 \
             --external-host ${cfg.externalHost}
       '';
     };
@@ -135,26 +135,45 @@ in {
       '';
     };
 
+    # The NetBird proxy only reaches backends through mesh peers, so Warpgate
+    # is a peer of its own: it shares the network namespace of a NetBird
+    # client container, which owns the namespace so Warpgate restarts keep
+    # the peer up. Nothing is published on the host.
     virtualisation.oci-containers = {
       backend = "docker";
+      containers.${peer} = {
+        image = "docker.io/netbirdio/netbird:${nbServer.versions.netbird}";
+        hostname = "warpgate";
+        environment.NB_MANAGEMENT_URL = config.capybara.app.server.netbird.managementUrl;
+        # NB_SETUP_KEY=... (only used for the first login; state persists)
+        environmentFiles = [config.age.secrets."netbird/warpgate-setup-key.env".path];
+        volumes = ["${peer}:/var/lib/netbird"];
+        networks = [cfg.network];
+        capabilities = {
+          NET_ADMIN = true;
+          SYS_ADMIN = true;
+          SYS_RESOURCE = true;
+        };
+        devices = ["/dev/net/tun"];
+      };
       containers.warpgate = {
         inherit image;
         volumes = ["${volume}:/data"];
-        # The NetBird proxy only reaches backends through mesh peers, so
-        # Warpgate listens on the edge peer itself. Host networking (unlike
-        # published ports) leaves access to the host firewall.
-        extraOptions = ["--network=host"];
+        dependsOn = [peer];
+        extraOptions = ["--network=container:${peer}"];
       };
+    };
+
+    systemd.services."docker-${peer}" = {
+      requires = ["docker-network-${cfg.network}.service"];
+      after = ["docker-network-${cfg.network}.service"];
     };
 
     systemd.services.docker-warpgate = {
       after = ["warpgate-config.service"];
+      # A new peer container is a new namespace; follow it.
+      partOf = ["docker-${peer}.service"];
       restartTriggers = [warpgateConfig];
     };
-
-    networking.firewall.interfaces.${cfg.interface}.allowedTCPPorts = [
-      cfg.sshListenPort
-      cfg.httpListenPort
-    ];
   };
 }
