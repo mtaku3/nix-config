@@ -14,6 +14,10 @@ with lib; let
   # Per-host operational leaves
   host = name: config.age.secrets."homelab-k8s/${name}".path;
 
+  # Restart on the encrypted files' contents, not their paths: the paths sit
+  # inside the flake's source, which changes on every commit to the repo.
+  secretTriggers = map (name: builtins.hashFile "sha256" config.age.secrets.${name}.file);
+
   mkKubeConfig = name: {
     cert,
     key,
@@ -429,47 +433,47 @@ in {
     in
       hostEntries // commonEntries;
 
-    systemd.services.kube-apiserver.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/apiserver.crt".file
-      config.age.secrets."homelab-k8s/apiserver-kubelet-client.crt".file
-      config.age.secrets."homelab-k8s/apiserver-etcd-client.crt".file
-      config.age.secrets."homelab-k8s/front-proxy-client.crt".file
-      config.age.secrets."common/k8s-pki/sa.pub".file
-      config.age.secrets."common/k8s-pki/sa.key".file
-      config.age.secrets."common/k8s-pki/front-proxy-ca.crt".file
-      config.age.secrets."common/k8s-pki/etcd/ca.crt".file
+    systemd.services.kube-apiserver.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/apiserver.crt"
+      "homelab-k8s/apiserver-kubelet-client.crt"
+      "homelab-k8s/apiserver-etcd-client.crt"
+      "homelab-k8s/front-proxy-client.crt"
+      "common/k8s-pki/sa.pub"
+      "common/k8s-pki/sa.key"
+      "common/k8s-pki/front-proxy-ca.crt"
+      "common/k8s-pki/etcd/ca.crt"
     ];
-    systemd.services.kube-controller-manager.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/controller-manager.crt".file
-      config.age.secrets."homelab-k8s/controller-manager-client.crt".file
-      config.age.secrets."common/k8s-pki/ca.key".file
-      config.age.secrets."common/k8s-pki/sa.key".file
+    systemd.services.kube-controller-manager.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/controller-manager.crt"
+      "homelab-k8s/controller-manager-client.crt"
+      "common/k8s-pki/ca.key"
+      "common/k8s-pki/sa.key"
     ];
-    systemd.services.kube-scheduler.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/scheduler.crt".file
-      config.age.secrets."homelab-k8s/scheduler-client.crt".file
+    systemd.services.kube-scheduler.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/scheduler.crt"
+      "homelab-k8s/scheduler-client.crt"
     ];
-    systemd.services.kubelet.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/kubelet.crt".file
-      config.age.secrets."homelab-k8s/kubelet-client.crt".file
+    systemd.services.kubelet.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/kubelet.crt"
+      "homelab-k8s/kubelet-client.crt"
     ];
-    systemd.services.kube-proxy.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/kube-proxy-client.crt".file
+    systemd.services.kube-proxy.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/kube-proxy-client.crt"
     ];
-    systemd.services.flannel.restartTriggers = [
-      config.age.secrets."common/k8s-pki/ca.crt".file
-      config.age.secrets."homelab-k8s/flannel-client.crt".file
-      config.age.secrets."homelab-k8s/flannel-etcd-client.crt".file
+    systemd.services.flannel.restartTriggers = secretTriggers [
+      "common/k8s-pki/ca.crt"
+      "homelab-k8s/flannel-client.crt"
+      "homelab-k8s/flannel-etcd-client.crt"
     ];
-    systemd.services.etcd.restartTriggers = [
-      config.age.secrets."homelab-k8s/etcd/server.crt".file
-      config.age.secrets."homelab-k8s/etcd/peer.crt".file
-      config.age.secrets."common/k8s-pki/etcd/ca.crt".file
+    systemd.services.etcd.restartTriggers = secretTriggers [
+      "homelab-k8s/etcd/server.crt"
+      "homelab-k8s/etcd/peer.crt"
+      "common/k8s-pki/etcd/ca.crt"
     ];
 
     assertions = let
