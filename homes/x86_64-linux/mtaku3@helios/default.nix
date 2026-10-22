@@ -25,11 +25,12 @@ with lib.capybara; {
             MEM0_API_KEY=$(cat ${config.age.secrets."cc-secrets/mem0-api-key".path})
             export MEM0_API_KEY
           '';
+          gateway = {
+            baseUrl = "https://api.cliproxy.mtaku3.com";
+            apiKeyFile = config.age.secrets."cc-secrets/cliproxy-api-key".path;
+          };
         };
-        claude-swap = {
-          enable = true;
-          autoSwitch = true;
-        };
+        claude-swap = disabled;
         codex = {
           enable = true;
           agentsFile = ./agents/AGENTS.md;

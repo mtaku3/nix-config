@@ -29,6 +29,12 @@ with lib.capybara; let
         exit 127
       fi
 
+      ${optionalString (cfg.gateway.baseUrl != null && cfg.gateway.apiKeyFile != null) ''
+        ANTHROPIC_BASE_URL=${escapeShellArg cfg.gateway.baseUrl}
+        ANTHROPIC_AUTH_TOKEN=$(cat ${escapeShellArg cfg.gateway.apiKeyFile})
+        export ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN
+      ''}
+
       ${cfg.preStart}
 
       exec "$REAL" "$@"
@@ -77,9 +83,40 @@ in {
         before claude-code runs.
       '';
     };
+
+    gateway = {
+      baseUrl = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          LLM gateway (e.g. CLIProxyAPI) the wrapper points claude-code at via
+          ANTHROPIC_BASE_URL. Give the origin without `/v1`; claude-code
+          appends the API path itself. Null leaves claude-code talking to
+          api.anthropic.com.
+        '';
+      };
+
+      apiKeyFile = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          File holding the gateway API key, typically an agenix secret path.
+          The wrapper exports its contents as ANTHROPIC_AUTH_TOKEN (sent as
+          `Authorization: Bearer`), which unlike ANTHROPIC_API_KEY does not
+          prompt for approval in interactive sessions.
+        '';
+      };
+    };
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.gateway.baseUrl == null || cfg.gateway.apiKeyFile != null;
+        message = "capybara.app.dev.claude-code.gateway.apiKeyFile must be set when gateway.baseUrl is set";
+      }
+    ];
+
     # claude-code is installed via the native installer
     # (curl -fsSL https://claude.ai/install.sh | bash) so it can self-update.
     # The installer drops versioned binaries under ~/.local/share/claude/versions/
