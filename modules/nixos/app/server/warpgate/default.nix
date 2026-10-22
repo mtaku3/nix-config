@@ -174,6 +174,18 @@ in {
       # A new peer container is a new namespace; follow it.
       partOf = ["docker-${peer}.service"];
       restartTriggers = [warpgateConfig];
+      # The peer's unit is up as soon as `docker run` starts (it may still be
+      # pulling), but joining its namespace needs the container itself.
+      serviceConfig.ExecStartPre = [
+        (pkgs.writeShellScript "wait-for-${peer}" ''
+          for _ in $(seq 120); do
+            [ "$(${docker} inspect -f '{{.State.Running}}' ${peer} 2>/dev/null)" = true ] && exit 0
+            sleep 1
+          done
+          echo "${peer} is not running" >&2
+          exit 1
+        '')
+      ];
     };
   };
 }
