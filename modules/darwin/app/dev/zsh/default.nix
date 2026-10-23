@@ -11,7 +11,7 @@ with lib.capybara; let
 in {
   config = mkIf zshEnabled {
     environment.etc."zshrc".text = ''
-      ${optionalString config.homebrew.enable "eval \"$(${config.homebrew.brewPrefix}/brew shellenv)\""}
+      ${optionalString config.homebrew.enable "eval \"$(${config.homebrew.prefix}/bin/brew shellenv)\""}
     '';
   };
 }
