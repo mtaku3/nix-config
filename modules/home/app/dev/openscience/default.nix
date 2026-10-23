@@ -113,10 +113,7 @@ in {
     systemd.user.tmpfiles.rules = ["d ${workDir} 0755 - - -"];
 
     capybara.impermanence.directories = [
-      {
-        directory = ".openscience";
-        method = "symlink";
-      }
+      ".openscience"
       ".config/openscience"
       ".local/share/openscience"
       ".local/state/openscience"

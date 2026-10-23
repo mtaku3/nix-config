@@ -77,10 +77,7 @@ in {
     '';
 
     capybara.impermanence.directories = [
-      {
-        directory = ".t3";
-        method = "symlink";
-      }
+      ".t3"
     ];
   };
 }

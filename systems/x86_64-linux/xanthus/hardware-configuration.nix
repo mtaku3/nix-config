@@ -30,12 +30,20 @@
   };
   boot.initrd.luks.devices.cryptroot = {
     device = "/dev/disk/by-uuid/3d2083bf-e812-4880-a391-a2ab3e51f500";
-    preLVM = false;
   };
 
-  boot.initrd.postResumeCommands = lib.mkAfter ''
-    zfs rollback -r rpool/local/root@blank
-  '';
+  # Erase the root dataset on every boot. Runs after the pool is imported and
+  # before it is mounted as /sysroot.
+  boot.initrd.systemd.services.rollback = {
+    description = "Roll back the root dataset to its blank snapshot";
+    wantedBy = ["initrd.target"];
+    after = ["zfs-import-rpool.service"];
+    before = ["sysroot.mount"];
+    path = [config.boot.zfs.package];
+    unitConfig.DefaultDependencies = "no";
+    serviceConfig.Type = "oneshot";
+    script = "zfs rollback -r rpool/local/root@blank";
+  };
 
   fileSystems."/" = {
     device = "rpool/local/root";

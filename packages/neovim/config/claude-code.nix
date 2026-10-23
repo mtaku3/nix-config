@@ -4,15 +4,10 @@
   config,
   ...
 }: {
-  imports = [
-    (lib.nixvim.plugins.mkNeovimPlugin {
-      name = "claudecode";
-      package = "claudecode-nvim";
-      maintainers = [];
-    })
-  ];
-
   config = {
+    # claude-code comes from its native installer, not nixpkgs.
+    dependencies.claude-code.enable = false;
+
     plugins.claudecode = {
       enable = true;
 

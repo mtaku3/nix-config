@@ -10,10 +10,7 @@ in {
   config = {
     # Persist docker files (rootless mode)
     capybara.impermanence.directories = [
-      {
-        directory = ".local/share/docker";
-        method = "symlink";
-      }
+      ".local/share/docker"
     ];
   };
 }
