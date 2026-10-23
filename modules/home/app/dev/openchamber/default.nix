@@ -97,16 +97,12 @@ in {
       Install.WantedBy = ["default.target"];
     };
 
-    capybara.impermanence.directories =
-      map (directory: {
-        inherit directory;
-        method = "symlink";
-      }) [
-        ".openchamber"
-        ".config/openchamber"
-        ".config/opencode"
-        ".local/share/opencode"
-        ".local/state/opencode"
-      ];
+    capybara.impermanence.directories = [
+      ".openchamber"
+      ".config/openchamber"
+      ".config/opencode"
+      ".local/share/opencode"
+      ".local/state/opencode"
+    ];
   };
 }

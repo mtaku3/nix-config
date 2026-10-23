@@ -63,7 +63,7 @@ with lib.capybara; {
 
     impermanence = {
       enable = true;
-      name = "/persist/home/mtaku3";
+      name = "/persist";
       directories = [
         "Downloads"
         "Music"
@@ -78,7 +78,6 @@ with lib.capybara; {
       files = [
         ".local/state/nvim/trust"
       ];
-      allowOther = true;
     };
 
     agenix = {

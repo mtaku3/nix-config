@@ -119,10 +119,7 @@ in {
     };
 
     capybara.impermanence.directories = [
-      {
-        directory = ".codex";
-        method = "symlink";
-      }
+      ".codex"
       ".hindsight"
     ];
   };
