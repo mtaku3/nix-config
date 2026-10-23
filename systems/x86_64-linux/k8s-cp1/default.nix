@@ -60,18 +60,6 @@ with lib.capybara; {
   # stay on the 6.12 LTS line it builds against.
   boot.kernelPackages = pkgs.linuxPackages_6_12;
 
-  # nixos-26.05 ships Kubernetes 1.36, but the control plane may only move one
-  # minor at a time. Hold 1.35 until the cluster has run on it, then drop this.
-  services.kubernetes.package = pkgs.kubernetes.overrideAttrs (finalAttrs: _: {
-    version = "1.35.9";
-    src = pkgs.fetchFromGitHub {
-      owner = "kubernetes";
-      repo = "kubernetes";
-      tag = "v${finalAttrs.version}";
-      hash = "sha256-y7GR3hDcWiFBbpJBAGTsTM70jqo7jss4Flqb9udhnCs=";
-    };
-  });
-
   # etcd's member was bootstrapped under the node's old address; keep the
   # name so the existing data directory still matches.
   services.etcd = {
