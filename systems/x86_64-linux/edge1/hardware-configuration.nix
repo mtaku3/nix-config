@@ -71,5 +71,10 @@
     enableIPv6 = false;
   };
 
+  # Since 26.05 the scripted address units are only wanted by their device,
+  # and lo has none, so network-addresses-lo never starts and the public IP
+  # above stays unassigned. Pull it in with the network like 25.11 did.
+  systemd.services.network-addresses-lo.wantedBy = ["network.target"];
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
