@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   modulesPath,
   inputs,
@@ -27,9 +28,18 @@
   };
   boot.zfs.devNodes = "/dev/disk/by-path";
 
-  boot.initrd.postResumeCommands = lib.mkAfter ''
-    zfs rollback -r rpool/local/root@blank
-  '';
+  # Erase the root dataset on every boot. Runs after the pool is imported and
+  # before it is mounted as /sysroot.
+  boot.initrd.systemd.services.rollback = {
+    description = "Roll back the root dataset to its blank snapshot";
+    wantedBy = ["initrd.target"];
+    after = ["zfs-import-rpool.service"];
+    before = ["sysroot.mount"];
+    path = [config.boot.zfs.package];
+    unitConfig.DefaultDependencies = "no";
+    serviceConfig.Type = "oneshot";
+    script = "zfs rollback -r rpool/local/root@blank";
+  };
 
   fileSystems."/persist".neededForBoot = true;
   fileSystems."/home".neededForBoot = true;
