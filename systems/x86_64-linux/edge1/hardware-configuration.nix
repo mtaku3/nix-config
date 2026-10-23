@@ -73,8 +73,13 @@
 
   # Since 26.05 the scripted address units are only wanted by their device,
   # and lo has none, so network-addresses-lo never starts and the public IP
-  # above stays unassigned. Pull it in with the network like 25.11 did.
-  systemd.services.network-addresses-lo.wantedBy = ["network.target"];
+  # above stays unassigned. Pull it in with the network like 25.11 did, and
+  # order it before network.target so the NetBird containers (which reach
+  # the management server through that IP) only start once it is there.
+  systemd.services.network-addresses-lo = {
+    wantedBy = ["network.target"];
+    before = ["network.target"];
+  };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
