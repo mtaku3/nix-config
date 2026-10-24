@@ -21,13 +21,16 @@ in {
   config = mkIf cfg.enable {
     services.netbird = {
       # Match the self-hosted server version; nixpkgs lags behind it.
-      package = pkgs.unstable.netbird.overrideAttrs (finalAttrs: _: {
-        version = "0.81.3";
+      # Built with Go 1.27: CVE-2026-111943 (the compromised eMudhra
+      # intermediates) is fixed in crypto/x509 as of Go 1.26.10 / 1.27.3, and
+      # unstable's go_1_26 is still 1.26.9. Drop the override once it isn't.
+      package = (pkgs.unstable.netbird.override {buildGoModule = pkgs.unstable.buildGo127Module;}).overrideAttrs (finalAttrs: _: {
+        version = "0.81.4";
         src = pkgs.fetchFromGitHub {
           owner = "netbirdio";
           repo = "netbird";
           tag = "v${finalAttrs.version}";
-          hash = "sha256-MGlUFuF11CQClB5kmJ4TTLpO3rwuCeNmjgKfOUxVvE8=";
+          hash = "sha256-TeogciNE+STwCaE99smcWXrgKwAkkg79LcrkSDWLpWA=";
         };
         vendorHash = "sha256-e6gG99OhfYcygQIqKyC9M4TajbH/6+L/IoMa3lzoq5k=";
         # Only the UI build uses the frontend dependencies.
