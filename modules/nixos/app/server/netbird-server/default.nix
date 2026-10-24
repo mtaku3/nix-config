@@ -147,7 +147,7 @@ in {
     };
 
     versions = {
-      netbird = mkOpt str "0.81.3" "netbird-server and reverse-proxy image tag";
+      netbird = mkOpt str "0.81.4" "netbird-server and reverse-proxy image tag";
       dashboard = mkOpt str "v2.95.0" "Dashboard image tag";
       traefik = mkOpt str "v3.7.16" "Traefik image tag";
       crowdsec = mkOpt str "v1.8.1" "CrowdSec image tag";
