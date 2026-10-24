@@ -102,8 +102,14 @@ in {
         proxyClientCertFile = host "front-proxy-client.crt";
         proxyClientKeyFile = host "front-proxy-client.key";
 
+        # Aggregated API servers (e.g. metrics-server) read these back from
+        # extension-apiserver-authentication to trust the proxied identity.
         extraOpts = concatStringsSep " " [
           "--requestheader-client-ca-file=${ca "front-proxy-ca.crt"}"
+          "--requestheader-username-headers=X-Remote-User"
+          "--requestheader-group-headers=X-Remote-Group"
+          "--requestheader-extra-headers-prefix=X-Remote-Extra-"
+          "--requestheader-allowed-names=front-proxy-client"
         ];
       };
 
