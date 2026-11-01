@@ -1,0 +1,62 @@
+name: Update flake.lock
+
+on:
+  schedule:
+    # Every Monday at 04:00 JST (Sunday 19:00 UTC).
+    - cron: "0 19 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-flake-lock
+  cancel-in-progress: false
+
+jobs:
+  update-flake-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # No flake input points at the secrets submodule; it is only read
+          # through `.?submodules=1` when evaluating hosts, which
+          # `nix flake update` never does.
+          submodules: false
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v23
+
+      - name: Update flake.lock and open a pull request
+        uses: DeterminateSystems/update-flake-lock@v29
+        with:
+          # A PAT or GitHub App token makes the PR trigger other workflows;
+          # PRs opened with the default GITHUB_TOKEN do not.
+          token: ${{ secrets.FLAKE_UPDATE_TOKEN || github.token }}
+          branch: ci/update-flake-lock
+          commit-msg: "chore(flake): update flake.lock"
+          pr-title: "chore(flake): update flake.lock"
+          pr-labels: |
+            dependencies
+          pr-body: |
+            Automated weekly `nix flake update` by the [update-flake-lock](https://github.com/DeterminateSystems/update-flake-lock) GitHub Action.
+
+            ### Changed inputs
+
+            ```
+            {{ env.GIT_COMMIT_MESSAGE }}
+            ```
+
+            ### Before merging
+
+            This workflow does not evaluate or build any host (that needs the `secrets` submodule). Check locally:
+
+            ```sh
+            gh pr checkout <this PR>
+            git submodule update --init
+            nix flake check --no-build ".?submodules=1#"
+            ```
+
+            If no `FLAKE_UPDATE_TOKEN` secret is set, other workflows do not run on this PR; close and re-open it to trigger them.
