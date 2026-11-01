@@ -30,7 +30,6 @@ with lib.capybara; {
             apiKeyFile = config.age.secrets."cc-secrets/cliproxy-api-key".path;
           };
         };
-        claude-swap = disabled;
         codex = {
           enable = true;
           agentsFile = ./agents/AGENTS.md;
@@ -42,14 +41,11 @@ with lib.capybara; {
             export MEM0_API_KEY
           '';
         };
-        paseo = disabled;
-        openscience = disabled;
         openchamber = disabled;
         t3code = {
           enable = true;
           channel = "nightly";
         };
-        openclaw = disabled;
         zsh = {
           enable = true;
         };
