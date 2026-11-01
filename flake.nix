@@ -6,12 +6,6 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    # First-party OpenClaw packaging. Brings pkgs.openclaw / pkgs.openclawPackages
-    # via its overlay and the programs.openclaw home-manager module. Its nixpkgs
-    # is deliberately not followed: it pins nixos-unstable and packages openclaw
-    # against it.
-    nix-openclaw.url = "github:openclaw/nix-openclaw";
-
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
