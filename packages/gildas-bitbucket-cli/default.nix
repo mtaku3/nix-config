@@ -5,6 +5,7 @@
 }:
 pkgs.buildGo126Module rec {
   pname = "gildas-bitbucket-cli";
+  # renovate: datasource=github-releases depName=gildas/bitbucket-cli extractVersion=^v(?<version>.+)$
   version = "0.18.4";
 
   src = pkgs.fetchFromGitHub {

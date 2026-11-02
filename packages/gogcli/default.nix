@@ -5,6 +5,7 @@
 }:
 pkgs.buildGo126Module rec {
   pname = "gogcli";
+  # renovate: datasource=github-releases depName=openclaw/gogcli extractVersion=^v(?<version>.+)$
   version = "0.43.0";
 
   src = pkgs.fetchFromGitHub {

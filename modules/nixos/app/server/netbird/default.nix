@@ -25,6 +25,7 @@ in {
       # intermediates) is fixed in crypto/x509 as of Go 1.26.10 / 1.27.3, and
       # unstable's go_1_26 is still 1.26.9. Drop the override once it isn't.
       package = (pkgs.unstable.netbird.override {buildGoModule = pkgs.unstable.buildGo127Module;}).overrideAttrs (finalAttrs: _: {
+        # renovate: datasource=github-releases depName=netbirdio/netbird extractVersion=^v(?<version>.+)$
         version = "0.81.4";
         src = pkgs.fetchFromGitHub {
           owner = "netbirdio";
