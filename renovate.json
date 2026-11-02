@@ -6,5 +6,22 @@
     "lockFileMaintenance": {
       "enabled": true
     }
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Versions pinned by hand in Nix expressions, annotated with a `# renovate:` comment on the line above. Only the version string is bumped; the src hash, vendorHash or image digest next to it must be refreshed separately.",
+      "managerFilePatterns": ["/\\.nix$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\n[^\"\\n]*\"(?<currentValue>[^\"]+)\""
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "The NetBird client must match the self-hosted server version.",
+      "matchDepNames": ["netbirdio/netbird", "netbirdio/netbird-server"],
+      "groupName": "netbird"
+    }
+  ]
 }
