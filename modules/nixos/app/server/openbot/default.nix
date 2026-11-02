@@ -83,6 +83,9 @@ with lib.capybara; let
       xauth
       xdpyinfo
       xvfb-run
+      # Not in packages.txt: the Claude sandbox, which an agent's Workspace
+      # only level needs, runs bubblewrap and socat.
+      socat
     ])
     ++ [
       "/run/wrappers"
@@ -140,8 +143,8 @@ in {
     };
     users.groups.${user} = {};
 
-    # The Electron libraries of packages.txt, and libsecret, which Electron
-    # loads for the keyring.
+    # The libraries of packages.txt: Electron's, with libsecret, which it
+    # loads for the keyring, and those of the remote desktop runtime.
     programs.nix-ld = {
       enable = true;
       libraries = with pkgs; [
@@ -168,6 +171,15 @@ in {
         libxfixes
         libxrandr
         libxcb
+        # The remote desktop runtime (Sunshine).
+        curl
+        libcap
+        libevdev
+        libpulseaudio
+        libva
+        libxtst
+        numactl
+        openssl
       ];
     };
 
