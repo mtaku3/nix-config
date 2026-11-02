@@ -23,7 +23,9 @@ with lib.capybara; {
         enable = true;
         packages = with pkgs; [
           git
-          # npx, for MCP servers such as esa's (@esaio/esa-mcp-server).
+          # npx, for MCP servers such as esa's (@esaio/esa-mcp-server). OpenBot
+          # gives an MCP server only the environment set in its MCP settings,
+          # so tokens such as esa's go there.
           nodejs
           # gog with its file keyring, as the gogcli home module sets it up.
           # Also for `sudo -u openbot gog auth ...`, which sets up its account.
@@ -40,7 +42,6 @@ with lib.capybara; {
         environment.ANTHROPIC_BASE_URL = "https://api.cliproxy.mtaku3.com";
         environmentFiles = [
           config.age.secrets."openbot/cliproxy-env".path # ANTHROPIC_AUTH_TOKEN
-          config.age.secrets."openbot/esa-env".path # ESA_ACCESS_TOKEN
         ];
       };
     };
