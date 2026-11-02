@@ -120,9 +120,9 @@ in {
       `ANTHROPIC_BASE_URL` for an LLM gateway.
     '';
 
-    environmentFile = mkOpt (nullOr str) null ''
-      File of `KEY=value` lines added to the environment, for secrets such as
-      the gateway's `ANTHROPIC_AUTH_TOKEN`; typically an agenix secret. The
+    environmentFiles = mkOpt (listOf str) [] ''
+      Files of `KEY=value` lines added to the environment, for secrets such as
+      the gateway's `ANTHROPIC_AUTH_TOKEN`; typically agenix secrets. The
       agents can read these values too.
     '';
   };
@@ -234,7 +234,7 @@ in {
         MemoryMax = "90%";
         OOMScoreAdjust = -500;
         OOMPolicy = "continue";
-        EnvironmentFile = mkIf (cfg.environmentFile != null) cfg.environmentFile;
+        EnvironmentFile = cfg.environmentFiles;
 
         # Not upstream: what the agents can read beyond the user's own files.
         # The other users' homes, the network filesystems that are mounted
