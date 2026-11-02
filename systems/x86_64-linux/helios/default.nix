@@ -19,6 +19,12 @@ with lib.capybara; {
       ssh = enabled;
       fail2ban = enabled;
       netbird = enabled;
+      openbot = {
+        enable = true;
+        # Claude through CLIProxyAPI, with a key of the bot's own.
+        environment.ANTHROPIC_BASE_URL = "https://api.cliproxy.mtaku3.com";
+        environmentFile = config.age.secrets."openbot/env".path;
+      };
     };
 
     app.dev = {
