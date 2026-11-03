@@ -152,7 +152,7 @@ in {
       # renovate: datasource=docker depName=netbirdio/dashboard
       dashboard = mkOpt str "v2.95.0" "Dashboard image tag";
       # renovate: datasource=docker depName=traefik
-      traefik = mkOpt str "v3.7.16" "Traefik image tag";
+      traefik = mkOpt str "v3.7.17" "Traefik image tag";
       # renovate: datasource=docker depName=crowdsecurity/crowdsec
       crowdsec = mkOpt str "v1.8.1" "CrowdSec image tag";
     };
