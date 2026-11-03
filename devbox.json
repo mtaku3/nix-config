@@ -1,8 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.12.0/.schema/devbox.schema.json",
   "packages": [
-    "husky@latest",
-    "lint-staged@latest",
     "ormolu@latest",
     "alejandra@latest",
     "stylua@latest",
