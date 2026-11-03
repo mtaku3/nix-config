@@ -132,7 +132,18 @@ in {
       after = ["network-online.target"];
       wantedBy = ["multi-user.target"];
       path = servicePath;
-      environment = cfg.environment // {HOME = home;};
+      environment =
+        {
+          # Not upstream's default (owner): a session-less request from this
+          # machine, which includes every bot's shell, may then change
+          # settings, keys, MCP servers or webhooks. With service it needs a
+          # paired session, as from elsewhere (docs/self-hosting.md, Loopback
+          # trust). `openmausbot pair` and `sessions` are refused too: pair
+          # from Settings > Remote access instead.
+          OMB_LOOPBACK_TRUST = "service";
+        }
+        // cfg.environment
+        // {HOME = home;};
       # The tunnel's address is reserved by `openmausbot login`, which needs an
       # emailed code: start the service after it.
       unitConfig.ConditionPathExists = mkIf (elem "--tunnel" cfg.args) "${home}/.openmausbot/tunnel-account.json";
