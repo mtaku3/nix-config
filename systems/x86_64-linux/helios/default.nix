@@ -44,6 +44,27 @@ with lib.capybara; {
           config.age.secrets."openbot/cliproxy-env".path # ANTHROPIC_AUTH_TOKEN
         ];
       };
+      openmausbot = {
+        enable = true;
+        packages = with pkgs; [
+          # gog with its file keyring, as the gogcli home module sets it up.
+          # Also for `sudo -iu openmausbot gog auth ...`, which sets up its
+          # account.
+          (writeShellScriptBin "gog" ''
+            export GOG_KEYRING_BACKEND=''${GOG_KEYRING_BACKEND:-file}
+            if [ -z "''${GOG_KEYRING_PASSWORD-}" ] && [ -r ${config.age.secrets."openmausbot/gog-keyring-password".path} ]; then
+              GOG_KEYRING_PASSWORD="$(cat ${config.age.secrets."openmausbot/gog-keyring-password".path})"
+              export GOG_KEYRING_PASSWORD
+            fi
+            exec ${getExe pkgs.capybara.gogcli} "$@"
+          '')
+        ];
+        # Every Claude bot through CLIProxyAPI, with a key of the bot's own.
+        environment.OMB_ANTHROPIC_API_URL = "https://api.cliproxy.mtaku3.com";
+        environmentFiles = [
+          config.age.secrets."openmausbot/cliproxy-env".path # OMB_ANTHROPIC_API_KEY
+        ];
+      };
     };
 
     app.dev = {
@@ -149,6 +170,12 @@ with lib.capybara; {
     mode = "400";
     owner = "openbot";
     group = "openbot";
+  };
+  # Read by the gog wrapper of the OpenMausBot server, as its user.
+  age.secrets."openmausbot/gog-keyring-password" = {
+    mode = "400";
+    owner = "openmausbot";
+    group = "openmausbot";
   };
   age.secrets."sshfs/id_ed25519_t4" = {
     mode = "400";
