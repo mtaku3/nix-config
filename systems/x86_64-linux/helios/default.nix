@@ -19,31 +19,6 @@ with lib.capybara; {
       ssh = enabled;
       fail2ban = enabled;
       netbird = enabled;
-      openbot = {
-        enable = true;
-        packages = with pkgs; [
-          git
-          # npx, for MCP servers such as esa's (@esaio/esa-mcp-server). OpenBot
-          # gives an MCP server only the environment set in its MCP settings,
-          # so tokens such as esa's go there.
-          nodejs
-          # gog with its file keyring, as the gogcli home module sets it up.
-          # Also for `sudo -u openbot gog auth ...`, which sets up its account.
-          (writeShellScriptBin "gog" ''
-            export GOG_KEYRING_BACKEND=''${GOG_KEYRING_BACKEND:-file}
-            if [ -z "''${GOG_KEYRING_PASSWORD-}" ] && [ -r ${config.age.secrets."openbot/gog-keyring-password".path} ]; then
-              GOG_KEYRING_PASSWORD="$(cat ${config.age.secrets."openbot/gog-keyring-password".path})"
-              export GOG_KEYRING_PASSWORD
-            fi
-            exec ${getExe pkgs.capybara.gogcli} "$@"
-          '')
-        ];
-        # Claude through CLIProxyAPI, with a key of the bot's own.
-        environment.ANTHROPIC_BASE_URL = "https://api.cliproxy.mtaku3.com";
-        environmentFiles = [
-          config.age.secrets."openbot/cliproxy-env".path # ANTHROPIC_AUTH_TOKEN
-        ];
-      };
       openmausbot = {
         enable = true;
         packages = with pkgs; [
@@ -164,12 +139,6 @@ with lib.capybara; {
     mode = "400";
     owner = "mtaku3";
     group = "users";
-  };
-  # Read by the gog wrapper of the OpenBot server, as its user.
-  age.secrets."openbot/gog-keyring-password" = {
-    mode = "400";
-    owner = "openbot";
-    group = "openbot";
   };
   # Read by the gog wrapper of the OpenMausBot server, as its user.
   age.secrets."openmausbot/gog-keyring-password" = {
