@@ -44,6 +44,19 @@ with lib.capybara; {
           config.age.secrets."openbot/cliproxy-env".path # ANTHROPIC_AUTH_TOKEN
         ];
       };
+      rakazo = {
+        enable = true;
+        publicUrl = "https://rakazo.mtaku3.com";
+        # Published by edge1's NetBird reverse proxy, which reaches it over the
+        # tunnel. Rakazo's own sign-in guards it; signups are off.
+        bind = "100.81.200.198";
+        settings = {
+          # May add stdio MCP servers, such as esa's through npx.
+          RAKAZO_ADMIN_EMAILS = "m.taku3.1222@gmail.com";
+          MCP_STDIO_ENABLED = "true";
+          MCP_STDIO_ALLOWED_COMMANDS = "npx";
+        };
+      };
     };
 
     app.dev = {
