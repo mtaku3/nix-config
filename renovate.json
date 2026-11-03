@@ -1,15 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "devbox": {
-    "description": "devbox.json only holds local development tools; their updates aren't worth a PR.",
-    "enabled": false
-  },
+  "extends": ["github>mtaku3/renovate-config"],
   "nix": {
-    "enabled": true,
-    "lockFileMaintenance": {
-      "enabled": true
-    }
+    "enabled": true
   },
   "customManagers": [
     {
