@@ -27,8 +27,6 @@ with lib.capybara; {
           # account.
           (writeShellScriptBin "gog" ''
             export GOG_KEYRING_BACKEND=''${GOG_KEYRING_BACKEND:-file}
-            # The account a command without --account uses.
-            export GOG_ACCOUNT=''${GOG_ACCOUNT:-me@mtaku3.com}
             if [ -z "''${GOG_KEYRING_PASSWORD-}" ] && [ -r ${config.age.secrets."openmausbot/gog-keyring-password".path} ]; then
               GOG_KEYRING_PASSWORD="$(cat ${config.age.secrets."openmausbot/gog-keyring-password".path})"
               export GOG_KEYRING_PASSWORD
