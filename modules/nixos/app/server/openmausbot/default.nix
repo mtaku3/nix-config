@@ -141,6 +141,9 @@ in {
           # trust). `openmausbot pair` and `sessions` are refused too: pair
           # from Settings > Remote access instead.
           OMB_LOOPBACK_TRUST = "service";
+          # The bots' browser. The Chrome for Testing that the browser install
+          # downloads is linked for FHS distros and does not start here.
+          OMB_CHROME_PATH = getExe pkgs.chromium;
         }
         // cfg.environment
         // {HOME = home;};
