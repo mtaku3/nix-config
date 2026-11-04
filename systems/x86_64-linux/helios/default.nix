@@ -33,6 +33,9 @@ with lib.capybara; {
             fi
             exec ${getExe pkgs.capybara.gogcli} "$@"
           '')
+          # `bb`, with its profile in ~/.config/bitbucket of the openmausbot
+          # user (`sudo -iu openmausbot bb profile create ... --no-vault`).
+          capybara.gildas-bitbucket-cli
         ];
         # Every Claude bot through CLIProxyAPI, with a key of the bot's own.
         environment.OMB_ANTHROPIC_API_URL = "https://api.cliproxy.mtaku3.com";
