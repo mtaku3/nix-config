@@ -78,7 +78,7 @@ in {
     sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
     network = mkOpt str nbServer.network "Docker network the NetBird peer joins to reach the management server";
     # renovate: datasource=docker depName=ghcr.io/warp-tech/warpgate
-    version = mkOpt str "0.30.0" "Warpgate image tag";
+    version = mkOpt str "0.30.4" "Warpgate image tag";
     google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
   };
 
