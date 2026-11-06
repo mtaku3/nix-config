@@ -336,6 +336,26 @@
         "type": "github"
       }
     },
+    "openmausbot": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793983337,
+        "narHash": "sha256-t0L674ajEKn1ps4Q8vWFTq12e5aCfLo/CfeeVd0D7eg=",
+        "ref": "refs/heads/main",
+        "rev": "68f148627af777cf25434c2d1110e92e252bea41",
+        "revCount": 10,
+        "type": "git",
+        "url": "https://github.com/mtaku3/openmausbot"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/mtaku3/openmausbot"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -347,6 +367,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
+        "openmausbot": "openmausbot",
         "snowfall-lib": "snowfall-lib",
         "sops-nix": "sops-nix",
         "unstable": "unstable"

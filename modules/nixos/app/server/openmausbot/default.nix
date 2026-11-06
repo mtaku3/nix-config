@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  inputs,
   ...
 }:
 with lib;
@@ -10,35 +11,19 @@ with lib.capybara; let
   inherit (cfg) user;
   home = "/var/lib/${user}";
   prefix = "${home}/.local";
-  bin = "${prefix}/bin/openmausbot";
 
   # OpenMausBot's server as its VPS guide sets it up (docs/deploy-vps.md):
   # an unprivileged user of its own runs setup, the engine CLIs and the
-  # service; the release is npm-installed into that user's ~/.local; and a
-  # systemd unit runs `openmausbot serve` from there. The data lives in
+  # service, and a systemd unit runs `openmausbot serve`. The data lives in
   # ~/.openmausbot and the engines' logins in their own dot directories, so
-  # the whole home persists. The release is not pinned: the guide's update
-  # (stop, npm install a version, start) runs daily with the latest one.
+  # the whole home persists. Not the guide: the server is the pinned, patched
+  # package of the openmausbot flake input instead of an npm release, so an
+  # update is a version bump there followed by a rebuild here.
   #
   # The bots run as this user on this machine, through its `claude` CLI, so
   # they see everything the user can. Give them credentials of their own.
   npm = "${cfg.nodejs}/bin/npm";
   install = pkg: "${npm} install --global --prefix ${prefix} ${pkg}";
-
-  # Run as root: the update stops and starts the service around the install.
-  update = pkgs.writeShellScript "openmausbot-update" ''
-    set -euo pipefail
-    latest=$(${pkgs.util-linux}/bin/runuser -u ${user} -- ${npm} view openmausbot version)
-    current=$(${pkgs.jq}/bin/jq -r .version ${prefix}/lib/node_modules/openmausbot/package.json 2>/dev/null || true)
-    if [ "$latest" = "$current" ]; then
-      echo "openmausbot $current is the latest"
-      exit 0
-    fi
-    echo "updating openmausbot $current -> $latest"
-    systemctl stop openmausbot.service
-    trap 'systemctl start openmausbot.service' EXIT
-    ${pkgs.util-linux}/bin/runuser -u ${user} -- ${install "openmausbot@${"$"}latest"}
-  '';
 
   servicePath =
     [cfg.nodejs pkgs.git pkgs.bashInteractive pkgs.coreutils]
@@ -52,12 +37,17 @@ in {
   options.capybara.app.server.openmausbot = with types; {
     enable = mkBoolOpt false "Whether to run an OpenMausBot server";
 
+    package = mkOpt package inputs.openmausbot.packages.${pkgs.stdenv.hostPlatform.system}.openmausbot ''
+      The OpenMausBot server: by default the patched build of the openmausbot
+      flake input (mtaku3/openmausbot).
+    '';
+
     user = mkOpt str "openmausbot" ''
       The user that runs OpenMausBot and its bots, made for it with its home in
       /var/lib/<user>.
     '';
 
-    nodejs = mkOpt package pkgs.nodejs_24 "Node.js (24 or newer) for the server and npm";
+    nodejs = mkOpt package pkgs.nodejs_24 "Node.js (24 or newer) for the bots and for npm, which installs the Claude engine";
 
     args = mkOpt (listOf str) ["--tunnel" "--no-pair"] ''
       Arguments of `openmausbot serve`. The default reaches it through the
@@ -94,22 +84,17 @@ in {
     programs.nix-ld.enable = true;
 
     # The CLI, for `sudo -iu openmausbot openmausbot login|pair|sessions|status`.
-    environment.systemPackages = [
-      (pkgs.runCommand "openmausbot-command" {} ''
-        mkdir -p $out/bin
-        ln -s ${bin} $out/bin/openmausbot
-      '')
-    ];
+    environment.systemPackages = [cfg.package];
 
-    # The first install: the release and the Claude engine, as the guide
-    # installs them. Claude Code updates itself in the same prefix.
+    # The first install of the Claude engine, as the guide installs it. Claude
+    # Code updates itself in the same prefix.
     systemd.services.openmausbot-install = {
-      description = "Install OpenMausBot and its Claude engine";
+      description = "Install OpenMausBot's Claude engine";
       wants = ["network-online.target"];
       after = ["network-online.target"];
       before = ["openmausbot.service"];
       requiredBy = ["openmausbot.service"];
-      unitConfig.ConditionPathExists = "!${bin}";
+      unitConfig.ConditionPathExists = "!${prefix}/bin/claude";
       # npm runs install scripts with sh.
       path = [cfg.nodejs pkgs.git pkgs.bash];
       environment.HOME = home;
@@ -117,10 +102,7 @@ in {
         Type = "oneshot";
         User = user;
         WorkingDirectory = home;
-        ExecStart = [
-          (install "openmausbot@latest")
-          (install "@anthropic-ai/claude-code")
-        ];
+        ExecStart = install "@anthropic-ai/claude-code";
         TimeoutStartSec = "15min";
       };
     };
@@ -153,7 +135,7 @@ in {
       serviceConfig = {
         User = user;
         WorkingDirectory = home;
-        ExecStart = escapeShellArgs ([bin "serve"] ++ cfg.args);
+        ExecStart = escapeShellArgs ([(getExe cfg.package) "serve"] ++ cfg.args);
         Restart = "always";
         RestartSec = 5;
         EnvironmentFile = cfg.environmentFiles;
@@ -164,30 +146,6 @@ in {
         ProtectHome = true;
         TemporaryFileSystem = "/mnt:ro";
         ProtectProc = "invisible";
-      };
-    };
-
-    # The guide's update, with the latest release.
-    systemd.services.openmausbot-update = {
-      description = "Update OpenMausBot";
-      wants = ["network-online.target"];
-      after = ["network-online.target"];
-      path = [cfg.nodejs pkgs.git pkgs.bash config.systemd.package];
-      environment.HOME = home;
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = update;
-        TimeoutStartSec = "15min";
-      };
-    };
-
-    systemd.timers.openmausbot-update = {
-      description = "Update OpenMausBot daily";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = "*-*-* 04:00";
-        RandomizedDelaySec = "1h";
-        Persistent = true;
       };
     };
 

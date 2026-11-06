@@ -53,6 +53,13 @@
       url = "github:nix-community/nixvim/nixos-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # OpenMausBot with local patches (private). Fetched with the GitHub
+    # credentials of whoever evaluates the flake.
+    openmausbot = {
+      url = "git+https://github.com/mtaku3/openmausbot";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: let
