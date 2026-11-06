@@ -34,15 +34,8 @@ with lib.capybara; {
             exec ${getExe pkgs.capybara.gogcli} "$@"
           '')
         ];
-        environment = {
-          # Every Claude bot through CLIProxyAPI, with a key of the bot's own.
-          OMB_ANTHROPIC_API_URL = "https://api.cliproxy.mtaku3.com";
-          # The Slack worker's relay token (patch 0001-trusted-relay of
-          # mtaku3/openmausbot). Lines it relays on behalf of this address are
-          # the owner's own requests; everyone else's stay information only.
-          OMB_RELAY_TOKEN_FILE = config.age.secrets."openmausbot/relay-token".path;
-          OMB_RELAY_OWNER_EMAIL = "m.taku3.1222@gmail.com";
-        };
+        # Every Claude bot through CLIProxyAPI, with a key of the bot's own.
+        environment.OMB_ANTHROPIC_API_URL = "https://api.cliproxy.mtaku3.com";
         environmentFiles = [
           config.age.secrets."openmausbot/cliproxy-env".path # OMB_ANTHROPIC_API_KEY
         ];
@@ -149,12 +142,6 @@ with lib.capybara; {
   };
   # Read by the gog wrapper of the OpenMausBot server, as its user.
   age.secrets."openmausbot/gog-keyring-password" = {
-    mode = "400";
-    owner = "openmausbot";
-    group = "openmausbot";
-  };
-  # Read by the OpenMausBot server. The Slack worker will need it too.
-  age.secrets."openmausbot/relay-token" = {
     mode = "400";
     owner = "openmausbot";
     group = "openmausbot";
