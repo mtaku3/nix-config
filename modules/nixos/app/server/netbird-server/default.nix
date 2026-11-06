@@ -148,7 +148,7 @@ in {
 
     versions = {
       # renovate: datasource=docker depName=netbirdio/netbird-server
-      netbird = mkOpt str "0.81.4" "netbird-server and reverse-proxy image tag";
+      netbird = mkOpt str "0.82.0" "netbird-server and reverse-proxy image tag";
       # renovate: datasource=docker depName=netbirdio/dashboard
       dashboard = mkOpt str "v2.95.0" "Dashboard image tag";
       # renovate: datasource=docker depName=traefik
