@@ -55,30 +55,12 @@
         }
       ];
     };
-    # The public IP lives on lo so the RTX can route LAN traffic for it here
-    # (RTX1210 has no hairpin NAT); Docker's DNAT matches any local address.
-    interfaces.lo.ipv4.addresses = [
-      {
-        address = "202.215.58.76";
-        prefixLength = 32;
-      }
-    ];
     defaultGateway = {
       address = "192.168.30.1";
       interface = "ens18";
     };
     nameservers = ["1.1.1.1" "1.0.0.1"];
     enableIPv6 = false;
-  };
-
-  # Since 26.05 the scripted address units are only wanted by their device,
-  # and lo has none, so network-addresses-lo never starts and the public IP
-  # above stays unassigned. Pull it in with the network like 25.11 did, and
-  # order it before network.target so the NetBird containers (which reach
-  # the management server through that IP) only start once it is there.
-  systemd.services.network-addresses-lo = {
-    wantedBy = ["network.target"];
-    before = ["network.target"];
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
