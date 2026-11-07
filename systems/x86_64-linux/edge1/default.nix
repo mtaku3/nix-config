@@ -37,6 +37,9 @@ with lib.capybara; {
         };
       };
 
+      # Passkey-only OIDC provider for the homelab, at id.mtaku3.com.
+      pocket-id = enabled;
+
       warpgate = {
         enable = true;
         externalHost = "warpgate.mtaku3.com";
