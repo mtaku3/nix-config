@@ -44,7 +44,7 @@ with lib.capybara; {
         enable = true;
         externalHost = "warpgate.mtaku3.com";
         # SSH and the web UI are published through the NetBird reverse proxy.
-        google.clientId = "810915113976-7rt2jve5vpn2d6vhd5v7d0ij9adm52bg.apps.googleusercontent.com";
+        pocketId.clientId = "0e0c333d-a939-4079-b0a4-ab9e0877f95f";
       };
     };
 

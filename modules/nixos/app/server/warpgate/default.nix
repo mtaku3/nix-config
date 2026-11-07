@@ -14,7 +14,7 @@ with lib.capybara; let
   # /data ownership.
   volume = "warpgate-data";
   volumePath = "/var/lib/docker/volumes/${volume}/_data";
-  secretPlaceholder = "@GOOGLE_CLIENT_SECRET@";
+  secretPlaceholder = "@POCKET_ID_CLIENT_SECRET@";
   peer = "warpgate-netbird";
   nbServer = config.capybara.app.server.netbird-server;
 
@@ -30,13 +30,15 @@ with lib.capybara; let
   warpgateConfig = (pkgs.formats.yaml {}).generate "warpgate.yaml" {
     external_host = cfg.externalHost;
     database_url = "sqlite:/data/db";
-    sso_providers = optional (cfg.google.clientId != "") {
-      name = "google";
-      label = "Google";
+    sso_providers = optional (cfg.pocketId.clientId != "") {
+      name = "pocket-id";
+      label = "Pocket ID";
       provider = {
-        type = "google";
-        client_id = cfg.google.clientId;
+        type = "custom";
+        client_id = cfg.pocketId.clientId;
         client_secret = secretPlaceholder;
+        issuer_url = cfg.pocketId.issuerUrl;
+        scopes = ["openid" "email" "profile"];
       };
     };
     ssh = {
@@ -79,7 +81,10 @@ in {
     network = mkOpt str nbServer.network "Docker network the NetBird peer joins to reach the management server";
     # renovate: datasource=docker depName=ghcr.io/warp-tech/warpgate
     version = mkOpt str "0.30.0" "Warpgate image tag";
-    google.clientId = mkOpt str "" "Google OAuth client ID; the secret comes from the warpgate/google-client-secret agenix file";
+    pocketId = {
+      clientId = mkOpt str "" "Pocket ID OIDC client ID; the secret comes from the warpgate/pocket-id-client-secret agenix file";
+      issuerUrl = mkOpt str "https://${config.capybara.app.server.pocket-id.domain}" "Pocket ID issuer URL";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -128,9 +133,9 @@ in {
       };
       script = ''
         install -m 0600 -o 1000 -g 1000 ${warpgateConfig} ${volumePath}/warpgate.yaml
-        ${optionalString (cfg.google.clientId != "") ''
+        ${optionalString (cfg.pocketId.clientId != "") ''
           ${pkgs.replace-secret}/bin/replace-secret ${secretPlaceholder} \
-            ${config.age.secrets."warpgate/google-client-secret".path} \
+            ${config.age.secrets."warpgate/pocket-id-client-secret".path} \
             ${volumePath}/warpgate.yaml
         ''}
       '';
