@@ -79,7 +79,9 @@ with lib.capybara; {
         termius = enabled;
         kube-cli = {
           enable = true;
-          masterAddress = "https://192.168.11.102:6443";
+          # helios no longer reaches k8s-cp1 directly; it is in the NetBird
+          # group k8s-admins, which is cluster-admin through the ClusterProxy.
+          clusterProxy = "homelab.netbird-kubeapi-proxy.peers.mtaku3.com";
         };
       };
     };
