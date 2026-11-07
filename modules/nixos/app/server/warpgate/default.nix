@@ -80,7 +80,7 @@ in {
     sshPort = mkOpt port 22 "Public SSH port (shown in connection instructions)";
     network = mkOpt str nbServer.network "Docker network the NetBird peer joins to reach the management server";
     # renovate: datasource=docker depName=ghcr.io/warp-tech/warpgate
-    version = mkOpt str "0.30.0" "Warpgate image tag";
+    version = mkOpt str "0.30.4" "Warpgate image tag";
     pocketId = {
       clientId = mkOpt str "" "Pocket ID OIDC client ID; the secret comes from the warpgate/pocket-id-client-secret agenix file";
       issuerUrl = mkOpt str "https://${config.capybara.app.server.pocket-id.domain}" "Pocket ID issuer URL";
