@@ -115,6 +115,11 @@ with lib.capybara; {
     alsa-lib
     cups
     krb5
+    # The rest of what Chrome builds downloaded by npm need, e.g. the one
+    # Playwright MCP runs through npx.
+    at-spi2-core # libatk-1.0, libatk-bridge-2.0, libatspi
+    libgbm
+    libxkbcommon
   ];
 
   services.journald.storage = "persistent";
