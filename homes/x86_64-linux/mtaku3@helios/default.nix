@@ -33,6 +33,7 @@ with lib.capybara; {
             export MEM0_API_KEY
           '';
         };
+        grok = enabled;
         openchamber = disabled;
         t3code = {
           enable = true;
