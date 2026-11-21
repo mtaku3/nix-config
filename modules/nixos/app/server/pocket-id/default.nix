@@ -15,7 +15,7 @@ in {
     domain = mkOpt str "id.${nbServer.baseDomain}" "Public hostname of Pocket ID; passkeys are bound to it, so it must not change";
     network = mkOpt str nbServer.network "Docker network shared with the edge Traefik";
     # renovate: datasource=docker depName=ghcr.io/pocket-id/pocket-id
-    version = mkOpt str "v2.19.2" "Pocket ID image tag";
+    version = mkOpt str "v2.19.3" "Pocket ID image tag";
   };
 
   config = mkIf cfg.enable {
