@@ -6,7 +6,7 @@
   ...
 }: let
   # renovate: datasource=docker depName=coredns/coredns
-  version = "1.10.1";
+  version = "1.15.0";
   cfg = config.services.kubernetes.addons.dns;
   ports = {
     dns = 10053;
